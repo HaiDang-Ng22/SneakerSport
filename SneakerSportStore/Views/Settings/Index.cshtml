@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "Cài đặt tài khoản";
+    var user = Model;
+}
+
+<h2>🔐 Cài đặt tài khoản</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div style="color: green">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div style="color: red">@TempData["Error"]</div>
+}
+
+<hr />
+<h3>👤 Thông tin cá nhân</h3>
+
+@using (Html.BeginForm("UpdateInfo", "Settings", FormMethod.Post))
+{
+    <input type="hidden" name="userId" value="@Session["UserID"]" />
+
+    <label>Họ tên:</label>
+    <input type="text" name="hoTen" value="@user.hoTen" class="form-control" />
+
+    <label>Email:</label>
+    <input type="email" name="email" value="@user.email" class="form-control" />
+
+    <label>Số điện thoại:</label>
+    <input type="text" name="soDienThoai" value="@user.soDienThoai" class="form-control" />
+
+    <label>Địa chỉ:</label>
+    <input type="text" name="diaChi" value="@user.diaChi" class="form-control" />
+
+    <br />
+    <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
+}
+
+<hr />
+<h3>🔑 Đổi mật khẩu</h3>
+
+@using (Html.BeginForm("ChangePassword", "Settings", FormMethod.Post))
+{
+    <input type="hidden" name="idToken" value="@Session["FirebaseToken"]" />
+
+    <label>Mật khẩu mới:</label>
+    <input type="password" name="newPassword" class="form-control" required />
+
+    <br />
+    <button type="submit" class="btn btn-warning">Đổi mật khẩu</button>
+}

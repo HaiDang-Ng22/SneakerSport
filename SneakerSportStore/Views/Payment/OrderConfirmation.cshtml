@@ -1,0 +1,16 @@
+﻿<link href="~/Content/OrderPay.css" rel="stylesheet" />
+<div class="order-confirmation-wrapper">
+    <div class="confirmation-container">
+        <h2>Xác nhận đơn hàng</h2>
+        <p class="success-message">@Model.SuccessMessage</p>
+
+        <img src="@Url.Content("~/Images/" + Model.ProductImage)" alt="@Model.ProductName" class="product-image" />
+
+        <p class="product-name">@Model.ProductName</p>
+        <p class="product-price">Giá: @String.Format("{0:N0}", Model.TotalAmount) VNĐ</p>
+
+        <p class="total-amount">Tổng tiền: @String.Format("{0:N0}", Model.TotalAmount) USD</p>
+
+        <a href="@Url.Action("Index", "Home")" class="return-button">Quay về Trang Chủ</a>
+    </div>
+</div>

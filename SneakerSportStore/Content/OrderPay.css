@@ -1,0 +1,80 @@
+﻿/* Định dạng chung cho OrderConfirmation */
+.order-confirmation-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+}
+
+    .order-confirmation-wrapper .confirmation-container {
+        background-color: #fff;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        text-align: center;
+    }
+
+        /* Định dạng cho tiêu đề */
+        .order-confirmation-wrapper .confirmation-container h2 {
+            color: #28a745;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+    /* Thông báo thành công */
+    .order-confirmation-wrapper .success-message {
+        font-size: 20px;
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    /* Định dạng cho hình ảnh sản phẩm */
+    .order-confirmation-wrapper .product-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    /* Định dạng tên sản phẩm */
+    .order-confirmation-wrapper .product-name {
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    /* Định dạng giá sản phẩm */
+    .order-confirmation-wrapper .product-price {
+        font-size: 20px;
+        color: #ea2d2d;
+        margin-bottom: 20px;
+    }
+
+    /* Định dạng cho tổng tiền */
+    .order-confirmation-wrapper .total-amount {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        margin-top: 15px;
+    }
+
+    /* Nút quay về trang chủ */
+    .order-confirmation-wrapper .return-button {
+        margin-top: 20px;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .order-confirmation-wrapper .return-button:hover {
+            background-color: #0056b3;
+        }

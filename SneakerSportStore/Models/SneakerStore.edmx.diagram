@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="dffa4356284c46b0a72f16fb78c4799b" Name="Diagram1" ZoomLevel="101">
+        <EntityTypeShape EntityType="Sneaker1Model.ChiTietDonDatHang" Width="1.5" PointX="5.25" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Sneaker1Model.DonDatHang" Width="1.5" PointX="3" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Sneaker1Model.Giay" Width="1.5" PointX="3" PointY="3.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Sneaker1Model.KhachHang" Width="1.5" PointX="0.75" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Sneaker1Model.LoaiGiay" Width="1.5" PointX="0.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="Sneaker1Model.NhaSanXuat" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Sneaker1Model.ThongSoKyThuat" Width="1.5" PointX="5.25" PointY="6.75" IsExpanded="true" />
+        <AssociationConnector Association="Sneaker1Model.FK__ChiTietDo__DonDa__5070F446" ManuallyRouted="false" />
+        <AssociationConnector Association="Sneaker1Model.FK__ChiTietDo__GiayI__5165187F" ManuallyRouted="false" />
+        <AssociationConnector Association="Sneaker1Model.FK__DonDatHan__Khach__4BAC3F29" ManuallyRouted="false" />
+        <AssociationConnector Association="Sneaker1Model.FK__Giay__LoaiGiayID__440B1D61" ManuallyRouted="false" />
+        <AssociationConnector Association="Sneaker1Model.FK__Giay__NhaSanXuat__4316F928" ManuallyRouted="false" />
+        <AssociationConnector Association="Sneaker1Model.FK__ThongSoKy__GiayI__46E78A0C" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

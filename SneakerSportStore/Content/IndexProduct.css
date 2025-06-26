@@ -1,0 +1,112 @@
+﻿/* Tổng thể */
+body {
+    background-color: #1a1a1a; /* Nền tối */
+    color: #f5f5f5; /* Màu chữ sáng */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #f5f5f5;
+    margin: 20px 0;
+}
+
+h3 {
+    color: #00ff00; /* Màu xanh nổi bật cho thương hiệu */
+    margin-top: 30px;
+    border-bottom: 2px solid #444;
+    padding-bottom: 10px;
+}
+
+/* Nút thêm sản phẩm */
+.btn-primary {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Vùng sản phẩm theo thương hiệu */
+.brand-products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Mỗi sản phẩm */
+.product-item {
+    background-color: #292929; /* Nền tối cho sản phẩm */
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    width: 200px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s;
+}
+
+    .product-item:hover {
+        transform: scale(1.05);
+    }
+
+    /* Hình ảnh sản phẩm */
+    .product-item img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    /* Tên và giá sản phẩm */
+    .product-item h4 {
+        color: #f5f5f5;
+        font-size: 16px;
+        margin: 10px 0;
+    }
+
+    .product-item p {
+        font-size: 14px;
+        color: #00ff00; /* Màu xanh cho giá */
+        font-weight: bold;
+    }
+
+    /* Nút hành động */
+    .product-item .btn {
+        display: inline-block;
+        margin: 5px 0;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #fff;
+        transition: background-color 0.3s;
+    }
+
+.btn-warning {
+    background-color: #ffc107;
+}
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+    }
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }

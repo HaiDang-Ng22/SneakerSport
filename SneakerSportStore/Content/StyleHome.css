@@ -1,0 +1,75 @@
+﻿/* Định dạng cho danh sách sản phẩm */
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.product {
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .product img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+.product-details {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+    .product-details img {
+        max-width: 300px;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+/* Định dạng cho các nút */
+button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f1d100;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+    button:hover {
+        background-color: #e4b744;
+    }
+
+.buy-now {
+    background-color: red;
+}
+
+    .buy-now:hover {
+        background-color: #a90b9c48;
+    }
+
+.add-to-cart {
+    background-color: #2196F3;
+    /* transform: translateX(3px); */
+}
+
+    .add-to-cart:hover {
+        transform: translateY(-7px);
+        background-color: #95b82e;
+    }

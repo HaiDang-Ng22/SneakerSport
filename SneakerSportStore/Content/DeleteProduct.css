@@ -1,0 +1,63 @@
+﻿/* CSS cho trang xóa sản phẩm */
+.delete-product-container {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+    /* Tiêu đề */
+    .delete-product-container h2 {
+        font-size: 24px;
+        color: #d9534f; /* Màu đỏ cảnh báo */
+        margin-bottom: 15px;
+    }
+
+    /* Nội dung sản phẩm */
+    .delete-product-container h4 {
+        font-size: 20px;
+        color: #333;
+        margin: 10px 0;
+    }
+
+    .delete-product-container p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+/* Nút Xóa và Hủy */
+.btn-danger {
+    background-color: #d9534f;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .btn-danger:hover {
+        background-color: #c9302c;
+    }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }

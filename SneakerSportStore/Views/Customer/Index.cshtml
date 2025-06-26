@@ -1,0 +1,60 @@
+﻿@model List<KeyValuePair<string, SneakerSportStore.Models.KhachHang>>
+
+@{
+    ViewBag.Title = "Danh sách khách hàng";
+}
+
+<h2>Danh sách khách hàng</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p>Không có khách hàng nào.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var id = item.Key;
+                var kh = item.Value;
+                <tr>
+                    <td>@kh.HoTen</td>
+                    <td>@kh.Email</td>
+                    <td>@kh.SoDienThoai</td>
+                    <td>@kh.DiaChi</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="@Url.Action("Details", "Customer", new { id = id })">Chi tiết</a>
+
+                        @if (Session["UserRole"]?.ToString() == "Admin")
+                        {
+                            using (Html.BeginForm("Delete", "Customer", FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn xóa tài khoản này?');" }))
+                            {
+                                @Html.Hidden("id", id)
+                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

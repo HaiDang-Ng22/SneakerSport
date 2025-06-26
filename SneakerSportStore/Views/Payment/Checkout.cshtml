@@ -1,0 +1,67 @@
+﻿@model SneakerSportStore.Models.CheckoutViewModel
+<link href="~/Content/CheckoutPay.css" rel="stylesheet" />
+<div class="checkout-container">
+    <h1>Thông Tin Sản Phẩm</h1>
+
+    <div class="product-details">
+        @if (!string.IsNullOrEmpty(ViewBag.ProductImage))
+        {
+            <img src="@Url.Content("~/Images/" + ViewBag.ProductImage)" alt="@ViewBag.ProductName" />
+        }
+        else
+        {
+            <p>Thông tin hình ảnh không khả dụng.</p>
+        }
+
+        <h3 style="font-size:40px;">@ViewBag.ProductName</h3>
+        <p style="font-size:30px;color:#000;">Giá:<span style="font-size:25px; color:#ea2d2d;"> @String.Format("{0:N0}", ViewBag.ProductPrice) USD</span></p>
+
+        @if (!string.IsNullOrEmpty(ViewBag.ProductDescription))
+        {
+            <p>Mô tả: @ViewBag.ProductDescription</p>
+        }
+        else
+        {
+            <p>Mô tả không khả dụng.</p>
+        }
+
+        <p><strong>Tổng tiền:</strong> @String.Format("{0:N0}", Model.TotalAmount) USD</p>
+    </div>
+
+    @using (Html.BeginForm("Confirm", "Payment", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.ProductId)
+
+        <div>
+            <label for="name">Tên người nhận:</label>
+            @Html.TextBoxFor(m => m.Name, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+        </div>
+        <div>
+            <label for="phone">Số điện thoại:</label>
+            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+        </div>
+        <div>
+            <label for="address">Địa chỉ giao hàng:</label>
+            @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+        </div>
+        <div>
+            <label for="PaymentMethod">Phương thức thanh toán:</label>
+            @Html.DropDownListFor(m => m.PaymentMethod, (IEnumerable<SelectListItem>)ViewBag.PaymentMethods, "Chọn phương thức thanh toán", new { @class = "form-control", id = "payment-method" })
+            @Html.ValidationMessageFor(m => m.PaymentMethod, "", new { @class = "text-danger" })
+        </div>
+
+        <button type="submit" class="btn btn-primary">Xác Nhận Đơn Hàng</button>
+    }
+
+</div>
+

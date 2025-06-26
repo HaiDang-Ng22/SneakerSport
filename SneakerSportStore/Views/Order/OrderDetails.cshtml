@@ -1,0 +1,41 @@
+﻿@model SneakerSportStore.Models.DonDatHang
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Chi Tiết Đơn Hàng</title>
+    <link rel="stylesheet" href="~/Content/Site.css" />
+</head>
+<body>
+    <h2>Chi Tiết Đơn </h2>
+    <p>Mã đơn hàng: @Model.DonDatHangID</p>
+    <p>Ngày đặt: @Model.NgayDat.ToShortDateString()</p>
+    <p>Địa chỉ giao hàng: @Model.DiaChiGiaoHang</p>
+    <p>Số điện thoại: @Model.SoDienThoai</p>
+    <p>Tổng tiền: @String.Format("{0:N0}", Model.TongTien) VNĐ</p>
+
+    <h3>Chi Tiết Sản Phẩm</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tên Sản Phẩm</th>
+                <th>Số Lượng</th>
+                <th>Giá</th>
+                <th>Tổng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ChiTietDonDatHangs)
+            {
+                <tr>
+                    <td>@item.Giay.TenGiay</td>
+                    <td>@item.SoLuong</td>
+                    <td>@String.Format("{0:N0}", item.GiaBan) USD</td>
+                    <td>@String.Format("{0:N0}", item.SoLuong * item.GiaBan) USD    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

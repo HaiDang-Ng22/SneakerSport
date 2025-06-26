@@ -1,0 +1,48 @@
+﻿@model SneakerSportStore.Models.KhachHang
+@{
+    ViewBag.Title = "Đăng ký";
+}
+<link href="~/Content/Register.css" rel="stylesheet" />
+
+<div class="register-page">
+    <div class="register-container">
+        <h2 class="register-title">Đăng ký tài khoản</h2>
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <p class="register-error">@ViewBag.ErrorMessage</p>
+        }
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+        {
+            <div>
+                <label for="TenDangNhap">Tên đăng nhập:</label>
+                @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control", required = "required" })
+            </div>
+            <div>
+                <label for="MatKhau">Mật khẩu:</label>
+                @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control", required = "required" })
+            </div>
+            <div>
+                <label for="HoTen">Tên khách hàng:</label>
+                @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control" })
+            </div>
+            <div>
+                <label for="Email">Email:</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", required = "required" })
+            </div>
+            <div>
+                <label for="SoDienThoai">Số điện thoại:</label>
+                @Html.TextBoxFor(m => m.SoDienThoai, new { @class = "form-control" })
+            </div>
+            <div>
+                <label for="DiaChi">Địa chỉ:</label>
+                @Html.TextBoxFor(m => m.DiaChi, new { @class = "form-control" })
+            </div>
+
+            <button type="submit" class="btn btn-primary">Đăng ký</button>
+        }
+
+        <p class="register-link">Đã có tài khoản? <a href="@Url.Action("Login", "Account")">Đăng nhập ngay</a></p>
+    </div>
+</div>

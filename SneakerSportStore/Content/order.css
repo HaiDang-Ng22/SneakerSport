@@ -1,0 +1,78 @@
+﻿/* === Định dạng thông báo === */
+.success-message {
+    color: #28a745; /* Màu xanh thành công */
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.thank-you-message {
+    color: #333; /* Màu tối */
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* === Container chính === */
+.order-confirmation {
+    background-color: #f9f9f9; /* Màu nền sáng */
+    padding: 20px; /* Khoảng cách bên trong */
+    border-radius: 10px; /* Bo tròn góc */
+    max-width: 800px; /* Độ rộng tối đa */
+    margin: 30px auto; /* Căn giữa trên trang */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+}
+
+/* === Bảng thông tin sản phẩm === */
+.order-table {
+    width: 100%;
+    border-collapse: collapse; /* Xóa đường viền giữa các ô */
+    margin-bottom: 20px;
+}
+
+    .order-table th, .order-table td {
+        padding: 12px; /* Khoảng cách giữa nội dung và đường viền */
+        text-align: center; /* Căn giữa nội dung */
+        border: 1px solid #ddd; /* Viền mỏng màu xám */
+        font-size: 14px; /* Cỡ chữ dễ đọc */
+        color: #333; /* Màu chữ tối */
+    }
+
+    .order-table th {
+        background-color: #333; /* Màu nền đen */
+        color: #fff; /* Chữ trắng */
+        font-weight: bold;
+    }
+
+    .order-table tbody tr:hover {
+        background-color: #f1f1f1; /* Màu nền sáng khi rê chuột */
+    }
+
+.product-image {
+    max-width: 80px; /* Kích thước tối đa cho hình ảnh */
+    border-radius: 8px; /* Bo tròn góc */
+}
+
+/* === Tổng tiền === */
+.total-amount {
+    text-align: right; /* Căn phải */
+    font-size: 16px; /* Cỡ chữ lớn hơn */
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.total-price {
+    color: #e52424; /* Màu đỏ cho tổng tiền */
+}
+
+/* === Trạng thái đơn hàng === */
+.status {
+    text-align: right;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.status-text {
+    color: #25f756;

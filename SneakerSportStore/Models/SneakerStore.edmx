@@ -1,0 +1,509 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Sneaker1Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ChiTietDonDatHang">
+          <Key>
+            <PropertyRef Name="ChiTietDonDatHangID" />
+          </Key>
+          <Property Name="ChiTietDonDatHangID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DonDatHangID" Type="int" />
+          <Property Name="GiayID" Type="int" />
+          <Property Name="SoLuong" Type="int" Nullable="false" />
+          <Property Name="GiaBan" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DonDatHang">
+          <Key>
+            <PropertyRef Name="DonDatHangID" />
+          </Key>
+          <Property Name="DonDatHangID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="KhachHangID" Type="int" />
+          <Property Name="NgayDat" Type="datetime" Nullable="false" />
+          <Property Name="TongTien" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="DiaChiGiaoHang" Type="nvarchar" MaxLength="255" />
+          <Property Name="SoDienThoai" Type="nvarchar" MaxLength="15" />
+          <Property Name="TrangThai" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Giay">
+          <Key>
+            <PropertyRef Name="GiayID" />
+          </Key>
+          <Property Name="GiayID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenGiay" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Gia" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="SoLuongTon" Type="int" Nullable="false" />
+          <Property Name="MoTa" Type="nvarchar(max)" />
+          <Property Name="NhaSanXuatID" Type="int" />
+          <Property Name="LoaiGiayID" Type="int" />
+          <Property Name="HinhAnh" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="KhachHang">
+          <Key>
+            <PropertyRef Name="KhachHangID" />
+          </Key>
+          <Property Name="UserRole" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="KhachHangID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HoTen" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="DiaChi" Type="nvarchar" MaxLength="255" />
+          <Property Name="SoDienThoai" Type="nvarchar" MaxLength="15" />
+          <Property Name="Email" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="TenDangNhap" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="MatKhau" Type="nvarchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LoaiGiay">
+          <Key>
+            <PropertyRef Name="LoaiGiayID" />
+          </Key>
+          <Property Name="LoaiGiayID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenLoai" Type="nvarchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="NhaSanXuat">
+          <Key>
+            <PropertyRef Name="NhaSanXuatID" />
+          </Key>
+          <Property Name="NhaSanXuatID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TenNhaSanXuat" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="DiaChi" Type="nvarchar" MaxLength="255" />
+          <Property Name="SoDienThoai" Type="nvarchar" MaxLength="15" />
+        </EntityType>
+        <EntityType Name="ThongSoKyThuat">
+          <Key>
+            <PropertyRef Name="ThongSoID" />
+          </Key>
+          <Property Name="ThongSoID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GiayID" Type="int" />
+          <Property Name="KichCo" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="MauSac" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ChatLieu" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK__ChiTietDo__DonDa__5070F446">
+          <End Role="DonDatHang" Type="Self.DonDatHang" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ChiTietDonDatHang" Type="Self.ChiTietDonDatHang" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DonDatHang">
+              <PropertyRef Name="DonDatHangID" />
+            </Principal>
+            <Dependent Role="ChiTietDonDatHang">
+              <PropertyRef Name="DonDatHangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ChiTietDo__GiayI__5165187F">
+          <End Role="Giay" Type="Self.Giay" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ChiTietDonDatHang" Type="Self.ChiTietDonDatHang" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Giay">
+              <PropertyRef Name="GiayID" />
+            </Principal>
+            <Dependent Role="ChiTietDonDatHang">
+              <PropertyRef Name="GiayID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__DonDatHan__Khach__4BAC3F29">
+          <End Role="KhachHang" Type="Self.KhachHang" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="DonDatHang" Type="Self.DonDatHang" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="KhachHang">
+              <PropertyRef Name="KhachHangID" />
+            </Principal>
+            <Dependent Role="DonDatHang">
+              <PropertyRef Name="KhachHangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Giay__LoaiGiayID__440B1D61">
+          <End Role="LoaiGiay" Type="Self.LoaiGiay" Multiplicity="0..1" />
+          <End Role="Giay" Type="Self.Giay" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LoaiGiay">
+              <PropertyRef Name="LoaiGiayID" />
+            </Principal>
+            <Dependent Role="Giay">
+              <PropertyRef Name="LoaiGiayID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Giay__NhaSanXuat__4316F928">
+          <End Role="NhaSanXuat" Type="Self.NhaSanXuat" Multiplicity="0..1" />
+          <End Role="Giay" Type="Self.Giay" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="NhaSanXuat">
+              <PropertyRef Name="NhaSanXuatID" />
+            </Principal>
+            <Dependent Role="Giay">
+              <PropertyRef Name="NhaSanXuatID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ThongSoKy__GiayI__46E78A0C">
+          <End Role="Giay" Type="Self.Giay" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ThongSoKyThuat" Type="Self.ThongSoKyThuat" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Giay">
+              <PropertyRef Name="GiayID" />
+            </Principal>
+            <Dependent Role="ThongSoKyThuat">
+              <PropertyRef Name="GiayID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Sneaker1ModelStoreContainer">
+          <EntitySet Name="ChiTietDonDatHang" EntityType="Self.ChiTietDonDatHang" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DonDatHang" EntityType="Self.DonDatHang" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Giay" EntityType="Self.Giay" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="KhachHang" EntityType="Self.KhachHang" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LoaiGiay" EntityType="Self.LoaiGiay" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NhaSanXuat" EntityType="Self.NhaSanXuat" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ThongSoKyThuat" EntityType="Self.ThongSoKyThuat" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__ChiTietDo__DonDa__5070F446" Association="Self.FK__ChiTietDo__DonDa__5070F446">
+            <End Role="DonDatHang" EntitySet="DonDatHang" />
+            <End Role="ChiTietDonDatHang" EntitySet="ChiTietDonDatHang" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ChiTietDo__GiayI__5165187F" Association="Self.FK__ChiTietDo__GiayI__5165187F">
+            <End Role="Giay" EntitySet="Giay" />
+            <End Role="ChiTietDonDatHang" EntitySet="ChiTietDonDatHang" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DonDatHan__Khach__4BAC3F29" Association="Self.FK__DonDatHan__Khach__4BAC3F29">
+            <End Role="KhachHang" EntitySet="KhachHang" />
+            <End Role="DonDatHang" EntitySet="DonDatHang" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Giay__LoaiGiayID__440B1D61" Association="Self.FK__Giay__LoaiGiayID__440B1D61">
+            <End Role="LoaiGiay" EntitySet="LoaiGiay" />
+            <End Role="Giay" EntitySet="Giay" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Giay__NhaSanXuat__4316F928" Association="Self.FK__Giay__NhaSanXuat__4316F928">
+            <End Role="NhaSanXuat" EntitySet="NhaSanXuat" />
+            <End Role="Giay" EntitySet="Giay" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ThongSoKy__GiayI__46E78A0C" Association="Self.FK__ThongSoKy__GiayI__46E78A0C">
+            <End Role="Giay" EntitySet="Giay" />
+            <End Role="ThongSoKyThuat" EntitySet="ThongSoKyThuat" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Sneaker1Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ChiTietDonDatHang">
+          <Key>
+            <PropertyRef Name="ChiTietDonDatHangID" />
+          </Key>
+          <Property Name="ChiTietDonDatHangID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DonDatHangID" Type="Int32" />
+          <Property Name="GiayID" Type="Int32" />
+          <Property Name="SoLuong" Type="Int32" Nullable="false" />
+          <Property Name="GiaBan" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <NavigationProperty Name="DonDatHang" Relationship="Self.FK__ChiTietDo__DonDa__5070F446" FromRole="ChiTietDonDatHang" ToRole="DonDatHang" />
+          <NavigationProperty Name="Giay" Relationship="Self.FK__ChiTietDo__GiayI__5165187F" FromRole="ChiTietDonDatHang" ToRole="Giay" />
+        </EntityType>
+        <EntityType Name="DonDatHang">
+          <Key>
+            <PropertyRef Name="DonDatHangID" />
+          </Key>
+          <Property Name="DonDatHangID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="KhachHangID" Type="Int32" />
+          <Property Name="NgayDat" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="TongTien" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="DiaChiGiaoHang" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SoDienThoai" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="TrangThai" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ChiTietDonDatHangs" Relationship="Self.FK__ChiTietDo__DonDa__5070F446" FromRole="DonDatHang" ToRole="ChiTietDonDatHang" />
+          <NavigationProperty Name="KhachHang" Relationship="Self.FK__DonDatHan__Khach__4BAC3F29" FromRole="DonDatHang" ToRole="KhachHang" />
+        </EntityType>
+        <EntityType Name="Giay">
+          <Key>
+            <PropertyRef Name="GiayID" />
+          </Key>
+          <Property Name="GiayID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenGiay" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Gia" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="SoLuongTon" Type="Int32" Nullable="false" />
+          <Property Name="MoTa" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NhaSanXuatID" Type="Int32" />
+          <Property Name="LoaiGiayID" Type="Int32" />
+          <Property Name="HinhAnh" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ChiTietDonDatHangs" Relationship="Self.FK__ChiTietDo__GiayI__5165187F" FromRole="Giay" ToRole="ChiTietDonDatHang" />
+          <NavigationProperty Name="LoaiGiay" Relationship="Self.FK__Giay__LoaiGiayID__440B1D61" FromRole="Giay" ToRole="LoaiGiay" />
+          <NavigationProperty Name="NhaSanXuat" Relationship="Self.FK__Giay__NhaSanXuat__4316F928" FromRole="Giay" ToRole="NhaSanXuat" />
+          <NavigationProperty Name="ThongSoKyThuats" Relationship="Self.FK__ThongSoKy__GiayI__46E78A0C" FromRole="Giay" ToRole="ThongSoKyThuat" />
+        </EntityType>
+        <EntityType Name="KhachHang">
+          <Key>
+            <PropertyRef Name="KhachHangID" />
+          </Key>
+          <Property Name="UserRole" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="KhachHangID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HoTen" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DiaChi" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SoDienThoai" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TenDangNhap" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MatKhau" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="DonDatHangs" Relationship="Self.FK__DonDatHan__Khach__4BAC3F29" FromRole="KhachHang" ToRole="DonDatHang" />
+        </EntityType>
+        <EntityType Name="LoaiGiay">
+          <Key>
+            <PropertyRef Name="LoaiGiayID" />
+          </Key>
+          <Property Name="LoaiGiayID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenLoai" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Giays" Relationship="Self.FK__Giay__LoaiGiayID__440B1D61" FromRole="LoaiGiay" ToRole="Giay" />
+        </EntityType>
+        <EntityType Name="NhaSanXuat">
+          <Key>
+            <PropertyRef Name="NhaSanXuatID" />
+          </Key>
+          <Property Name="NhaSanXuatID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TenNhaSanXuat" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="DiaChi" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SoDienThoai" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Giays" Relationship="Self.FK__Giay__NhaSanXuat__4316F928" FromRole="NhaSanXuat" ToRole="Giay" />
+        </EntityType>
+        <EntityType Name="ThongSoKyThuat">
+          <Key>
+            <PropertyRef Name="ThongSoID" />
+          </Key>
+          <Property Name="ThongSoID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GiayID" Type="Int32" />
+          <Property Name="KichCo" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MauSac" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ChatLieu" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Giay" Relationship="Self.FK__ThongSoKy__GiayI__46E78A0C" FromRole="ThongSoKyThuat" ToRole="Giay" />
+        </EntityType>
+        <Association Name="FK__ChiTietDo__DonDa__5070F446">
+          <End Role="DonDatHang" Type="Self.DonDatHang" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ChiTietDonDatHang" Type="Self.ChiTietDonDatHang" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DonDatHang">
+              <PropertyRef Name="DonDatHangID" />
+            </Principal>
+            <Dependent Role="ChiTietDonDatHang">
+              <PropertyRef Name="DonDatHangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ChiTietDo__GiayI__5165187F">
+          <End Role="Giay" Type="Self.Giay" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ChiTietDonDatHang" Type="Self.ChiTietDonDatHang" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Giay">
+              <PropertyRef Name="GiayID" />
+            </Principal>
+            <Dependent Role="ChiTietDonDatHang">
+              <PropertyRef Name="GiayID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__DonDatHan__Khach__4BAC3F29">
+          <End Role="KhachHang" Type="Self.KhachHang" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="DonDatHang" Type="Self.DonDatHang" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="KhachHang">
+              <PropertyRef Name="KhachHangID" />
+            </Principal>
+            <Dependent Role="DonDatHang">
+              <PropertyRef Name="KhachHangID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Giay__LoaiGiayID__440B1D61">
+          <End Role="LoaiGiay" Type="Self.LoaiGiay" Multiplicity="0..1" />
+          <End Role="Giay" Type="Self.Giay" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LoaiGiay">
+              <PropertyRef Name="LoaiGiayID" />
+            </Principal>
+            <Dependent Role="Giay">
+              <PropertyRef Name="LoaiGiayID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Giay__NhaSanXuat__4316F928">
+          <End Role="NhaSanXuat" Type="Self.NhaSanXuat" Multiplicity="0..1" />
+          <End Role="Giay" Type="Self.Giay" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="NhaSanXuat">
+              <PropertyRef Name="NhaSanXuatID" />
+            </Principal>
+            <Dependent Role="Giay">
+              <PropertyRef Name="NhaSanXuatID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ThongSoKy__GiayI__46E78A0C">
+          <End Role="Giay" Type="Self.Giay" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ThongSoKyThuat" Type="Self.ThongSoKyThuat" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Giay">
+              <PropertyRef Name="GiayID" />
+            </Principal>
+            <Dependent Role="ThongSoKyThuat">
+              <PropertyRef Name="GiayID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Sneaker1Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ChiTietDonDatHangs" EntityType="Self.ChiTietDonDatHang" />
+          <EntitySet Name="DonDatHangs" EntityType="Self.DonDatHang" />
+          <EntitySet Name="Giays" EntityType="Self.Giay" />
+          <EntitySet Name="KhachHangs" EntityType="Self.KhachHang" />
+          <EntitySet Name="LoaiGiays" EntityType="Self.LoaiGiay" />
+          <EntitySet Name="NhaSanXuats" EntityType="Self.NhaSanXuat" />
+          <EntitySet Name="ThongSoKyThuats" EntityType="Self.ThongSoKyThuat" />
+          <AssociationSet Name="FK__ChiTietDo__DonDa__5070F446" Association="Self.FK__ChiTietDo__DonDa__5070F446">
+            <End Role="DonDatHang" EntitySet="DonDatHangs" />
+            <End Role="ChiTietDonDatHang" EntitySet="ChiTietDonDatHangs" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ChiTietDo__GiayI__5165187F" Association="Self.FK__ChiTietDo__GiayI__5165187F">
+            <End Role="Giay" EntitySet="Giays" />
+            <End Role="ChiTietDonDatHang" EntitySet="ChiTietDonDatHangs" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DonDatHan__Khach__4BAC3F29" Association="Self.FK__DonDatHan__Khach__4BAC3F29">
+            <End Role="KhachHang" EntitySet="KhachHangs" />
+            <End Role="DonDatHang" EntitySet="DonDatHangs" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Giay__LoaiGiayID__440B1D61" Association="Self.FK__Giay__LoaiGiayID__440B1D61">
+            <End Role="LoaiGiay" EntitySet="LoaiGiays" />
+            <End Role="Giay" EntitySet="Giays" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Giay__NhaSanXuat__4316F928" Association="Self.FK__Giay__NhaSanXuat__4316F928">
+            <End Role="NhaSanXuat" EntitySet="NhaSanXuats" />
+            <End Role="Giay" EntitySet="Giays" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ThongSoKy__GiayI__46E78A0C" Association="Self.FK__ThongSoKy__GiayI__46E78A0C">
+            <End Role="Giay" EntitySet="Giays" />
+            <End Role="ThongSoKyThuat" EntitySet="ThongSoKyThuats" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Sneaker1ModelStoreContainer" CdmEntityContainer="Sneaker1Entities">
+          <EntitySetMapping Name="ChiTietDonDatHangs">
+            <EntityTypeMapping TypeName="Sneaker1Model.ChiTietDonDatHang">
+              <MappingFragment StoreEntitySet="ChiTietDonDatHang">
+                <ScalarProperty Name="ChiTietDonDatHangID" ColumnName="ChiTietDonDatHangID" />
+                <ScalarProperty Name="DonDatHangID" ColumnName="DonDatHangID" />
+                <ScalarProperty Name="GiayID" ColumnName="GiayID" />
+                <ScalarProperty Name="SoLuong" ColumnName="SoLuong" />
+                <ScalarProperty Name="GiaBan" ColumnName="GiaBan" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DonDatHangs">
+            <EntityTypeMapping TypeName="Sneaker1Model.DonDatHang">
+              <MappingFragment StoreEntitySet="DonDatHang">
+                <ScalarProperty Name="DonDatHangID" ColumnName="DonDatHangID" />
+                <ScalarProperty Name="KhachHangID" ColumnName="KhachHangID" />
+                <ScalarProperty Name="NgayDat" ColumnName="NgayDat" />
+                <ScalarProperty Name="TongTien" ColumnName="TongTien" />
+                <ScalarProperty Name="DiaChiGiaoHang" ColumnName="DiaChiGiaoHang" />
+                <ScalarProperty Name="SoDienThoai" ColumnName="SoDienThoai" />
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Giays">
+            <EntityTypeMapping TypeName="Sneaker1Model.Giay">
+              <MappingFragment StoreEntitySet="Giay">
+                <ScalarProperty Name="GiayID" ColumnName="GiayID" />
+                <ScalarProperty Name="TenGiay" ColumnName="TenGiay" />
+                <ScalarProperty Name="Gia" ColumnName="Gia" />
+                <ScalarProperty Name="SoLuongTon" ColumnName="SoLuongTon" />
+                <ScalarProperty Name="MoTa" ColumnName="MoTa" />
+                <ScalarProperty Name="NhaSanXuatID" ColumnName="NhaSanXuatID" />
+                <ScalarProperty Name="LoaiGiayID" ColumnName="LoaiGiayID" />
+                <ScalarProperty Name="HinhAnh" ColumnName="HinhAnh" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="KhachHangs">
+            <EntityTypeMapping TypeName="Sneaker1Model.KhachHang">
+              <MappingFragment StoreEntitySet="KhachHang">
+                <ScalarProperty Name="UserRole" ColumnName="UserRole" />
+                <ScalarProperty Name="KhachHangID" ColumnName="KhachHangID" />
+                <ScalarProperty Name="HoTen" ColumnName="HoTen" />
+                <ScalarProperty Name="DiaChi" ColumnName="DiaChi" />
+                <ScalarProperty Name="SoDienThoai" ColumnName="SoDienThoai" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="TenDangNhap" ColumnName="TenDangNhap" />
+                <ScalarProperty Name="MatKhau" ColumnName="MatKhau" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LoaiGiays">
+            <EntityTypeMapping TypeName="Sneaker1Model.LoaiGiay">
+              <MappingFragment StoreEntitySet="LoaiGiay">
+                <ScalarProperty Name="LoaiGiayID" ColumnName="LoaiGiayID" />
+                <ScalarProperty Name="TenLoai" ColumnName="TenLoai" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="NhaSanXuats">
+            <EntityTypeMapping TypeName="Sneaker1Model.NhaSanXuat">
+              <MappingFragment StoreEntitySet="NhaSanXuat">
+                <ScalarProperty Name="NhaSanXuatID" ColumnName="NhaSanXuatID" />
+                <ScalarProperty Name="TenNhaSanXuat" ColumnName="TenNhaSanXuat" />
+                <ScalarProperty Name="DiaChi" ColumnName="DiaChi" />
+                <ScalarProperty Name="SoDienThoai" ColumnName="SoDienThoai" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ThongSoKyThuats">
+            <EntityTypeMapping TypeName="Sneaker1Model.ThongSoKyThuat">
+              <MappingFragment StoreEntitySet="ThongSoKyThuat">
+                <ScalarProperty Name="ThongSoID" ColumnName="ThongSoID" />
+                <ScalarProperty Name="GiayID" ColumnName="GiayID" />
+                <ScalarProperty Name="KichCo" ColumnName="KichCo" />
+                <ScalarProperty Name="MauSac" ColumnName="MauSac" />
+                <ScalarProperty Name="ChatLieu" ColumnName="ChatLieu" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

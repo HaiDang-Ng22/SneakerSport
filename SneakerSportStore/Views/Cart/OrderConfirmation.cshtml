@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Xác Nhận Đơn Hàng";
+}
+
+<h2>Xác Nhận Đơn Hàng</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<p>Cảm ơn bạn đã đặt hàng tại SneakerSportStore. Đơn hàng của bạn đã được xử lý thành công.</p>
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-primary">Trở về trang chủ</a>

@@ -1,0 +1,52 @@
+﻿.guide-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+
+.guide-title {
+    font-size: 32px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+
+.guide-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+
+.guide-step {
+    font-size: 22px;
+    color: #555;
+    margin-bottom: 10px; /* cách xuống của thẻ h3  */
+}
+
+
+.guide-text {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.6; /* căn chỉnh độ cách nhau giữ các thẻ p */
+}
+
+
+.contact-info {
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.contact-info:hover {
+    color: #d4a20f;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #ccc;
+    margin: 20px 0;
+}

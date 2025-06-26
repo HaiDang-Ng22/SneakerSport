@@ -1,0 +1,13 @@
+﻿@model SneakerSportStore.Models.KhachHang
+
+<h2>Thông tin tài khoản</h2>
+
+@using (Html.BeginForm("Settings", "Account", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.KhachHangID)
+    <div>@Html.LabelFor(m => m.HoTen) @Html.TextBoxFor(m => m.HoTen)</div>
+    <div>@Html.LabelFor(m => m.Email) @Html.TextBoxFor(m => m.Email)</div>
+    <div>@Html.LabelFor(m => m.SoDienThoai) @Html.TextBoxFor(m => m.SoDienThoai)</div>
+    <div>@Html.LabelFor(m => m.DiaChi) @Html.TextBoxFor(m => m.DiaChi)</div>
+    <button type="submit">Cập nhật</button>
+}

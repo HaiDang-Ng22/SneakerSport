@@ -1,0 +1,44 @@
+﻿@model SneakerSportStore.Models.KhachHang
+
+@{
+    ViewBag.Title = "Thông tin khách hàng";
+    var orders = ViewBag.Orders as List<dynamic>;
+    var userId = ViewBag.UserId as string;
+}
+
+<h2>Thông tin khách hàng</h2>
+<p><strong>Họ tên:</strong> @Model.HoTen</p>
+<p><strong>Email:</strong> @Model.Email</p>
+<p><strong>Số điện thoại:</strong> @Model.SoDienThoai</p>
+<p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+
+<h3>Đơn hàng đã đặt</h3>
+
+@if (orders == null || !orders.Any())
+{
+    <p>Khách hàng chưa có đơn hàng nào.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.maDon</td>
+                    <td>@order.ngayDat</td>
+                    <td>@order.tongTien</td>
+                    <td>@order.trangThai</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

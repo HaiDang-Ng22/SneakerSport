@@ -1,0 +1,66 @@
+﻿@model SneakerSportStore.Models.Giay
+
+@{
+    ViewBag.Title = "Thêm Sản Phẩm";
+}
+
+<h2>Thêm Sản Phẩm Mới</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label for="TenGiay">Tên Giày</label>
+        @Html.TextBoxFor(m => m.TenGiay, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label for="Gia">Giá</label>
+        @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
+    </div>
+
+    <div class="form-group">
+        <label for="SoLuongTon">Số Lượng</label>
+        @Html.TextBoxFor(m => m.SoLuongTon, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label for="MoTa">Mô Tả</label>
+        @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label for="HinhAnh">Hình Ảnh</label>
+        @Html.TextBoxFor(m => m.HinhAnh, new { @class = "form-control" })
+    </div>
+
+    <!-- Dropdown cho Nhà Sản Xuất -->
+    <div class="form-group">
+        <label for="NhaSanXuatID">Nhà Sản Xuất</label>
+        @if (ViewBag.NhaSanXuatList != null)
+        {
+            @Html.DropDownListFor(m => m.NhaSanXuatID, ViewBag.NhaSanXuatList as SelectList, "Chọn nhà sản xuất", new { @class = "form-control" })
+        }
+        else
+        {
+            <span class="text-danger">Không có nhà sản xuất</span>
+        }
+    </div>
+
+    <!-- Dropdown cho Loại Giày -->
+    <div class="form-group">
+        <label for="LoaiGiayID">Loại Giày</label>
+        @if (ViewBag.LoaiGiayList != null)
+        {
+            @Html.DropDownListFor(m => m.LoaiGiayID, ViewBag.LoaiGiayList as SelectList, "Chọn loại giày", new { @class = "form-control" })
+        }
+        else
+        {
+            <span class="text-danger">Không có loại giày</span>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Thêm Sản Phẩm</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+}

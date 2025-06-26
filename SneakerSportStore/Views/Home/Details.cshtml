@@ -1,0 +1,193 @@
+﻿@model SneakerSportStore.Models.Giay
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Chi Tiết Sản Phẩm - @Model.TenGiay</title>
+    <style>
+        body {
+            background-color: #333;
+        }
+
+        .content-container {
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background-color: #333;
+        }
+
+        .product-details {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #272626;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .product-price {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffc107;
+            margin-bottom: 15px;
+        }
+
+        .product-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #f9f8f8;
+            margin-bottom: 25px;
+        }
+
+        .quantity-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .quantity-container button {
+                font-size: 18px;
+                padding: 5px 10px;
+                cursor: pointer;
+                background-color: #007bff;
+                color: #fff;
+                border-radius: 5px;
+                border: none;
+            }
+
+            .quantity-container input {
+                font-size: 18px;
+                width: 50px;
+                text-align: center;
+                margin: 0 10px;
+            }
+
+        .add-to-cart {
+            background-color: #007bff;
+            color: #fff;
+            text-transform: uppercase;
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            justify-content: center;
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <div class="product-details">
+            <!-- Hiển thị hình ảnh sản phẩm -->
+            <img src="@Model.HinhAnh" alt="@Model.TenGiay" class="product-image" />
+            <!-- Tên sản phẩm -->
+            <h2 class="product-title">@Model.TenGiay</h2>
+            <!-- Giá sản phẩm -->
+            <p class="product-price">Giá: @String.Format("{0:N0}", Model.Gia) VND</p>
+            <!-- Mô tả sản phẩm -->
+            <p class="product-description">Mô tả: @Model.MoTa</p>
+            <!-- Số lượng tồn -->
+            <p class="product-description">Còn lại trong kho: @Model.SoLuongTon</p>
+
+            <!-- Hiển thị loại giày -->
+            <p class="product-description">Loại Giày: @Model.LoaiGiay?.TenLoaiGiay ?? "Không có thông tin"</p>
+
+            <!-- Hiển thị nhà sản xuất -->
+            <p class="product-description">Nhà Sản Xuất: @Model.NhaSanXuat?.TenNhaSanXuat ?? "Không có thông tin"</p>
+
+            <!-- Phần nhập số lượng -->
+            <div class="quantity-container">
+                <button onclick="updateQuantity(-1)">-</button>
+                <input type="number" id="quantity" value="1" min="1" />
+                <button onclick="updateQuantity(1)">+</button>
+            </div>
+
+            <!-- Nút thêm vào giỏ hàng -->
+            <button class="add-to-cart" onclick="AddToCart()">Thêm vào Giỏ Hàng</button>
+        </div>
+    </div>
+
+    <!-- Thông báo khi thêm sản phẩm vào giỏ -->
+    <div id="notification">Sản phẩm đã được thêm vào giỏ hàng!</div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // Cập nhật số lượng khi nhấn nút + hoặc -
+        function updateQuantity(amount) {
+            let quantity = document.getElementById('quantity');
+            let currentQuantity = parseInt(quantity.value);
+            currentQuantity += amount;
+            if (currentQuantity > 0) {
+                quantity.value = currentQuantity;
+            }
+        }
+
+        // Thêm sản phẩm vào giỏ hàng
+        function AddToCart() {
+            const productId = '@Model.FirebaseKey';  // Lấy FirebaseKey của sản phẩm
+            let quantity = document.getElementById('quantity').value;  // Lấy số lượng từ input
+
+            quantity = parseInt(quantity);
+            if (isNaN(quantity) || quantity <= 0) {
+                alert("Vui lòng chọn số lượng hợp lệ.");
+                return;
+            }
+
+            // Gửi dữ liệu đến Controller thông qua Ajax
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Cart")',
+                type: 'POST',
+                data: { productId: productId, quantity: quantity },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification(response.message, "#28a745");  // Hiển thị thông báo thành công
+                    } else {
+                        showNotification(response.message, "#dc3545");  // Hiển thị thông báo lỗi
+                    }
+                },
+                error: function (xhr, status, error) {
+                    showNotification("Có lỗi xảy ra: " + xhr.responseText, "#dc3545");
+                }
+            });
+        }
+
+        // Hiển thị thông báo khi thao tác thành công hoặc thất bại
+        function showNotification(message, color) {
+            $("#notification").text(message).css("background-color", color).fadeIn().delay(3000).fadeOut();
+        }
+    </script>
+</body>
+</html>

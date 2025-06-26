@@ -1,0 +1,100 @@
+﻿
+body{
+    background-color:#333;
+}
+/* Định dạng cho danh sách sản phẩm */
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Căn đều các sản phẩm */
+    gap: 20px; /* Khoảng cách giữa các sản phẩm */
+    padding: 20px;
+    margin-top:100px;
+
+}
+h3{
+    color:#fff;
+}
+
+/* Mỗi sản phẩm */
+.product {
+    background-color: #333;
+    border-radius: 10px;
+    padding: 20px;
+    width: 350px; /* Chiều rộng cố định cho mỗi sản phẩm */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+} 
+.product:hover {
+        transform: translateY(-5px); /* Hiệu ứng hover khi di chuột vào */
+    }
+
+    /* Hình ảnh sản phẩm */
+    .product img {
+        width: 300px;
+        height: 200px;
+        margin-bottom: 40px;
+        border-radius: 8px;
+    }
+
+
+    /* Tên và giá sản phẩm */
+    .product h2 {
+        font-size: 1.1em;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .product p {
+        font-size: 1em;
+        color: #fff;
+        margin: 10px 0;
+    }
+
+    /* Định dạng cho các nút */
+    .product button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px 0;
+        width: 100%;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+        .product button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+/* Định dạng nút "Mua ngay" */
+.buy-now {
+    background-color: #e74c3c; /* Màu đỏ cho nút "Mua ngay" */
+}
+
+    .buy-now:hover {
+        background-color: #ff5b5b;
+        box-shadow: 0 15px 20px rgba(255, 35, 35, 0.4);
+        color: #ffff;
+        transform: translateY(-4px);
+    }
+
+/* Định dạng nút "Thêm vào giỏ hàng" */
+.add-to-cart {
+    background-color: #2196F3; /* Màu xanh cho nút "Thêm vào giỏ hàng" */
+}
+
+    .add-to-cart:hover {
+        background-color: #2570f3;
+        box-shadow: 0 15px 20px rgba(2, 133, 255, 0.4);
+        color: #ffff;
+        transform: translateY(-4px);
+    }
+
+.size-6 {
+    width: 15px;
+    padding-right: 10px;
+}
+

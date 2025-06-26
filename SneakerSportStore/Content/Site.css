@@ -1,0 +1,123 @@
+﻿/* Tổng quan sản phẩm */
+.product-details {
+    color: #000;
+    max-width: 700px;
+    margin: 40px auto; /* Căn giữa sản phẩm và tạo khoảng cách trên dưới */
+    padding: 20px;
+    background-color: #2a2929; /* Nền trắng để làm nổi bật */
+    border-radius: 10px;
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    text-align: center;
+}
+
+    /* Hình ảnh của sản phẩm */
+    .product-details img {
+        width: 100%;
+        max-width: 500px; /* Giới hạn kích thước hình ảnh */
+        height: auto;
+        border-radius: 10px; /* Bo góc nhẹ cho hình ảnh */
+        margin-bottom: 20px; /* Tạo khoảng trống giữa hình ảnh và thông tin sản phẩm */
+    }
+
+    /* Tiêu đề của sản phẩm */
+    .product-details h3 {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    /* Giá sản phẩm */
+    .product-details p.price {
+        font-size: 20px;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+
+    /* Mô tả sản phẩm */
+    .product-details p.description {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    /* Nút bấm */
+    .product-details .product-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* Tạo khoảng cách giữa các nút */
+    }
+
+    .product-details button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #ba2557;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .product-details button:hover {
+            background-color: #ff17a2;
+        }
+
+    .product-details .btn-buy {
+        background-color: #28a745; /* Màu xanh cho nút mua ngay */
+    }
+
+        .product-details .btn-buy:hover {
+            background-color: #218838; /* Màu xanh đậm hơn khi hover */
+        }
+
+/* Thông tin liên hệ ở footer */
+footer .contact-info {
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+    footer .contact-info h2 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    footer .contact-info span {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+/* Thanh tìm kiếm */
+header .search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+    header .search-bar input[type="text"] {
+        width: 50%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px 0 0 4px;
+    }
+
+    header .search-bar button {
+        padding: 10px 15px;
+        background-color: #ff0088;
+        color: #fff;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        header .search-bar button:hover {
+            background-color: #fe4da6fb;
+        }

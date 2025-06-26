@@ -1,0 +1,108 @@
+﻿/* Container for the entire checkout page */
+.checkout-container {
+    max-width: 600px; /* Set a maximum width for better readability */
+    margin: 0 auto; /* Center the container horizontally */
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+    /* Heading */
+    .checkout-container h1 {
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+/* Product details section */
+.product-details {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+    .product-details img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+
+    .product-details h3 {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .product-details p {
+        font-size: 16px;
+        color: #666;
+        margin: 5px 0;
+    }
+
+    .product-details strong {
+        color: #27ae60; /* Highlight the total amount */
+    }
+
+/* Form fields */
+.form-control {
+    margin:40px;
+    width: 80%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+    .form-control:focus {
+        border-color: #27ae60;
+        box-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
+    }
+
+/* Form labels */
+form label {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    margin-top: 10px;
+}
+
+/* Submit button */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #27ae60;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+    .btn-primary:hover {
+        background-color: #219150;
+    }
+
+    .btn-primary:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(39, 174, 96, 0.4);
+    }
+
+/* Validation message */
+.text-danger {
+    color: #e74c3c;
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .checkout-container {
+        padding: 15px;
+    }
+}

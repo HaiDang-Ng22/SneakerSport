@@ -1,0 +1,143 @@
+﻿body {
+    background-color: #222; /* Màu nền tối */
+    color: #fff; /* Màu chữ trắng */
+    font-family: Arial, sans-serif; /* Font chữ */
+}
+
+.product-details {
+    max-width: 600px; /* Chiều rộng tối đa */
+    margin: 20px auto; /* Căn giữa */
+    padding: 20px; /* Khoảng cách bên trong */
+    background-color: #333; /* Màu nền của khu vực chi tiết */
+    border-radius: 10px; /* Bo góc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Đổ bóng */
+    text-align: center; /* Căn giữa chữ */
+}
+
+    .product-details img {
+        width: 100%; /* Chiều rộng hình ảnh 100% */
+        height: auto; /* Chiều cao tự động */
+        border-radius: 10px; /* Bo góc hình ảnh */
+        margin-bottom: 20px; /* Khoảng cách dưới hình ảnh */
+    }
+
+    .product-details h2 {
+        font-size: 1.5em; /* Kích thước chữ tiêu đề */
+        margin: 10px 0; /* Khoảng cách trên và dưới */
+    }
+
+    .product-details p {
+        font-size: 1.2em; /* Kích thước chữ cho mô tả */
+        margin: 10px 0; /* Khoảng cách trên và dưới */
+    }
+
+    .product-details button {
+        background-color: #4CAF50; /* Màu nền nút */
+        color: white; /* Màu chữ nút */
+        padding: 10px 20px; /* Khoảng cách bên trong nút */
+        border: none; /* Không viền */
+        border-radius: 5px; /* Bo góc */
+        cursor: pointer; /* Con trỏ chuột */
+        margin: 10px 0; /* Khoảng cách giữa các nút */
+        transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+    }
+
+        .product-details button:hover {
+            background-color: #45a049; /* Màu nền khi di chuột */
+        }
+
+/* Căn chỉnh thông tin giao hàng */
+.checkout-form {
+    margin-top: 20px; /* Khoảng cách trên */
+}
+
+    .checkout-form div {
+        margin: 10px 0; /* Khoảng cách giữa các trường nhập */
+    }
+
+    .checkout-form label {
+        display: block; /* Hiển thị label như một block */
+        margin-bottom: 5px; /* Khoảng cách dưới label */
+    }
+
+    .checkout-form input,
+    .checkout-form select {
+        width: 100%; /* Chiều rộng 100% */
+        padding: 10px; /* Khoảng cách bên trong */
+        border-radius: 5px; /* Bo góc */
+        border: 1px solid #ccc; /* Viền xám */
+    }
+
+    .checkout-form button[type="submit"] {
+        background-color: #e74c3c; /* Màu nền cho nút xác nhận */
+        border: none; /* Không viền */
+    }
+
+        .checkout-form button[type="submit"]:hover {
+            background-color: #ff5b5b; /* Màu nền khi di chuột */
+        }
+
+body {
+    background-color: #333; /* Màu nền cho toàn bộ trang */
+    color: white; /* Màu chữ */
+    font-family: Arial, sans-serif; /* Font chữ */
+}
+
+/* Định dạng cho phần chi tiết sản phẩm */
+.product-details {
+    max-width: 600px; /* Đặt chiều rộng tối đa cho phần chi tiết sản phẩm */
+    margin: 20px auto; /* Căn giữa */
+    padding: 20px;
+    background-color: #444; /* Màu nền cho phần chi tiết */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center; /* Căn giữa nội dung */
+}
+
+    .product-details img {
+        width: 100%; /* Hình ảnh chiếm 100% chiều rộng */
+        height: auto; /* Tự động điều chỉnh chiều cao */
+        margin-bottom: 20px; /* Khoảng cách dưới hình ảnh */
+        border-radius: 10px; /* Bo tròn góc cho hình ảnh */
+    }
+
+/* Định dạng cho phần thông tin giao hàng */
+.content-container {
+    max-width: 500px; /* Chiều rộng tối đa cho phần nội dung */
+    margin: 20px auto; /* Căn giữa */
+    padding: 20px;
+    background-color: #444; /* Màu nền cho phần nội dung */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+}
+
+/* Định dạng cho các trường nhập liệu */
+input[type="text"],
+input[type="email"],
+select {
+    width: 100%; /* Chiều rộng 100% cho trường nhập liệu */
+    padding: 10px; /* Padding cho trường nhập liệu */
+    margin-bottom: 20px; /* Khoảng cách dưới trường nhập liệu */
+    border: 1px solid #ccc; /* Viền cho trường nhập liệu */
+    border-radius: 5px; /* Bo tròn góc cho trường nhập liệu */
+    background-color: white; /* Màu nền trắng cho trường nhập liệu */
+}
+
+/* Định dạng cho nút xác nhận */
+button {
+    background-color: #4CAF50; /* Màu nền cho nút */
+    color: white; /* Màu chữ cho nút */
+    padding: 10px 20px; /* Padding cho nút */
+    border: none; /* Không viền */
+    border-radius: 5px; /* Bo tròn góc cho nút */
+    cursor: pointer; /* Con trỏ khi hover vào nút */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền khi hover */
+}
+
+    button:hover {
+        background-color: #45a049; /* Màu nền khi hover */
+    }

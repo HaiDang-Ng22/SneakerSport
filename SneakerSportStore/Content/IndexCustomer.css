@@ -1,0 +1,76 @@
+﻿/* Tổng thể bảng */
+.table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #333;
+}
+
+    /* Phần đầu bảng */
+    .table thead {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+        .table thead th {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+    /* Phần thân bảng */
+    .table tbody tr {
+        background-color: #f9f9f9;
+        transition: background-color 0.3s ease;
+    }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f1f1f1;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e8f5ff;
+        }
+
+    /* Ô trong bảng */
+    .table tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+        /* Nút xem đơn hàng */
+        .table tbody td a {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+            .table tbody td a:hover {
+                background-color: #0056b3;
+            }
+
+/* Tiêu đề */
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Tạo khoảng cách giữa bảng và các phần khác */
+.table-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 30px auto;
+}

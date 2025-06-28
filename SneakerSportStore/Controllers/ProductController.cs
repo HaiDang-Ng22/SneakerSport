@@ -34,7 +34,7 @@ namespace SneakerSportStore.Controllers
                 {
                     foreach (var item in dict)
                     {
-                        item.Value.FirebaseKey = item.Key; // Assign FirebaseKey as the unique ID
+                        item.Value.GiayId = item.Key; // Assign FirebaseKey as the unique ID
                         products.Add(item.Value);
                     }
                 }
@@ -81,7 +81,6 @@ namespace SneakerSportStore.Controllers
         }
 
 
-        // POST: Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(Giay model)
@@ -90,52 +89,46 @@ namespace SneakerSportStore.Controllers
             {
                 using (var client = new HttpClient())
                 {
+                    // Tạo ID mới
+                    model.GiayId = Guid.NewGuid().ToString();
+
+                    // Gửi lên Firebase: dùng chính GiayId làm node
                     var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                    var response = await client.PutAsync(FirebaseDbUrl + $"/products/{model.GiayId}.json", content);
 
-                    try
+                    if (response.IsSuccessStatusCode)
                     {
-                        var response = await client.PostAsync(FirebaseDbUrl + "/products.json", content);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            TempData["Message"] = "Sản phẩm đã được thêm thành công!";
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            string errorMessage = await response.Content.ReadAsStringAsync();
-                            ViewBag.Error = $"Không thể thêm sản phẩm. Lỗi: {errorMessage}";
-                        }
+                        TempData["Message"] = "Sản phẩm đã được thêm thành công!";
+                        return RedirectToAction("Index");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ViewBag.Error = $"Đã xảy ra lỗi: {ex.Message}";
+                        string errorMessage = await response.Content.ReadAsStringAsync();
+                        ViewBag.Error = $"Không thể thêm sản phẩm. Lỗi: {errorMessage}";
                     }
                 }
             }
-
             return View(model);
         }
 
+
+        // GET: Product/Edit/5
         // GET: Product/Edit/5
         public async Task<ActionResult> Edit(string id)
         {
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(FirebaseDbUrl + "/products/" + id + ".json");
-
                 if (!response.IsSuccessStatusCode)
-                {
                     return HttpNotFound("Không tìm thấy sản phẩm.");
-                }
 
                 var json = await response.Content.ReadAsStringAsync();
                 var product = JsonConvert.DeserializeObject<Giay>(json);
                 ViewBag.ProductId = id;
-
                 return View(product);
             }
         }
+
 
         // POST: Product/Edit/5
         [HttpPost]
@@ -257,5 +250,78 @@ namespace SneakerSportStore.Controllers
                 }
             }
         }
+        // Lấy danh sách bình luận cho sản phẩm
+        private async Task<List<Comment>> GetComments(string productId)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(FirebaseDbUrl + $"/comments/{productId}.json");
+                if (!response.IsSuccessStatusCode) return new List<Comment>();
+                var json = await response.Content.ReadAsStringAsync();
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, Comment>>(json);
+                return dict?.Values.OrderByDescending(x => x.CreatedAt).ToList() ?? new List<Comment>();
+            }
+        }
+
+        // Thêm bình luận mới (hoặc trả lời)
+        [HttpPost]
+        public async Task<ActionResult> AddComment(string productId, string content, string parentCommentId = null)
+        {
+            var userId = Session["CustomerID"]?.ToString();
+            var userName = Session["Username"]?.ToString();
+
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            var comment = new Comment
+            {
+                CommentId = Guid.NewGuid().ToString(),
+                ProductId = productId,
+                UserId = userId,
+                UserName = userName,
+                Content = content,
+                ParentCommentId = parentCommentId,
+                CreatedAt = DateTime.Now
+            };
+
+            using (var client = new HttpClient())
+            {
+                var contentJson = new StringContent(JsonConvert.SerializeObject(comment), Encoding.UTF8, "application/json");
+                await client.PutAsync(FirebaseDbUrl + $"/comments/{productId}/{comment.CommentId}.json", contentJson);
+            }
+
+            return RedirectToAction("Details", new { id = productId });
+        }
+
+        // Xóa bình luận (chỉ admin hoặc chủ bình luận)
+        [HttpPost]
+        public async Task<ActionResult> DeleteComment(string productId, string commentId)
+        {
+            var userId = Session["CustomerID"]?.ToString();
+            var userRole = Session["UserRole"]?.ToString();
+
+            // Lấy bình luận
+            Comment comment = null;
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(FirebaseDbUrl + $"/comments/{productId}/{commentId}.json");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    comment = JsonConvert.DeserializeObject<Comment>(json);
+                }
+            }
+
+            if (comment == null || (comment.UserId != userId && userRole != "Admin"))
+                return new HttpStatusCodeResult(403, "Không có quyền xóa!");
+
+            using (var client = new HttpClient())
+            {
+                await client.DeleteAsync(FirebaseDbUrl + $"/comments/{productId}/{commentId}.json");
+            }
+
+            return RedirectToAction("Details", new { id = productId });
+        }
+
     }
 }

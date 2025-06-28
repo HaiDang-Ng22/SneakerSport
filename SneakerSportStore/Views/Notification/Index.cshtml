@@ -1,0 +1,74 @@
+﻿@model List<SneakerSportStore.Models.Notification>
+@{
+    ViewBag.Title = "Thông báo";
+}
+<h2>Thông báo của bạn</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info mt-4">Không có thông báo nào.</div>
+}
+else
+{
+    <table class="table table-hover mt-4">
+        <thead>
+            <tr>
+                <th>Nội dung</th>
+                <th>Thời gian</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var notify in Model)
+            {
+                <tr class="@(notify.IsRead ? "" : "font-weight-bold bg-light")" style="@(notify.IsRead ? "" : "background:#ffe4e1")">
+                    <td>
+                        @if (!string.IsNullOrEmpty(notify.ProductId))
+                        {
+                            <a href="@Url.Action("Details", "Home", new { id = notify.ProductId })#cmt-@notify.CommentId"
+                               style="color: #007bff; text-decoration: underline;">
+                                @notify.Message
+                            </a>
+                        }
+                        else
+                        {
+                            @notify.Message
+                        }
+                    </td>
+                    <td>
+                        @notify.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </td>
+                    <td>
+                        @if (!notify.IsRead)
+                        {
+                            <button class="btn btn-sm btn-outline-primary" onclick="markAsRead('@notify.NotificationId', this)">Đánh dấu đã đọc</button>
+                        }
+                        else
+                        {
+                            <span class="text-success">Đã đọc</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function markAsRead(notificationId, btn) {
+            $.post('@Url.Action("MarkAsRead", "Notification")', { notificationId: notificationId }, function (data) {
+                if (data.success) {
+                    $(btn).parent().html('<span class="text-success">Đã đọc</span>');
+                    // Làm mờ dòng đã đọc
+                    $(btn).closest("tr").removeClass("bg-light font-weight-bold").css("background", "");
+                } else {
+                    alert('Lỗi đánh dấu đã đọc!');
+                }
+            }).fail(function () {
+                alert('Lỗi kết nối máy chủ!');
+            });
+        }
+    </script>
+}

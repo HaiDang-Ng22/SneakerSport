@@ -1,4 +1,4 @@
-﻿@model List<SneakerSportStore.Models.Giay>
+﻿﻿@model List<SneakerSportStore.Models.Giay>
 @{
     ViewBag.Title = "Danh sách sản phẩm";
 }
@@ -48,11 +48,12 @@
                         }
                     </td>
                     <td>
-                        <a href="@Url.Action("Edit", "Product", new { id = item.FirebaseKey })" class="btn btn-sm btn-warning">✏️ Sửa</a>
-                        <a href="@Url.Action("Delete", "Product", new { id = item.FirebaseKey })" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">🗑️ Xóa</a>
+                        <a href="@Url.Action("Edit", "Product", new { id = item.GiayId })" class="btn btn-sm btn-warning">✏️ Sửa</a>
+                        <a href="@Url.Action("Delete", "Product", new { id = item.GiayId })" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">🗑️ Xóa</a>
                     </td>
                 </tr>
             }
+
         </tbody>
     </table>
 }

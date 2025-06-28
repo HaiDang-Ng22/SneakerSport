@@ -1,5 +1,10 @@
 ﻿@model SneakerSportStore.Models.Giay
-
+@using SneakerSportStore.Models
+@{
+    var comments = ViewBag.Comments as List<Comment> ?? new List<Comment>();
+    var currentUserId = Session["CustomerID"] as string;
+    var userRole = Session["UserRole"] as string;
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,186 +12,298 @@
     <title>Chi Tiết Sản Phẩm - @Model.TenGiay</title>
     <style>
         body {
-            background-color: #333;
+            background-color: #f4f4f4;
         }
 
-        .content-container {
-            color: #fff;
+        .Detail {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px #0001;
+            padding: 24px;
+        }
+
+        .product-info {
             display: flex;
-            justify-content: center;
-            padding: 20px;
-            background-color: #333;
-        }
-
-        .product-details {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #272626;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            text-align: center;
+            gap: 30px;
+            margin-bottom: 35px;
         }
 
         .product-image {
-            width: 100%;
-            max-width: 500px;
-            height: auto;
+            width: 300px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            box-shadow: 0 2px 14px #0002;
+        }
+
+        .product-meta {
+            flex: 1;
         }
 
         .product-title {
-            font-size: 28px;
+            font-size: 2rem;
             font-weight: bold;
-            margin-bottom: 15px;
-            color: #ffffff;
-            text-transform: uppercase;
+            margin-bottom: 10px;
+            color: #222;
         }
 
         .product-price {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ffc107;
-            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: #c35600;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
         .product-description {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #f9f8f8;
-            margin-bottom: 25px;
+            font-size: 1.07rem;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .product-others {
+            color: #666;
+            margin-bottom: 8px;
         }
 
         .quantity-container {
             display: flex;
-            justify-content: center;
             align-items: center;
             margin-bottom: 20px;
+            gap: 10px;
         }
 
             .quantity-container button {
-                font-size: 18px;
-                padding: 5px 10px;
-                cursor: pointer;
-                background-color: #007bff;
-                color: #fff;
-                border-radius: 5px;
+                font-size: 1.2rem;
+                padding: 5px 14px;
+                border-radius: 6px;
                 border: none;
+                background: #e0e0e0;
             }
 
             .quantity-container input {
-                font-size: 18px;
-                width: 50px;
+                width: 48px;
                 text-align: center;
-                margin: 0 10px;
+                font-size: 1.1rem;
             }
 
         .add-to-cart {
-            background-color: #007bff;
+            background: #007bff;
             color: #fff;
-            text-transform: uppercase;
-            height: 40px;
-            width: 100%;
-            font-size: 15px;
-            border-radius: 15px;
+            border-radius: 7px;
+            padding: 9px 0;
+            width: 160px;
+            border: none;
+            font-size: 1.05rem;
             cursor: pointer;
-            justify-content: center;
         }
 
         #notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: #333;
+            background: #333;
             color: #fff;
-            padding: 10px 20px;
+            padding: 10px 22px;
             border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
             display: none;
+            z-index: 1000;
+        }
+        /* BÌNH LUẬN (cmtx-) */
+        .cmtx-block {
+            background: #ededed;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 700px;
+            margin: 45px auto 0 auto;
+        }
+
+        .cmtx-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .cmtx-main, .cmtx-reply {
+            margin-bottom: 20px;
+        }
+
+        .cmtx-main {
+            background: #fff;
+            border-radius: 7px;
+            padding: 12px 18px;
+        }
+
+        .cmtx-info {
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .cmtx-content {
+            margin-top: 8px;
+            margin-bottom: 6px;
+        }
+
+        .cmtx-reply-btn {
+            background: #eee;
+            border: none;
+            border-radius: 15px;
+            padding: 3px 15px;
+            font-size: .97rem;
+            cursor: pointer;
+        }
+
+        .cmtx-reply-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .cmtx-reply-box {
+            margin-left: 40px;
+            margin-top: 7px;
+        }
+
+        .cmtx-reply {
+            background: #f9f9f9;
+            border-radius: 7px;
+            padding: 10px 16px;
+        }
+
+        .cmtx-send-btn {
+            background: #bc8787;
+            border: none;
+            color: #fff;
+            border-radius: 18px;
+            padding: 6px 20px;
+        }
+
+        .cmtx-input {
+            width: 70%;
+            border-radius: 13px;
+            border: none;
+            padding: 8px 12px;
         }
     </style>
 </head>
 <body>
-    <div class="content-container">
-        <div class="product-details">
-            <!-- Hiển thị hình ảnh sản phẩm -->
+    <div class="Detail">
+        <!-- SẢN PHẨM -->
+        <div class="product-info">
             <img src="@Model.HinhAnh" alt="@Model.TenGiay" class="product-image" />
-            <!-- Tên sản phẩm -->
-            <h2 class="product-title">@Model.TenGiay</h2>
-            <!-- Giá sản phẩm -->
-            <p class="product-price">Giá: @String.Format("{0:N0}", Model.Gia) VND</p>
-            <!-- Mô tả sản phẩm -->
-            <p class="product-description">Mô tả: @Model.MoTa</p>
-            <!-- Số lượng tồn -->
-            <p class="product-description">Còn lại trong kho: @Model.SoLuongTon</p>
-
-            <!-- Hiển thị loại giày -->
-            <p class="product-description">Loại Giày: @Model.LoaiGiay?.TenLoaiGiay ?? "Không có thông tin"</p>
-
-            <!-- Hiển thị nhà sản xuất -->
-            <p class="product-description">Nhà Sản Xuất: @Model.NhaSanXuat?.TenNhaSanXuat ?? "Không có thông tin"</p>
-
-            <!-- Phần nhập số lượng -->
-            <div class="quantity-container">
-                <button onclick="updateQuantity(-1)">-</button>
-                <input type="number" id="quantity" value="1" min="1" />
-                <button onclick="updateQuantity(1)">+</button>
+            <div class="product-meta">
+                <div class="product-title">@Model.TenGiay</div>
+                <div class="product-price">Giá: @String.Format("{0:N0}", Model.Gia) VND</div>
+                <div class="product-description">Mô tả: @Model.MoTa</div>
+                <div class="product-others">Còn lại: <b>@Model.SoLuongTon</b></div>
+                <div class="product-others">Loại Giày: @Model.LoaiGiay?.TenLoaiGiay ?? "Không có thông tin"</div>
+                <div class="product-others">Nhà Sản Xuất: @Model.NhaSanXuat?.TenNhaSanXuat ?? "Không có thông tin"</div>
+                <div class="quantity-container">
+                    <button onclick="updateQuantity(-1)">-</button>
+                    <input type="number" id="quantity" value="1" min="1" />
+                    <button onclick="updateQuantity(1)">+</button>
+                </div>
+                <button class="add-to-cart" onclick="AddToCart()">Thêm vào Giỏ Hàng</button>
             </div>
-
-            <!-- Nút thêm vào giỏ hàng -->
-            <button class="add-to-cart" onclick="AddToCart()">Thêm vào Giỏ Hàng</button>
+        </div>
+        <div id="notification"></div>
+        
+        <!-- BÌNH LUẬN -->
+        <div class="cmtx-block">
+            <div class="cmtx-title">Bình luận</div>
+            <!-- Form bình luận chính -->
+            @if (Session["CustomerID"] != null)
+            {
+                using (Html.BeginForm("AddComment", "Home", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.GiayId" />
+                    <input type="text" class="cmtx-input" name="content" placeholder="Bình luận....." required />
+                    <button class="cmtx-send-btn" type="submit">gửi</button>
+                }
+            }
+            else
+            {
+                <div>Hãy <a href="@Url.Action("Login","Account")">đăng nhập</a> để bình luận</div>
+            }
+            <br />
+            <!-- Hiển thị comment cha -->
+            @foreach (var cmt in comments.Where(c => string.IsNullOrEmpty(c.ParentCommentId)).OrderByDescending(x => x.CreatedAt))
+            {
+                <div class="cmtx-main">
+                    <span class="cmtx-info">
+                        <b>UserName:</b> @cmt.UserName (@cmt.CreatedAt.ToString("dd/MM/yyyy HH:mm")):
+                    </span>
+                    <div class="cmtx-content">@cmt.Content</div>
+                    <button type="button" class="cmtx-reply-btn" onclick="showReply('@cmt.CommentId')">trả lời</button>
+                    <!-- Reply form, ẩn/hiện theo js -->
+                    <div class="cmtx-reply-box" id="cmtx-reply-@cmt.CommentId" style="display:none;">
+                        @using (Html.BeginForm("AddComment", "Home", FormMethod.Post, new { @class = "cmtx-reply-form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.GiayId" />
+                            <input type="hidden" name="parentCommentId" value="@cmt.CommentId" />
+                            <input type="text" class="cmtx-input" name="content" placeholder="Trả lời..." required />
+                            <button class="cmtx-send-btn" type="submit">gửi</button>
+                        }
+                    </div>
+                    <!-- Danh sách trả lời -->
+                    @foreach (var rep in comments.Where(x => x.ParentCommentId == cmt.CommentId).OrderBy(x => x.CreatedAt))
+                    {
+                        <div class="cmtx-reply cmtx-reply-box">
+                            <span class="cmtx-info">@rep.UserName (@rep.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</span>
+                            <div class="cmtx-content">@rep.Content</div>
+                            @if (rep.UserId == currentUserId || userRole == "Admin")
+                            {
+                                using (Html.BeginForm("DeleteComment", "Home", FormMethod.Post, new { style = "display:inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productId" value="@Model.GiayId" />
+                                    <input type="hidden" name="commentId" value="@rep.CommentId" />
+                                    <button type="submit" style="color:#c00; background:none; border:none; font-size:0.95em;" onclick="return confirm('Xác nhận xóa?')">Xóa</button>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            @if (!comments.Any())
+            {
+                <div style="color: #aaa; padding: 14px 0 0 10px;">Chưa có bình luận nào cho sản phẩm này.</div>
+            }
         </div>
     </div>
-
-    <!-- Thông báo khi thêm sản phẩm vào giỏ -->
-    <div id="notification">Sản phẩm đã được thêm vào giỏ hàng!</div>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        // Cập nhật số lượng khi nhấn nút + hoặc -
+        // Cập nhật số lượng khi nhấn +/-
         function updateQuantity(amount) {
             let quantity = document.getElementById('quantity');
             let currentQuantity = parseInt(quantity.value);
             currentQuantity += amount;
-            if (currentQuantity > 0) {
-                quantity.value = currentQuantity;
-            }
+            if (currentQuantity > 0) quantity.value = currentQuantity;
         }
-
         // Thêm sản phẩm vào giỏ hàng
         function AddToCart() {
-            const productId = '@Model.FirebaseKey';  // Lấy FirebaseKey của sản phẩm
-            let quantity = document.getElementById('quantity').value;  // Lấy số lượng từ input
-
+            const productId = '@Model.GiayId';
+            let quantity = document.getElementById('quantity').value;
             quantity = parseInt(quantity);
             if (isNaN(quantity) || quantity <= 0) {
                 alert("Vui lòng chọn số lượng hợp lệ.");
                 return;
             }
-
-            // Gửi dữ liệu đến Controller thông qua Ajax
             $.ajax({
                 url: '@Url.Action("AddToCart", "Cart")',
                 type: 'POST',
                 data: { productId: productId, quantity: quantity },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification(response.message, "#28a745");  // Hiển thị thông báo thành công
-                    } else {
-                        showNotification(response.message, "#dc3545");  // Hiển thị thông báo lỗi
-                    }
-                },
-                error: function (xhr, status, error) {
-                    showNotification("Có lỗi xảy ra: " + xhr.responseText, "#dc3545");
-                }
+                success: function () { showNotification("Sản phẩm đã được thêm vào giỏ hàng!", "#28a745"); },
+                error: function (xhr, status, error) { showNotification("Có lỗi xảy ra: " + xhr.responseText, "#dc3545"); }
             });
         }
-
-        // Hiển thị thông báo khi thao tác thành công hoặc thất bại
         function showNotification(message, color) {
             $("#notification").text(message).css("background-color", color).fadeIn().delay(3000).fadeOut();
+        }
+        function showReply(id) {
+            var box = document.getElementById('cmtx-reply-' + id);
+            if (box) box.style.display = 'block';
         }
     </script>
 </body>

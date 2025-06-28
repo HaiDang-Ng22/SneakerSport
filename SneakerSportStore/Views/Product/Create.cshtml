@@ -10,6 +10,9 @@
 {
     @Html.AntiForgeryToken()
 
+    <!-- GiayId chỉ cần hidden, controller sẽ tự sinh -->
+    @Html.HiddenFor(m => m.GiayId)
+
     <div class="form-group">
         <label for="TenGiay">Tên Giày</label>
         @Html.TextBoxFor(m => m.TenGiay, new { @class = "form-control" })

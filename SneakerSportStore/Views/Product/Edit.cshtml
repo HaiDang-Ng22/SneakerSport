@@ -10,6 +10,13 @@
 {
     @Html.AntiForgeryToken()
 
+    <!-- Hiện ID (readonly) và hidden để post về controller -->
+    <div class="form-group">
+        <label>ID Sản phẩm</label>
+        @Html.TextBoxFor(m => m.GiayId, new { @class = "form-control", @readonly = "readonly" })
+        @Html.HiddenFor(m => m.GiayId)
+    </div>
+
     <div class="form-group">
         <label>Tên Giày</label>
         @Html.TextBoxFor(m => m.TenGiay, new { @class = "form-control" })

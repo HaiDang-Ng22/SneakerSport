@@ -11,7 +11,7 @@ namespace SneakerSportStore.Models
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class Giay
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,16 +20,17 @@ namespace SneakerSportStore.Models
             this.ChiTietDonDatHangs = new HashSet<ChiTietDonDatHang>();
             this.ThongSoKyThuats = new HashSet<ThongSoKyThuat>();
         }
-        public string FirebaseKey { get; set; } // dùng thay cho GiayID trong Firebase
+        //public string FirebaseKey { get; set; } 
+        public string GiayId { get; set; } 
 
-            public string TenGiay { get; set; }
+        public string TenGiay { get; set; }
         public decimal Gia { get; set; }
         public int SoLuongTon { get; set; }
         public string MoTa { get; set; }
         public Nullable<int> NhaSanXuatID { get; set; }
         public Nullable<int> LoaiGiayID { get; set; }
         public string HinhAnh { get; set; }
-    
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ChiTietDonDatHang> ChiTietDonDatHangs { get; set; }
         public virtual LoaiGiay LoaiGiay { get; set; }

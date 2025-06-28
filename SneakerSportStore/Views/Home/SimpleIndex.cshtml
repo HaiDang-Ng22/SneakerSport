@@ -7,7 +7,7 @@
         {
             <div class="product">
                 <!-- Nhấn vào hình ảnh hoặc tên sản phẩm để dẫn đến trang chi tiết -->
-                <a href="@Url.Action("Details", "Home", new { id = product.FirebaseKey })">
+                <a href="@Url.Action("Details", "Home", new { id = product.GiayId })">
                     <img src="@product.HinhAnh" alt="@product.TenGiay" style="width:150px; height:150px;" />
                     <h3 style="color:#fff;">@product.TenGiay</h3>
                 </a>

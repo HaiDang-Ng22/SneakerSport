@@ -43,7 +43,7 @@ namespace SneakerSportStore.Controllers
                 }
             }
         }
-
+        [HttpPost]
         public async Task<ActionResult> AddToCart(string productId, int quantity)
         {
             var userId = Session["CustomerID"]?.ToString();  // Lấy ID người dùng từ session
@@ -62,7 +62,7 @@ namespace SneakerSportStore.Controllers
                 }
 
                 var json = await productResponse.Content.ReadAsStringAsync();
-                var product = JsonConvert.DeserializeObject<Giay>(json);
+                var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(json);
 
                 var cart = await GetCartItems(userId);
 

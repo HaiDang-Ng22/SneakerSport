@@ -46,22 +46,23 @@ namespace SneakerSportStore.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     dynamic result = JsonConvert.DeserializeObject(responseBody);
-
-                    // Lấy thông tin người dùng từ Realtime Database
                     string userId = result.localId;
+
+                    // Lấy thông tin user từ Firebase
                     var userInfoResponse = await client.GetAsync($"{FirebaseDbUrl}/users/{userId}.json");
                     var userInfo = await userInfoResponse.Content.ReadAsStringAsync();
                     dynamic userData = JsonConvert.DeserializeObject(userInfo);
 
-                    // Lưu session
+                    // Lưu vào session
                     Session["FirebaseToken"] = result.idToken;
                     Session["Username"] = result.email;
                     Session["UserRole"] = userData?.userRole ?? "User";
                     Session["FullName"] = userData?.hoTen ?? "";
                     Session["Email"] = result.email;
-                    Session["CustomerID"] = userId; // Lưu customerId để nhận diện người dùng
+                    Session["CustomerID"] = userId; // ID người dùng (dùng cho mọi nghiệp vụ)
+                    Session["UserId"] = userId;     // Gán thêm key này nếu bạn muốn dễ nhớ hơn
 
-                    return RedirectToAction("Index", "Home");  // Redirect đến trang chủ hoặc trang giỏ hàng
+                    return RedirectToAction("Index", "Home");
                 }
 
                 ViewBag.ErrorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác.";
@@ -85,7 +86,7 @@ namespace SneakerSportStore.Controllers
                 return View(newUser);
             }
 
-            string role = "User"; // Mặc định tất cả tài khoản là User
+            string role = "User"; // Tài khoản mới luôn là User
 
             var payload = new
             {
@@ -108,8 +109,12 @@ namespace SneakerSportStore.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var userId = JsonConvert.DeserializeObject<dynamic>(responseBody).localId;
+
+                    // Lưu user với id tự động vào Firebase
                     var firebaseUser = new
                     {
+                        userId = userId, // <--- luôn có id
                         hoTen = newUser.HoTen,
                         email = newUser.Email,
                         userRole = role,
@@ -118,9 +123,8 @@ namespace SneakerSportStore.Controllers
                         tenDangNhap = newUser.TenDangNhap
                     };
 
-                    var userId = JsonConvert.DeserializeObject<dynamic>(responseBody).localId;
                     await client.PutAsync(
-                        $"https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/users/{userId}.json",
+                        $"{FirebaseDbUrl}/users/{userId}.json",
                         new StringContent(JsonConvert.SerializeObject(firebaseUser), Encoding.UTF8, "application/json")
                     );
 
@@ -136,7 +140,7 @@ namespace SneakerSportStore.Controllers
 
         public ActionResult Logout()
         {
-            Session.Clear();  // Xóa tất cả session khi đăng xuất
+            Session.Clear();
             TempData["SuccessMessage"] = "Bạn đã đăng xuất thành công.";
             return RedirectToAction("Login");
         }

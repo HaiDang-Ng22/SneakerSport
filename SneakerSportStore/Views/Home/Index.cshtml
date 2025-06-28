@@ -13,12 +13,12 @@
 
                 <!-- Chỉ hiện các nút "Xem Chi Tiết" và "Mua Liền" -->
                 <div class="product-buttons">
-                    <a href="@Url.Action("Details", "Home", new { id = product.FirebaseKey })">
+                    <a href="@Url.Action("Details", "Home", new { id = product.GiayId })">
                         <button style="background-color:#770e12;" class="btn btn-detail">Xem Chi Tiết</button>
                     </a>
 
                     <button style="background-color:#770e12;" class="btn btn-buy"
-                            onclick="window.location.href='@Url.Action("Checkout", "Payment", new { productId = product.FirebaseKey })'">
+                            onclick="window.location.href='@Url.Action("Checkout", "Payment", new { productId = product.GiayId })'">
                         Mua Liền
                     </button>
                 </div>

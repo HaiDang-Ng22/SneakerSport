@@ -21,8 +21,10 @@
                 {
                     <li>@Html.ActionLink("Chỉnh Sửa", "Index", "Product", null, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Thông Tin Khách Hàng", "Index", "Customer", null, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "nav-link" })</li>
+
                 }
-                <li>@Html.ActionLink("Giỏ Hàng", "ViewC art", "Cart", null, new { @class = "nav-link" })</li>
+                <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "nav-link" })</li>
 
                 <li>@Html.ActionLink("Giới Thiệu", "About", "Home", null, new { @class = "nav-link" })</li>
                 @Html.ActionLink("Cài đặt", "Index", "Settings", null, new { @class = "nav-link" })
@@ -167,6 +169,7 @@
 
 
     </script>
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>

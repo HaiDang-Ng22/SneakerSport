@@ -1,12 +1,93 @@
 ﻿@model SneakerSportStore.Models.KhachHang
-
+<link href="~/Views/Customer/Detail.css" rel="stylesheet" />
 @{
     ViewBag.Title = "Thông tin khách hàng";
     var orders = ViewBag.Orders as List<dynamic>;
     var userId = ViewBag.UserId as string;
 }
+<style>
+    body {
+        background: #f4f6fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-<h2>Thông tin khách hàng</h2>
+    .Container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px 0 #33415510;
+        padding: 32px 30px 24px 30px;
+    }
+
+    .content {
+        width: 100%;
+    }
+
+    .Head {
+        font-size: 2rem;
+        color: #334155;
+        margin-bottom: 18px;
+        font-weight: 600;
+        letter-spacing: .5px;
+    }
+
+    .content p {
+        margin: 10px 0 10px 0;
+        font-size: 1.07rem;
+        color: #3b3b3b;
+    }
+
+    h3 {
+        margin: 30px 0 16px 0;
+        color: #004085;
+        font-weight: 500;
+        font-size: 1.2rem;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #f9fafb;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 16px #0001;
+    }
+
+        .table th,
+        .table td {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .table th {
+            background: #e6eaff;
+            color: #344767;
+            font-weight: 600;
+            letter-spacing: .2px;
+        }
+
+        .table tr {
+            transition: background-color .5s;
+        }
+
+            .table tr:hover {
+                background-color: #b7caed;
+            }
+
+    .table-striped tbody tr:nth-child(odd) {
+        background: #f5f7fb;
+    }
+
+</style>
+<div class="container">
+    <div class="content">
+
+<h2 class="Head">Thông tin khách hàng</h2>
 <p><strong>Họ tên:</strong> @Model.HoTen</p>
 <p><strong>Email:</strong> @Model.Email</p>
 <p><strong>Số điện thoại:</strong> @Model.SoDienThoai</p>
@@ -42,3 +123,5 @@ else
         </tbody>
     </table>
 }
+    </div>
+</div>

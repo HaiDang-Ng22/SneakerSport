@@ -1,0 +1,32 @@
+﻿    @model List<SneakerSportStore.Models.DiscountCode>
+    <h2>Danh Sách Mã Giảm Giá Của Bạn</h2>
+    @if (Model == null || !Model.Any())
+    {
+        <div>Bạn chưa lưu mã giảm giá nào.</div>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tên Mã Giảm Giá</th>
+                    <th>Điều Kiện</th>
+                    <th>Giảm Giá</th>
+                    <th>Thời Gian Áp Dụng</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td>@v.CodeName</td>
+                        <td>@v.Condition</td>
+                        <td>@(v.DiscountType == "percent" ? $"{v.DiscountValue}%" : $"{v.DiscountValue:N0} VNĐ")</td>
+                        <td>@v.StartDate - @v.EndDate</td>
+                        <td>@(v.Active ? "Hiện Thị" : "Đã Ẩn")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }

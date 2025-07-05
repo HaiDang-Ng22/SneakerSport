@@ -1,10 +1,78 @@
 ﻿@model SneakerSportStore.Models.Giay
+<style>
+    body {
+        background: #f6f8fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .form-group {
+        background: #fff;
+        margin: 15px 0 22px 0;
+        padding: 16px 22px 9px 22px;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px #0001;
+        font-size: 1.12rem;
+    }
+
+    label {
+        font-weight: 600;
+        color: #2b3342;
+        margin-bottom: 2px;
+        display: block;
+        font-size: 1.05em;
+    }
+
+    strong {
+        color: #263049;
+        letter-spacing: 0.01em;
+        font-size: 1.05em;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 7px;
+        padding: 8px 25px;
+        font-size: 1.05rem;
+        margin-right: 16px;
+        box-shadow: 0 1px 4px #0001;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background .14s, color .15s;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+    .btn-secondary {
+        background: #cbd5e1;
+        color: #222;
+    }
+
+        .btn-secondary:hover {
+            background: #64748b;
+            color: #fff;
+        }
+
+    form {
+        max-width: 470px;
+        margin: 38px auto 0 auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 7px 24px #0002;
+        padding: 40px 38px 25px 38px;
+    }
+</style>
 
 @using (Html.BeginForm("DeleteConfirmed", "Product", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-
-    <!-- GiayId để truyền cho controller xử lý xóa đúng sản phẩm -->
     @Html.HiddenFor(m => m.GiayId)
 
     <div class="form-group">

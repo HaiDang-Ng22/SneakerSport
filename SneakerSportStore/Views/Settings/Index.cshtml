@@ -1,52 +1,26 @@
 ﻿@{
     ViewBag.Title = "Cài đặt tài khoản";
-    var user = Model;
 }
-
-<h2>🔐 Cài đặt tài khoản</h2>
-
+<h2>Cài đặt tài khoản</h2>
 @if (TempData["Message"] != null)
 {
-    <div style="color: green">@TempData["Message"]</div>
+    <div class="alert alert-success">@TempData["Message"]</div>
 }
 @if (TempData["Error"] != null)
 {
-    <div style="color: red">@TempData["Error"]</div>
+    <div class="alert alert-danger">@TempData["Error"]</div>
 }
-
-<hr />
-<h3>👤 Thông tin cá nhân</h3>
-
-@using (Html.BeginForm("UpdateInfo", "Settings", FormMethod.Post))
+<div style="margin:30px 0;">
+    <a href="@Url.Action("EditProfile")" class="btn btn-primary" style="padding:15px 32px; margin:15px 20px;">Cập nhật thông tin cá nhân</a>
+    <a href="@Url.Action("ForgotPassword")" class="btn btn-warning" style="padding:15px 32px; margin:15px 20px;">Đổi mật khẩu</a>
+</div>
+@if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
 {
-    <input type="hidden" name="userId" value="@Session["UserID"]" />
+    <li>@Html.ActionLink("Đơn hàng", "MyOrders", "UserOrder", null, new { @class = "nav-link" })</li>
 
-    <label>Họ tên:</label>
-    <input type="text" name="hoTen" value="@user.hoTen" class="form-control" />
-
-    <label>Email:</label>
-    <input type="email" name="email" value="@user.email" class="form-control" />
-
-    <label>Số điện thoại:</label>
-    <input type="text" name="soDienThoai" value="@user.soDienThoai" class="form-control" />
-
-    <label>Địa chỉ:</label>
-    <input type="text" name="diaChi" value="@user.diaChi" class="form-control" />
-
-    <br />
-    <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
 }
-
-<hr />
-<h3>🔑 Đổi mật khẩu</h3>
-
-@using (Html.BeginForm("ChangePassword", "Settings", FormMethod.Post))
+@if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
 {
-    <input type="hidden" name="idToken" value="@Session["FirebaseToken"]" />
+    <li>@Html.ActionLink("Đơn hàng", "Index", "AdminOrder", null, new { @class = "nav-link" })</li>
 
-    <label>Mật khẩu mới:</label>
-    <input type="password" name="newPassword" class="form-control" required />
-
-    <br />
-    <button type="submit" class="btn btn-warning">Đổi mật khẩu</button>
 }

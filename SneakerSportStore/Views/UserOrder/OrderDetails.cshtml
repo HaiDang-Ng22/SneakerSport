@@ -1,0 +1,38 @@
+﻿@model SneakerSportStore.Models.Order
+
+<h2>Chi tiết đơn hàng @Model.OrderId</h2>
+
+<div><strong>Trạng thái:</strong> @Model.Status</div>
+<div><strong>Tên khách hàng:</strong> @Model.CustomerName</div>
+<div><strong>Địa chỉ:</strong> @Model.Address</div>
+<div><strong>Số điện thoại:</strong> @Model.PhoneNumber</div>
+
+<h4>Sản phẩm đã đặt:</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Tổng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("N0") VNĐ</td>
+                <td>@(item.Price * item.Quantity).ToString("N0") VNĐ</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Status != "Hủy")
+{
+    <form method="post" action="@Url.Action("CancelOrder", "UserOrder", new { orderId = Model.OrderId })">
+        <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+    </form>
+}

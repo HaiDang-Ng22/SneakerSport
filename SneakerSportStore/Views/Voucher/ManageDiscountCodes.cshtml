@@ -1,0 +1,54 @@
+﻿@model List<SneakerSportStore.Models.DiscountCode>
+
+<h2>Quản Lý Mã Giảm Giá</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+<ul>
+    <li>@Html.ActionLink("Tạo Voucher", "CreateDiscountCode", "Voucher", null, new { @class = "nav-link" })</li>
+
+</ul>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên Mã Giảm Giá</th>
+            <th>Điều Kiện</th>
+            <th>Giảm Giá (%)</th>
+            <th>Thời Gian Áp Dụng</th>
+            <th>Trạng Thái</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var voucher in Model)
+        {
+            <tr>
+                <td>@voucher.CodeName</td>
+                <td>@voucher.Condition</td>
+                <td>@voucher.DiscountValue %</td>
+                <td>@voucher.StartDate - @voucher.EndDate</td>
+                <td>@(voucher.IsPublic ? "Hiện" : "Ẩn")</td>
+                <td>
+                    <form action="@Url.Action("ToggleDiscountCode", "Voucher")" method="post">
+                        <input type="hidden" name="codeName" value="@voucher.CodeName" />
+                        <input type="hidden" name="isActive" value="@(voucher.IsPublic ? "false" : "true")" />
+                        <button type="submit" class="btn btn-secondary">
+                            @(voucher.IsPublic ? "Ẩn" : "Hiện")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

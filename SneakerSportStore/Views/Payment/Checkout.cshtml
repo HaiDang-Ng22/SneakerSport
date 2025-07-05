@@ -1,67 +1,310 @@
 ﻿@model SneakerSportStore.Models.CheckoutViewModel
-<link href="~/Content/CheckoutPay.css" rel="stylesheet" />
-<div class="checkout-container">
-    <h1>Thông Tin Sản Phẩm</h1>
 
-    <div class="product-details">
-        @if (!string.IsNullOrEmpty(ViewBag.ProductImage))
-        {
-            <img src="@Url.Content("~/Images/" + ViewBag.ProductImage)" alt="@ViewBag.ProductName" />
-        }
-        else
-        {
-            <p>Thông tin hình ảnh không khả dụng.</p>
-        }
-
-        <h3 style="font-size:40px;">@ViewBag.ProductName</h3>
-        <p style="font-size:30px;color:#000;">Giá:<span style="font-size:25px; color:#ea2d2d;"> @String.Format("{0:N0}", ViewBag.ProductPrice) USD</span></p>
-
-        @if (!string.IsNullOrEmpty(ViewBag.ProductDescription))
-        {
-            <p>Mô tả: @ViewBag.ProductDescription</p>
-        }
-        else
-        {
-            <p>Mô tả không khả dụng.</p>
-        }
-
-        <p><strong>Tổng tiền:</strong> @String.Format("{0:N0}", Model.TotalAmount) USD</p>
-    </div>
-
-    @using (Html.BeginForm("Confirm", "Payment", FormMethod.Post))
-    {
-        @Html.AntiForgeryToken()
-
-        @Html.HiddenFor(m => m.ProductId)
-
-        <div>
-            <label for="name">Tên người nhận:</label>
-            @Html.TextBoxFor(m => m.Name, new { @class = "form-control", required = "required" })
-            @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
-        </div>
-        <div>
-            <label for="phone">Số điện thoại:</label>
-            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", required = "required" })
-            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", required = "required" })
-            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
-        </div>
-        <div>
-            <label for="address">Địa chỉ giao hàng:</label>
-            @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required" })
-            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
-        </div>
-        <div>
-            <label for="PaymentMethod">Phương thức thanh toán:</label>
-            @Html.DropDownListFor(m => m.PaymentMethod, (IEnumerable<SelectListItem>)ViewBag.PaymentMethods, "Chọn phương thức thanh toán", new { @class = "form-control", id = "payment-method" })
-            @Html.ValidationMessageFor(m => m.PaymentMethod, "", new { @class = "text-danger" })
-        </div>
-
-        <button type="submit" class="btn btn-primary">Xác Nhận Đơn Hàng</button>
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7fc;
+        padding: 20px;
     }
 
+    .conTainer {
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+    .form-control {
+        padding: 12px 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+        width: 100%;
+        background-color: #f9f9f9;
+    }
+
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+            background-color: #fff;
+        }
+
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+        width: 100%;
+    }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+    #btnPay {
+        background-color: #28a745;
+        color: white;
+        display: block; /* Ensure button is displayed */
+        width: 100%;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        #btnPay:hover {
+            background-color: #218838;
+        }
+
+    /* Table Styles */
+    .table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        .table td {
+            background-color: #f9f9f9;
+        }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .text-success {
+        color: #28a745;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    hr {
+        border-top: 2px solid #ddd;
+        margin: 30px 0;
+    }
+</style>
+
+<div class="conTainer">
+    <h2>THANH TOÁN</h2>
+
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @using (Html.BeginForm())
+    {
+        <!-- Thông tin khách hàng -->
+        <div class="form-group">
+            @Html.LabelFor(m => m.Name)
+            @Html.TextBoxFor(m => m.Name, new { @class = "form-control", required = "required" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Phone)
+            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", required = "required" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Address)
+            @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required" })
+        </div>
+
+        <hr />
+
+        <!-- Danh sách sản phẩm -->
+        <h4>Sản phẩm</h4>
+        if (Model.SelectedCartItems != null && Model.SelectedCartItems.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>SP</th>
+                        <th>SL</th>
+                        <th>Giá</th>
+                        <th>Tổng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in Model.SelectedCartItems)
+                    {
+                        <tr>
+                            <td>@it.ProductName</td>
+                            <td>@it.Quantity</td>
+                            <td class="text-right">@it.Price.ToString("N0") VNĐ</td>
+                            <td class="text-right">@((it.Price * it.Quantity)).ToString("N0") VNĐ</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div>Giỏ hàng của bạn hiện tại không có sản phẩm nào.</div>
+        }
+
+        <div class="text-right">
+            <strong>Tạm tính:</strong> <span class="text-danger">@Model.TotalBeforeDiscount.ToString("N0") VNĐ</span>
+        </div>
+
+        <hr />
+
+        <!-- Voucher đã lưu -->
+        <div class="form-group">
+            <h4>Voucher đã lưu</h4>
+            @if (Model.SavedVouchers != null && Model.SavedVouchers.Any())
+            {
+                <select id="SelectedVoucherId" name="SelectedVoucherId" class="form-control" style="max-width:400px;">
+                    <option value="">-- Không chọn --</option>
+                    @foreach (var v in Model.SavedVouchers)
+                    {
+                        <option value="@v.CodeName" @(Model.SelectedVoucherId == v.CodeName ? "selected" : "")>
+                            @v.CodeName – Đơn ≥ @v.MinimumOrderValue.ToString("N0") VNĐ – Giảm
+                            @(v.DiscountType == "percent" ? v.DiscountValue + "%" : v.DiscountValue.ToString("N0") + " VNĐ")
+                        </option>
+                    }
+                </select>
+            }
+            else
+            {
+                <div>Không có voucher nào để chọn.</div>
+            }
+            @Html.ValidationMessageFor(m => m.SelectedVoucherId, "", new { @class = "text-danger" })
+        </div>
+
+        <hr />
+
+        <div class="text-right">
+            <strong>Giảm giá:</strong>
+            <span class="text-success" id="discountAmount">
+                @Model.DiscountAmount.ToString("N0") VNĐ
+            </span>
+        </div>
+        <div class="text-right">
+            <strong>Tổng phải trả:</strong>
+            <span class="text-danger" id="finalTotal">
+                @Model.TotalAfterDiscount.ToString("N0") VNĐ
+            </span>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            @Html.Label("Phương thức thanh toán")
+            <div>
+                @Html.RadioButtonFor(m => m.PaymentMethod, "cod") Thanh toán khi nhận hàng<br />
+                @Html.RadioButtonFor(m => m.PaymentMethod, "bank") Chuyển khoản
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success" id="btnPay">Xác Nhận Thanh toán</button>
+    }
 </div>
 
+@section Scripts {
+    <script>
+        // Khi chọn voucher, cập nhật thông tin điều kiện
+        $('#SelectedVoucherId').on('change', function () {
+            var min = $(this).find(':selected').data('min') || 0;
+            if (min > 0) {
+                $('#voucherCondition').html(
+                    '<b>Điều kiện:</b> Đơn ≥ ' + min.toLocaleString() + ' VNĐ'
+                );
+            } else {
+                $('#voucherCondition').text('Không chọn voucher.');
+            }
+
+            // Cập nhật lại tổng tiền và giảm giá khi thay đổi voucher
+            updateTotal();
+        }).trigger('change');
+
+        function updateTotal() {
+            var total = @Model.TotalBeforeDiscount; // Tổng tiền đơn hàng
+            var selectedVoucherId = $('#SelectedVoucherId').val(); // ID voucher được chọn
+            var vouchers = @Html.Raw(Json.Encode(Model.SavedVouchers)) || []; // Danh sách voucher đã lưu
+
+            var discountAmount = 0;
+            var voucherMessage = ''; // Biến lưu thông báo khi voucher không hợp lệ
+
+            if (selectedVoucherId) {
+                var selectedVoucher = vouchers.find(v => v.CodeName === selectedVoucherId); // Tìm voucher đã chọn
+
+                if (selectedVoucher) {
+                    // Kiểm tra điều kiện voucher
+                    if (total >= selectedVoucher.MinimumOrderValue) {
+                        // Nếu điều kiện hợp lệ, tính giảm giá
+                        if (selectedVoucher.DiscountType === "Percentage") {
+                            discountAmount = total * selectedVoucher.DiscountValue / 100;
+                        } else if (selectedVoucher.DiscountType === "Fixed") {
+                            discountAmount = selectedVoucher.DiscountValue;
+                        }
+                    } else {
+                        // Nếu không đủ điều kiện, lưu thông báo lỗi
+                        voucherMessage = `Voucher không đủ điều kiện! Đơn hàng phải ≥ ${selectedVoucher.MinimumOrderValue.toLocaleString()} VNĐ.`;
+                        discountAmount = 0; // Không giảm giá
+                    }
+                }
+            }
+
+            // Cập nhật giá trị giảm giá và tổng tiền sau giảm
+            $('#discountAmount').text(discountAmount.toFixed(0));
+            var totalAfterDiscount = total - discountAmount;
+            $('#finalTotal').text(totalAfterDiscount.toFixed(0));
+
+            // Nếu có thông báo lỗi, hiển thị cho người dùng
+            if (voucherMessage) {
+                alert(voucherMessage);
+            }
+        }
+
+        // Gọi hàm cập nhật tổng khi trang được tải
+        updateTotal();
+    </script>
+}

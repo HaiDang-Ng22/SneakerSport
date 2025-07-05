@@ -5,12 +5,152 @@
 
 <link href="~/Content/IndexProduct.css" rel="stylesheet" />
 
+<style>
+    body {
+        background: #f7f8fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        font-weight: 700;
+        color: #0a2647;
+        margin: 32px 0 18px 0;
+        letter-spacing: 1px;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        border-radius: 6px;
+        padding: 8px 20px;
+        text-decoration: none;
+        font-weight: 500;
+        margin-bottom: 24px;
+        box-shadow: 0 3px 15px #0001;
+        border: none;
+        transition: background .18s;
+    }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            color: #fff;
+        }
+
+    .table {
+        width: 94%;
+        margin: 24px auto 40px auto;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 6px 32px #0002;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+    }
+
+        .table th, .table td {
+            padding: 16px 22px;
+            text-align: left;
+            font-size: 1.08em;
+            vertical-align: middle;
+            border-bottom: 1px solid #ecedf2;
+        }
+
+        .table.td{
+            color:#00000;
+        }
+        .table th {
+            background: linear-gradient(90deg, #2563eb 40%, #38bdf8 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.09em;
+            border-bottom: 3px solid #60a5fa;
+            letter-spacing: 0.6px;
+        }
+
+        .table tr {
+            transition: background 0.16s;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f4f7fc;
+        }
+
+        .table tbody tr:hover {
+            background: #e3edfa;
+        }
+
+        .table td img {
+            max-width: 74px;
+            max-height: 60px;
+            border-radius: 7px;
+            box-shadow: 0 2px 10px #0001;
+            border: 1.5px solid #e5e7eb;
+        }
+
+    .btn-sm {
+        font-size: 1em;
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: none;
+        margin-right: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background .14s, color .14s;
+        box-shadow: 0 1px 7px #0001;
+    }
+
+    .btn-warning {
+        background: #facc15;
+        color: #3b3b1b;
+    }
+
+        .btn-warning:hover {
+            background: #eab308;
+            color: #23230a;
+        }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            color: #fff;
+        }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #c81e1e;
+        margin: 28px auto;
+        max-width: 540px;
+        border-radius: 9px;
+        padding: 14px 24px;
+        font-size: 1.08em;
+        box-shadow: 0 1px 8px #0001;
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #8892b0;
+        font-size: 1.14em;
+        text-align: center;
+        margin-top: 34px;
+    }
+    .Content-order td {
+        color: #222c35 !important;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+</style>
+
 <h2>Danh sách sản phẩm</h2>
 
 <div style="margin-top:20px;">
-    <a href="@Url.Action("Create", "Product")" class="btn btn-primary">➕ Thêm sản phẩm mới</a>
+    <a href="@Url.Action("Create", "Product")" class="btn btn-primary"> Thêm sản phẩm mới</a>
 </div>
-
+<div class="content">
 @if (!string.IsNullOrEmpty(ViewBag.Error))
 {
     <div class="alert alert-danger" role="alert">
@@ -33,7 +173,7 @@
         <tbody>
             @foreach (var item in Model)
             {
-                <tr>
+                <tr class="Content-order">
                     <td>@item.TenGiay</td>
                     <td>@String.Format("{0:N0}", item.Gia) VNĐ</td>
                     <td>@item.MoTa</td>
@@ -48,8 +188,8 @@
                         }
                     </td>
                     <td>
-                        <a href="@Url.Action("Edit", "Product", new { id = item.GiayId })" class="btn btn-sm btn-warning">✏️ Sửa</a>
-                        <a href="@Url.Action("Delete", "Product", new { id = item.GiayId })" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">🗑️ Xóa</a>
+                        <a href="@Url.Action("Edit", "Product", new { id = item.GiayId })" class="btn btn-sm btn-warning">Sửa</a>
+                        <a href="@Url.Action("Delete", "Product", new { id = item.GiayId })" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
                     </td>
                 </tr>
             }
@@ -61,3 +201,4 @@ else
 {
     <p class="text-muted mt-3">Không có sản phẩm nào.</p>
 }
+</div>

@@ -158,13 +158,11 @@ namespace SneakerSportStore.Controllers
             return View(model);
         }
 
-        // GET: Product/Delete/5
         public async Task<ActionResult> Delete(string id)
         {
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(FirebaseDbUrl + "/products/" + id + ".json");
-
                 if (!response.IsSuccessStatusCode)
                 {
                     return HttpNotFound("Sản phẩm không tồn tại.");
@@ -183,41 +181,30 @@ namespace SneakerSportStore.Controllers
             }
         }
 
-        // POST: Product/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Product/Delete
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(string id)
+        public async Task<ActionResult> DeleteConfirmed(string GiayId)
         {
             using (var client = new HttpClient())
             {
-                var response = await client.DeleteAsync(FirebaseDbUrl + "/products/" + id + ".json");
+                var response = await client.DeleteAsync(FirebaseDbUrl + "/products/" + GiayId + ".json");
+
+                await client.DeleteAsync(FirebaseDbUrl + "/comments/" + GiayId + ".json");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var userId = Session["CustomerID"]?.ToString();
-
-                    if (!string.IsNullOrEmpty(userId))
-                    {
-                        var cart = await GetCartItems(userId);
-
-                        var cartItem = cart.FirstOrDefault(c => c.FirebaseKey == id);
-                        if (cartItem != null)
-                        {
-                            cart.Remove(cartItem);
-                            await SaveCartToFirebase(userId, cart);
-                        }
-                    }
-
                     TempData["Message"] = "Sản phẩm đã được xóa thành công!";
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    ViewBag.Error = "Không thể xóa sản phẩm.";
-                    return RedirectToAction("Delete", new { id });
+                    TempData["Error"] = "Không thể xóa sản phẩm. Vui lòng thử lại!";
+                    return RedirectToAction("Delete", new { id = GiayId });
                 }
             }
         }
+
 
         // Method to get cart items from Firebase
         private async Task<List<CartItem>> GetCartItems(string userId)

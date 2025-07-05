@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using SneakerSportStore.Extensions;
 using System.Text;
+using System;
 
 namespace SneakerSportStore.Controllers
 {
@@ -97,6 +98,48 @@ namespace SneakerSportStore.Controllers
             ViewBag.Count = count;
             return PartialView("_NotificationBadge");
         }
+        // POST: Notification/Delete
+        [HttpPost]
+        public async Task<ActionResult> Delete(string notificationId)
+        {
+            string userId = Session["CustomerID"] as string;
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(notificationId))
+                return Json(new { success = false });
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.DeleteAsync(
+                    FirebaseDbUrl + $"/notifications/{userId}/{notificationId}.json"
+                );
+                if (response.IsSuccessStatusCode)
+                    return Json(new { success = true });
+                else
+                    return Json(new { success = false });
+            }
+        }
+
+        // Lưu thông báo cho Admin khi có đơn hàng mới
+        private async Task SendOrderNotificationToAdmin(string orderId)
+        {
+            var notification = new Notification
+            {
+                Message = $"Đơn hàng mới: {orderId} đang chờ xác nhận.",
+                IsRead = false,
+                CreatedAt = DateTime.Now,
+                Type = "OrderUpdate",
+                RelatedOrderId = orderId,
+                // Chứa URL dẫn đến trang chi tiết đơn hàng của admin
+                RedirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, protocol: Request.Url.Scheme)
+            };
+
+            using (var client = new HttpClient())
+            {
+                var json = JsonConvert.SerializeObject(notification);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                await client.PostAsync(FirebaseDbUrl + "/notifications/admin.json", content);
+            }
+        }
 
     }
+
 }

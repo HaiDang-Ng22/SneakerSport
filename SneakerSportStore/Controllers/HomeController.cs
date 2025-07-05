@@ -140,9 +140,6 @@ namespace SneakerSportStore.Controllers
             }
         }
 
-        
-
-        // Xóa bình luận
         [HttpPost]
         public async Task<ActionResult> DeleteComment(string productId, string commentId)
         {
@@ -227,12 +224,10 @@ namespace SneakerSportStore.Controllers
         public ActionResult Guide() => View();
         public ActionResult About() => View();
 
-        // Model user mẫu
         public class User
         {
             public string Username { get; set; }
             public string Role { get; set; }
-            // ... các field khác nếu có
         }
     }
 }

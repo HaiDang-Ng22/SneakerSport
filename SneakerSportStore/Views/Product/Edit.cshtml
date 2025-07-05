@@ -3,45 +3,140 @@
 @{
     ViewBag.Title = "Chỉnh sửa sản phẩm";
 }
+<style>
+    body {
+        background: #f5f6fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        color: #1e293b;
+        margin-top: 28px;
+        margin-bottom: 28px;
+        font-size: 2.1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    form {
+        max-width: 540px;
+        margin: 38px auto 0 auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 7px 24px #0002;
+        padding: 36px 40px 30px 40px;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    label {
+        font-weight: 600;
+        color: #232f3e;
+        margin-bottom: 5px;
+        display: block;
+        font-size: 1.07em;
+    }
+
+    .form-control, select.form-control {
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 1.1rem;
+        color: #222;
+        background: #f8fafc;
+        transition: border 0.18s, box-shadow 0.18s;
+        width: 100%;
+        margin-top: 2px;
+    }
+
+        .form-control:focus, select.form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px #60a5fa33;
+            background: #fff;
+        }
+
+        .form-control[readonly] {
+            background: #f1f5f9;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+    button.btn {
+        border: none;
+        border-radius: 8px;
+        padding: 9px 30px;
+        font-size: 1.08rem;
+        margin-right: 16px;
+        box-shadow: 0 1px 5px #0001;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background .13s, color .13s;
+    }
+
+    .btn-success {
+        background: #059669;
+        color: #fff;
+    }
+
+        .btn-success:hover {
+            background: #047857;
+            color: #fff;
+        }
+
+    .btn-secondary {
+        background: #cbd5e1;
+        color: #2b3342;
+    }
+
+        .btn-secondary:hover {
+            background: #64748b;
+            color: #fff;
+        }
+</style>
+
 
 <h2>Chỉnh sửa sản phẩm</h2>
-
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
 
-    <!-- Hiện ID (readonly) và hidden để post về controller -->
     <div class="form-group">
         <label>ID Sản phẩm</label>
         @Html.TextBoxFor(m => m.GiayId, new { @class = "form-control", @readonly = "readonly" })
         @Html.HiddenFor(m => m.GiayId)
     </div>
-
     <div class="form-group">
         <label>Tên Giày</label>
         @Html.TextBoxFor(m => m.TenGiay, new { @class = "form-control" })
     </div>
-
     <div class="form-group">
         <label>Giá</label>
         @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
     </div>
-
     <div class="form-group">
         <label>Số Lượng</label>
         @Html.TextBoxFor(m => m.SoLuongTon, new { @class = "form-control", type = "number" })
     </div>
-
     <div class="form-group">
         <label>Mô Tả</label>
         @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control" })
     </div>
-
     <div class="form-group">
         <label>Hình Ảnh</label>
         @Html.TextBoxFor(m => m.HinhAnh, new { @class = "form-control" })
     </div>
-
+    <div class="form-group">
+        <label>Nhà Sản Xuất</label>
+        @Html.TextBoxFor(m => m.NhaSanXuat, new { @class = "form-control", placeholder = "Nhập tên nhà sản xuất" })
+    </div>
+    <div class="form-group">
+        <label>Loại Giày</label>
+        @Html.TextBoxFor(m => m.LoaiGiay, new { @class = "form-control", placeholder = "Nhập loại giày" })
+    </div>
     <button type="submit" class="btn btn-success">Cập nhật</button>
     <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
 }

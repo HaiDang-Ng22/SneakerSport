@@ -1,0 +1,76 @@
+﻿@model List<SneakerSportStore.Models.DiscountCode>
+
+<h2> Khuyến Mãi</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="voucher-container">
+    @foreach (var voucher in Model)
+    {
+        <div class="voucher-card">
+            <div class="voucher-header">
+                <h3>@voucher.CodeName</h3>
+                <p>@voucher.Condition</p>
+            </div>
+            <div class="voucher-body">
+                <p><strong>Giảm giá:</strong> @voucher.DiscountValue %</p>
+                <p><strong>Thời gian áp dụng:</strong> @voucher.StartDate - @voucher.EndDate</p>
+                <p><strong>Giảm giá tối thiểu:</strong> @voucher.MinimumOrderValue</p>
+            </div>
+            <div class="voucher-footer">
+                <button class="btn-apply" data-code="@voucher.CodeName">Áp Dụng</button>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .voucher-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .voucher-card {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        width: 300px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .voucher-header {
+        background-color: #f04e23;
+        color: white;
+        padding: 10px;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .voucher-body {
+        margin-top: 20px;
+    }
+
+    .voucher-footer {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .btn-apply {
+        background-color: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .btn-apply:hover {
+            background-color: #1e40af;
+        }
+</style>

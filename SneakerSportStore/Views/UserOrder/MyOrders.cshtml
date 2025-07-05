@@ -1,0 +1,32 @@
+﻿@model List<SneakerSportStore.Models.Order>
+
+<h2>Danh sách đơn hàng của bạn</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã đơn hàng</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.FinalTotal.ToString("N0") VNĐ</td>
+                    <td>@order.Status</td>
+                    <td><a href="@Url.Action("OrderDetails", new { orderId = order.OrderId })">Xem chi tiết</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

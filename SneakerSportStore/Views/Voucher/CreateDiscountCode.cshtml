@@ -1,0 +1,53 @@
+﻿@model SneakerSportStore.Models.DiscountCode
+
+<h2>Tạo Mã Giảm Giá</h2>
+
+@using (Html.BeginForm("CreateDiscountCode", "Voucher", FormMethod.Post))
+{
+    <div>
+        <label for="codeName">Tên mã giảm giá:</label>
+        <input type="text" name="codeName" required class="form-control" />
+    </div>
+
+    <div>
+        <label for="condition">Điều kiện:</label>
+        <input type="text" name="condition" required class="form-control" />
+    </div>
+
+    <div>
+        <label for="discountType">Loại giảm giá:</label>
+        <select name="discountType" class="form-control">
+            <option value="Percentage">Giảm giá theo phần trăm</option>
+            <option value="Fixed">Giảm giá trực tiếp</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="discountValue">Giảm giá (% hoặc trực tiếp):</label>
+        <input type="number" name="discountValue" class="form-control" required />
+    </div>
+
+    <div>
+        <label for="minimumOrderValue">Đơn hàng lớn hơn (VND) để áp dụng mã:</label>
+        <input type="number" name="minimumOrderValue" class="form-control" required />
+    </div>
+
+    <div>
+        <label for="startDate">Ngày bắt đầu:</label>
+        <input type="datetime-local" name="startDate" class="form-control" required />
+    </div>
+
+    <div>
+        <label for="endDate">Ngày kết thúc:</label>
+        <input type="datetime-local" name="endDate" class="form-control" required />
+    </div>
+
+    <div>
+        <label for="isPublic">Hiển thị cho người dùng:</label>
+        <input type="checkbox" name="isPublic" value="true" />
+        <!-- Hidden field to handle unchecked checkbox -->
+        <input type="hidden" name="isPublic" value="false" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Tạo mã giảm giá</button>
+}

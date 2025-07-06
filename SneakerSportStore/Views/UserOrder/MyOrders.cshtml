@@ -1,32 +1,100 @@
 ﻿@model List<SneakerSportStore.Models.Order>
+<style>
+    .OrderList {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-<h2>Danh sách đơn hàng của bạn</h2>
+    .OrderList__Title {
+        font-size: 24px;
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
 
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Mã đơn hàng</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                <tr>
-                    <td>@order.OrderId</td>
-                    <td>@order.FinalTotal.ToString("N0") VNĐ</td>
-                    <td>@order.Status</td>
-                    <td><a href="@Url.Action("OrderDetails", new { orderId = order.OrderId })">Xem chi tiết</a></td>
-                </tr>
+    .OrderList__Table {
+        margin-top: 30px;
+    }
+
+        .OrderList__Table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .OrderList__Table th, .OrderList__Table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .OrderList__Table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .OrderList__Table td a {
+            padding: 8px 15px;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+            .OrderList__Table td a:hover {
+                background-color: #0056b3;
             }
-        </tbody>
-    </table>
-}
+
+    .alert-info {
+        background-color: #d9edf7;
+        color: #31708f;
+        padding: 15px;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+</style>
+<div class="OrderList">
+    <h2 class="OrderList__Title">Danh sách đơn hàng của bạn</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
+    }
+    else
+    {
+        <div class="OrderList__Table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>@order.OrderId</td>
+                            <td>@order.FinalTotal.ToString("N0") VNĐ</td>
+                            <td>@order.Status</td>
+                            <td>
+                                <a href="@Url.Action("OrderDetails", new { orderId = order.OrderId })" class="btn btn-info">Xem chi tiết</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

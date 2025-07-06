@@ -1,20 +1,20 @@
 ﻿@model SneakerSportStore.Models.DiscountCode
 
-<h2>Tạo Mã Giảm Giá</h2>
+<h2 class="page-title">Tạo Mã Giảm Giá</h2>
 
 @using (Html.BeginForm("CreateDiscountCode", "Voucher", FormMethod.Post))
 {
-    <div>
+    <div class="form-group">
         <label for="codeName">Tên mã giảm giá:</label>
         <input type="text" name="codeName" required class="form-control" />
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="condition">Điều kiện:</label>
         <input type="text" name="condition" required class="form-control" />
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="discountType">Loại giảm giá:</label>
         <select name="discountType" class="form-control">
             <option value="Percentage">Giảm giá theo phần trăm</option>
@@ -22,32 +22,121 @@
         </select>
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="discountValue">Giảm giá (% hoặc trực tiếp):</label>
         <input type="number" name="discountValue" class="form-control" required />
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="minimumOrderValue">Đơn hàng lớn hơn (VND) để áp dụng mã:</label>
         <input type="number" name="minimumOrderValue" class="form-control" required />
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="startDate">Ngày bắt đầu:</label>
         <input type="datetime-local" name="startDate" class="form-control" required />
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="endDate">Ngày kết thúc:</label>
         <input type="datetime-local" name="endDate" class="form-control" required />
     </div>
 
-    <div>
+    <div class="form-group">
         <label for="isPublic">Hiển thị cho người dùng:</label>
-        <input type="checkbox" name="isPublic" value="true" />
+        <input type="checkbox" name="isPublic" value="true" class="form-check-input" />
         <!-- Hidden field to handle unchecked checkbox -->
         <input type="hidden" name="isPublic" value="false" />
     </div>
 
-    <button type="submit" class="btn btn-success">Tạo mã giảm giá</button>
+    <button type="submit" class="btn btn-success btn-submit">Tạo mã giảm giá</button>
 }
+<style>
+    /* Tổng quan giao diện */
+    .page-title {
+        font-size: 26px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    /* Các form group */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+    /* Các input, select */
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+    /* Checkbox */
+    .form-check-input {
+        margin-top: 8px;
+        margin-right: 10px;
+    }
+
+    /* Nút submit */
+    .btn-submit {
+        font-size: 16px;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+    /* Tạo hiệu ứng hover cho form */
+    input[type="text"], input[type="number"], input[type="datetime-local"], select {
+        transition: box-shadow 0.3s ease;
+    }
+
+        input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus, select:focus {
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.7);
+        }
+
+    /* Định dạng form tổng thể */
+    form {
+        width: 70%;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Hiệu ứng cho form khi lỗi hoặc có thông báo */
+    .form-group input:invalid, .form-group select:invalid {
+        border-color: #e74c3c;
+    }
+
+        .form-group input:invalid:focus, .form-group select:invalid:focus {
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.7);
+        }
+
+</style>

@@ -273,6 +273,7 @@
     <Compile Include="Models\ThongSoKyThuat.cs">
       <DependentUpon>SneakerStore.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -453,6 +454,7 @@
     <Content Include="Views\UserOrder\MyOrders.cshtml" />
     <Content Include="Views\UserOrder\OrderDetails.cshtml" />
     <Content Include="Views\Payment\OrderResult.cshtml" />
+    <Content Include="Views\Settings\DetailsUser.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\AccountSettingsApi\" />

@@ -1,37 +1,107 @@
 ﻿@model SneakerSportStore.Models.Order
 
-<h2>Chi tiết đơn hàng @Model.OrderId</h2>
+<div class="order-details-container">
+    <h2>Chi tiết đơn hàng @Model.OrderId</h2>
 
-<div><strong>Trạng thái:</strong> @Model.Status</div>
-<div><strong>Tên khách hàng:</strong> @Model.CustomerName</div>
-<div><strong>Địa chỉ:</strong> @Model.Address</div>
-<div><strong>Số điện thoại:</strong> @Model.PhoneNumber</div>
+    <div class="order-details">
+        <div><strong>Trạng thái:</strong> @Model.Status</div>
+        <div><strong>Tên khách hàng:</strong> @Model.CustomerName</div>
+        <div><strong>Địa chỉ:</strong> @Model.Address</div>
+        <div><strong>Số điện thoại:</strong> @Model.PhoneNumber</div>
+    </div>
 
-<h4>Sản phẩm đã đặt:</h4>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Tổng</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Items)
-        {
+    <h4>Sản phẩm đã đặt:</h4>
+    <table class="table">
+        <thead>
             <tr>
-                <td>@item.ProductName</td>
-                <td>@item.Quantity</td>
-                <td>@item.Price.ToString("N0") VNĐ</td>
-                <td>@(item.Price * item.Quantity).ToString("N0") VNĐ</td>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Tổng</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("N0") VNĐ</td>
+                    <td>@(item.Price * item.Quantity).ToString("N0") VNĐ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <hr />
+
+    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Xác nhận" })">
+        <button type="submit" class="btn btn-success">Xác nhận</button>
+    </form>
+</div>
+<style>
+    /* Định dạng chung cho container chi tiết đơn hàng */
+    .order-details-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+        /* Tiêu đề chi tiết đơn hàng */
+        .order-details-container h2 {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
         }
-    </tbody>
-</table>
 
-<hr />
+    /* Định dạng cho thông tin đơn hàng */
+    .order-details div {
+        font-size: 14px;
+        margin: 8px 0;
+    }
 
-<form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Xác nhận" })">
-    <button type="submit" class="btn btn-success">Xác nhận</button>
-</form>
+    /* Thông tin sản phẩm */
+    h4 {
+        font-size: 18px;
+        margin-top: 20px;
+    }
+
+    /* Bảng sản phẩm */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+    /* Nút xác nhận */
+    form button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 14px;
+        border: none;
+        background-color: #28a745;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        form button:hover {
+            background-color: #218838;
+        }
+
+</style>

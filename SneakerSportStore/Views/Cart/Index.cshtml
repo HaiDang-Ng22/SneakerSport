@@ -184,7 +184,6 @@
 
 @section Scripts {
     <script>
-        // Hàm tính và cập nhật tổng
         function updateSelectedTotal() {
             var total = 0;
             document
@@ -194,17 +193,14 @@
                     var qty = parseInt(cb.dataset.qty, 10) || 0;
                     total += price * qty;
                 });
-            // format với phân cách hàng nghìn
             document.getElementById('selectedTotal').textContent =
                 'Tổng giá trị: ' + total.toLocaleString() + ' VNĐ';
         }
 
-        // Gắn sự kiện change vào tất cả checkbox
         document.querySelectorAll('input[name="selectedProductIds"]').forEach(function (cb) {
             cb.addEventListener('change', updateSelectedTotal);
         });
 
-        // Tính ngay lần đầu load
         updateSelectedTotal();
     </script>
 }

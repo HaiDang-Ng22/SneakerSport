@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SneakerSportStore.Models;
 using System;
 using System.Collections.Generic;
@@ -253,7 +254,7 @@ namespace SneakerSportStore.Controllers
         }
         private async Task SendOrderNotification(string orderId, string userId)
         {
-            // Tạo thông báo cho Admin
+            // Create the admin notification
             var adminNotification = new Notification
             {
                 Message = $"Đơn hàng mới {orderId} của người dùng {userId} đang chờ xác nhận.",
@@ -264,18 +265,55 @@ namespace SneakerSportStore.Controllers
                 RedirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, protocol: Request.Url.Scheme)
             };
 
-       
+            // Get all admin user IDs
+            var adminUserIds = await GetAdminUserIds();
+
             using (var client = new HttpClient())
             {
-                // Thông báo cho Admin
-                var jsonAdmin = JsonConvert.SerializeObject(adminNotification);
-                var contentAdmin = new StringContent(jsonAdmin, Encoding.UTF8, "application/json");
-                await client.PostAsync(FirebaseDbUrl + $"/notifications/{userId}.json", contentAdmin);
+                foreach (var adminId in adminUserIds)
+                {
+                    var jsonAdmin = JsonConvert.SerializeObject(adminNotification);
+                    var contentAdmin = new StringContent(jsonAdmin, Encoding.UTF8, "application/json");
 
-               
+                    // Save the notification under the admin's notification node
+                    await client.PostAsync(FirebaseDbUrl + $"/notifications/{adminId}.json", contentAdmin);
+                }
             }
         }
+        private async Task<List<string>> GetAdminUserIds()
+        {
+            var adminUserIds = new List<string>();
 
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(FirebaseDbUrl + "/users.json");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    // Kiểm tra dữ liệu JSON nhận được
+                    Console.WriteLine("Received JSON: " + json);
+
+                    // Deserialize thành Dictionary<string, dynamic> để dễ dàng xử lý
+                    var dict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+
+                    if (dict != null)
+                    {
+                        foreach (var pair in dict)
+                        {
+                            // Kiểm tra xem đối tượng có phải là dynamic không và có trường "userRole"
+                            var user = pair.Value as JObject; // Chuyển về JObject
+                            if (user != null && user["userRole"]?.ToString() == "Admin")
+                            {
+                                adminUserIds.Add(pair.Key); // Lưu key là userId
+                            }
+                        }
+                    }
+                }
+            }
+
+            return adminUserIds;
+        }
 
 
         public ActionResult OrderResult(string id)

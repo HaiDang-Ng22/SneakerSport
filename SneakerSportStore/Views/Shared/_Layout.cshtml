@@ -23,10 +23,10 @@
                     <li>@Html.ActionLink("Chỉnh Sửa", "Index", "Product", null, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Thông Tin Khách Hàng", "Index", "Customer", null, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Khuyến Mãi", "ManageDiscountCodes", "Voucher", null, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "nav-link" })</li>
 
 
                 }
-                    <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "nav-link" })</li>
                 <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "nav-link" })</li>
                 @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
             {
@@ -49,7 +49,7 @@
                         <span>Roles: @Session["UserRole"]</span>
                     </div>-->
                     <!-- Đăng xuất -->
-                    <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>
+                    @*<li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>*@
                 }
                 else
                 {
@@ -91,7 +91,6 @@
     </main>
 
 
-    <!-- Footer Section -->
     <footer>
         <div class="container" style="color:#fff;">
             <h2 style="color:#ffffff">Thông tin liên hệ</h2>

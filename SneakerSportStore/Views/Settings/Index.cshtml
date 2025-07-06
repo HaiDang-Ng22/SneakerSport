@@ -1,26 +1,98 @@
 ﻿@{
     ViewBag.Title = "Cài đặt tài khoản";
 }
-<h2>Cài đặt tài khoản</h2>
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-<div style="margin:30px 0;">
-    <a href="@Url.Action("EditProfile")" class="btn btn-primary" style="padding:15px 32px; margin:15px 20px;">Cập nhật thông tin cá nhân</a>
-    <a href="@Url.Action("ForgotPassword")" class="btn btn-warning" style="padding:15px 32px; margin:15px 20px;">Đổi mật khẩu</a>
+<div class="AccountSettingsSimple">
+    <h2 class="AccountSettings__Title">Cài đặt tài khoản</h2>
+
+    <!-- Hiển thị thông báo thành công -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success AccountSettings__AlertSuccess">@TempData["Message"]</div>
+    }
+
+    <!-- Hiển thị thông báo lỗi -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger AccountSettings__AlertError">@TempData["Error"]</div>
+    }
+
+    <!-- Cập nhật thông tin cá nhân và đổi mật khẩu -->
+     <!--<div class="AccountSettings__Actions">
+        <a href="@Url.Action("EditProfile")" class="btn btn-simple">Cập nhật thông tin cá nhân</a>
+        <a href="@Url.Action("ForgotPassword")" class="btn btn-simple">Đổi mật khẩu</a>
+    </div>-->
+
+    <!-- Các liên kết dành cho người dùng -->
+    <div class="AccountSettings__UserActions">
+        <ul>
+            @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+            {
+                <li>@Html.ActionLink("Đơn hàng", "Index", "AdminOrder", null, new { @class = "nav-link" })</li>
+            }
+
+            <li>@Html.ActionLink("Tài khoản", "DetailsUser", "Settings", null, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>
+        </ul>
+    </div>
 </div>
-@if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
-{
-    <li>@Html.ActionLink("Đơn hàng", "MyOrders", "UserOrder", null, new { @class = "nav-link" })</li>
 
-}
-@if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
-{
-    <li>@Html.ActionLink("Đơn hàng", "Index", "AdminOrder", null, new { @class = "nav-link" })</li>
 
-}
+<style>
+    /* Bao bọc phần cài đặt tài khoản */
+    .AccountSettingsSimple {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+        /* Tiêu đề */
+        .AccountSettingsSimple h2 {
+            font-size: 20px;
+            color: #333;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+    /* Các nút hành động */
+    .AccountSettings__Actions {
+        margin-bottom: 20px;
+    }
+
+        .AccountSettings__Actions .btn-simple {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px 0;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+            text-align: center;
+        }
+
+    /* Các liên kết */
+    .AccountSettings__UserActions ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .AccountSettings__UserActions li {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    .AccountSettings__UserActions .nav-link {
+        font-size: 16px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .AccountSettings__UserActions .nav-link:hover {
+            text-decoration: underline;
+        }
+
+
+</style>

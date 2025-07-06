@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using System.Linq;
-using SneakerSportStore.Extensions;
 using System.Text;
+using SneakerSportStore.Extensions;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace SneakerSportStore.Controllers
 {
@@ -18,7 +19,6 @@ namespace SneakerSportStore.Controllers
         public async Task<ActionResult> Index()
         {
             string userId = Session["CustomerID"] as string;
-            ViewBag.DebugUserId = userId;
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Account");
 
@@ -29,19 +29,41 @@ namespace SneakerSportStore.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var dict = JsonConvert.DeserializeObject<Dictionary<string, Notification>>(json);
-                    if (dict != null)
-                        notifications = dict.Values.OrderByDescending(x => x.CreatedAt).ToList();
+                    if (!string.IsNullOrEmpty(json) && json != "null")
+                    {
+                        try
+                        {
+                            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                            if (dict != null)
+                            {
+                                foreach (var item in dict)
+                                {
+                                    if (item.Value is JObject notificationObj)
+                                    {
+                                        var notification = notificationObj.ToObject<Notification>();
+                                        if (notification != null)
+                                        {
+                                            notifications.Add(notification);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (JsonSerializationException ex)
+                        {
+                            ViewBag.Error = "Lỗi khi tải thông báo: " + ex.Message;
+                        }
+                    }
                 }
                 else
                 {
                     ViewBag.Error = "Không thể kết nối tới máy chủ thông báo!";
                 }
             }
+
             return View(notifications);
         }
 
-        // Đánh dấu là đã đọc (có thể mở rộng)
         [HttpPost]
         public async Task<ActionResult> MarkAsRead(string notificationId)
         {
@@ -58,7 +80,6 @@ namespace SneakerSportStore.Controllers
             }
             return Json(new { success = true });
         }
-        // NotificationController (action)
         public async Task<int> GetUnreadCount()
         {
             string userId = Session["CustomerID"] as string;
@@ -98,48 +119,29 @@ namespace SneakerSportStore.Controllers
             ViewBag.Count = count;
             return PartialView("_NotificationBadge");
         }
-        // POST: Notification/Delete
         [HttpPost]
-        public async Task<ActionResult> Delete(string notificationId)
+        public async Task<ActionResult> Delete(string firebaseKey)
         {
-            string userId = Session["CustomerID"] as string;
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(notificationId))
-                return Json(new { success = false });
+            var userId = Session["CustomerID"]?.ToString();
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
 
             using (var client = new HttpClient())
             {
-                var response = await client.DeleteAsync(
-                    FirebaseDbUrl + $"/notifications/{userId}/{notificationId}.json"
-                );
+                var response = await client.DeleteAsync($"{FirebaseDbUrl}/notifications/{userId}/{firebaseKey}.json");
                 if (response.IsSuccessStatusCode)
-                    return Json(new { success = true });
+                {
+                    TempData["SuccessMessage"] = "Đã xóa !";
+                }
                 else
-                    return Json(new { success = false });
+                {
+                    TempData["ErrorMessage"] = "Không thể xóa!";
+                }
+                return RedirectToAction("Index");
             }
         }
 
-        // Lưu thông báo cho Admin khi có đơn hàng mới
-        private async Task SendOrderNotificationToAdmin(string orderId)
-        {
-            var notification = new Notification
-            {
-                Message = $"Đơn hàng mới: {orderId} đang chờ xác nhận.",
-                IsRead = false,
-                CreatedAt = DateTime.Now,
-                Type = "OrderUpdate",
-                RelatedOrderId = orderId,
-                // Chứa URL dẫn đến trang chi tiết đơn hàng của admin
-                RedirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, protocol: Request.Url.Scheme)
-            };
 
-            using (var client = new HttpClient())
-            {
-                var json = JsonConvert.SerializeObject(notification);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                await client.PostAsync(FirebaseDbUrl + "/notifications/admin.json", content);
-            }
-        }
-
+      
     }
-
 }

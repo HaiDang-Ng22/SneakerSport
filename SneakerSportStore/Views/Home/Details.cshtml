@@ -305,6 +305,48 @@
             var box = document.getElementById('cmtx-reply-' + id);
             if (box) box.style.display = 'block';
         }
+
+           $(document).ready(function () {
+        // Handle comment submission
+        $("form#add-comment-form").submit(function (event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            var content = $("input[name='content']").val(); // Get the comment content
+            var productId = $("input[name='productId']").val(); // Get the product ID
+
+            if (!content.trim()) {
+                alert("Vui lòng nhập nội dung bình luận.");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("AddComment", "Home")',
+                type: 'POST',
+                data: { productId: productId, content: content },
+                success: function (response) {
+                    if (response.success) {
+                        // Append the new comment to the comment list without reloading the page
+                        var newCommentHtml = `
+                            <div class="cmtx-main">
+                                <span class="cmtx-info"><b>${response.userName}</b> (${response.createdAt}):</span>
+                                <div class="cmtx-content">${response.content}</div>
+                                <button type="button" class="cmtx-reply-btn" onclick="showReply('${response.commentId}')">Trả lời</button>
+                            </div>
+                        `;
+                        $(".cmtx-block").append(newCommentHtml); // Append new comment
+                        $("input[name='content']").val(""); // Clear the input
+                    } else {
+                        alert("Có lỗi xảy ra khi thêm bình luận.");
+                    }
+                },
+                error: function () {
+                    alert("Lỗi kết nối máy chủ!");
+                }
+            });
+        });
+    });
+
+
     </script>
 </body>
 </html>

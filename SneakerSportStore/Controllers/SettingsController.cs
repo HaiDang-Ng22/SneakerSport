@@ -1,7 +1,8 @@
 ﻿using Newtonsoft.Json;
 using SneakerSportStore.Extensions;
-using System.Collections.Generic;
+using SneakerSportStore.Models;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -193,6 +194,80 @@ namespace SneakerSportStore.Controllers
         public ActionResult ForgotPassword()
         {
             return View();
+        }
+        public async Task<ActionResult> DetailsUser()
+        {
+            var userId = Session["CustomerID"]?.ToString();
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["Error"] = "Không tìm thấy thông tin người dùng.";
+                return RedirectToAction("Index");
+            }
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync($"{FirebaseDbUrl}/users/{userId}.json");
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["Error"] = "Không thể tải thông tin người dùng.";
+                    return RedirectToAction("Index");
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var user = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+
+                if (user == null)
+                {
+                    TempData["Error"] = "Không có thông tin người dùng.";
+                    return RedirectToAction("Index");
+                }
+
+                var hoTen = user.ContainsKey("hoTen") ? user["hoTen"] : "Chưa cập nhật";
+                var email = user.ContainsKey("email") ? user["email"] : "Chưa cập nhật";
+                var soDienThoai = user.ContainsKey("soDienThoai") ? user["soDienThoai"] : "Chưa cập nhật";
+                var diaChi = user.ContainsKey("diaChi") ? user["diaChi"] : "Chưa cập nhật";
+
+                // Gán vào model UserInfo
+                var userInfo = new UserInfo
+                {
+                    HoTen = hoTen,
+                    Email = email,
+                    SoDienThoai = soDienThoai,
+                    DiaChi = diaChi
+                };
+
+                ViewBag.User = userInfo; // Gán vào ViewBag
+
+                return View();
+            }
+        }
+
+        // Xóa tài khoản người dùng
+        [HttpPost]
+        public async Task<ActionResult> DeleteAccount(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["Error"] = "Không tìm thấy tài khoản!";
+                return RedirectToAction("Index");
+            }
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.DeleteAsync($"{FirebaseDbUrl}/users/{userId}.json");
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "Tài khoản đã bị xóa thành công!";
+                    // Xóa session nếu có
+                    Session.Clear();
+                }
+                else
+                {
+                    TempData["Error"] = "Lỗi khi xóa tài khoản!";
+                }
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

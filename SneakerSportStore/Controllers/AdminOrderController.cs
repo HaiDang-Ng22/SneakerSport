@@ -77,7 +77,6 @@ namespace SneakerSportStore.Controllers
             return View(order);
         }
 
-        // Cập nhật trạng thái đơn hàng
         [HttpPost]
         public async Task<ActionResult> UpdateOrderStatus(string id, string status)
         {
@@ -94,6 +93,12 @@ namespace SneakerSportStore.Controllers
 
                         if (order != null)
                         {
+                            if (order.Status == "Hủy")  // Kiểm tra trạng thái đã hủy
+                            {
+                                TempData["ErrorMessage"] = "Đơn hàng đã bị hủy, không thể cập nhật trạng thái!";
+                                return RedirectToAction("Index");
+                            }
+
                             order.Status = status; // Cập nhật trạng thái
                             var orderJson = JsonConvert.SerializeObject(order);
                             await client.PutAsync(FirebaseDbUrl + $"/orders/{id}.json", new StringContent(orderJson, Encoding.UTF8, "application/json"));
@@ -113,5 +118,6 @@ namespace SneakerSportStore.Controllers
 
             return RedirectToAction("Index");
         }
+
     }
 }

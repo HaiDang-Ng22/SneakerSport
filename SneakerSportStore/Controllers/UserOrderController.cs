@@ -85,8 +85,8 @@ namespace SneakerSportStore.Controllers
                 }
             }
 
-            // Kiểm tra nếu đơn hàng không thuộc về người dùng hoặc đã hủy
-            if (order == null || order.UserId != userId || order.Status == "Hủy")
+            // Kiểm tra nếu đơn hàng không thuộc về người dùng, hoặc trạng thái là "Xác nhận"
+            if (order == null || order.UserId != userId || order.Status == "Xác nhận" || order.Status == "Hủy")
             {
                 TempData["ErrorMessage"] = "Không thể hủy đơn hàng này!";
                 return RedirectToAction("MyOrders");
@@ -112,5 +112,7 @@ namespace SneakerSportStore.Controllers
 
             return RedirectToAction("MyOrders");
         }
+
+
     }
 }

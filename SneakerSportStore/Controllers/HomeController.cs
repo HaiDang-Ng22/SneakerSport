@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace SneakerSportStore.Controllers
 {
@@ -14,15 +15,13 @@ namespace SneakerSportStore.Controllers
     {
         private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
-        // GET: /Home/Details/{id}
-        public async Task<ActionResult> Details(string id)
+        public async Task<ActionResult> Details(string id, string commentId = null)
         {
             Giay product = null;
             List<Comment> comments = new List<Comment>();
 
             using (var client = new HttpClient())
             {
-                // Lấy sản phẩm
                 var response = await client.GetAsync(FirebaseDbUrl + "/products/" + id + ".json");
                 if (response.IsSuccessStatusCode)
                 {
@@ -34,7 +33,6 @@ namespace SneakerSportStore.Controllers
                     return HttpNotFound("Sản phẩm không tồn tại.");
                 }
 
-                // Lấy bình luận
                 var cmtResponse = await client.GetAsync(FirebaseDbUrl + $"/comments/{id}.json");
                 if (cmtResponse.IsSuccessStatusCode)
                 {
@@ -45,14 +43,19 @@ namespace SneakerSportStore.Controllers
                 }
             }
 
+            if (!string.IsNullOrEmpty(commentId))
+            {
+                var selectedComment = comments.FirstOrDefault(c => c.CommentId == commentId);
+                ViewBag.SelectedComment = selectedComment;
+            }
+
             ViewBag.Comments = comments;
             ViewBag.ProductId = id;
-            return View(product); // LUÔN truyền product!
+            return View(product);
         }
 
-      
 
-        private const string ADMIN_USER_ID = "SuNguyen13022005-24072024"; // UserId của admin
+
 
         [HttpPost]
         public async Task<ActionResult> AddComment(string productId, string content, string parentCommentId = null)
@@ -74,61 +77,117 @@ namespace SneakerSportStore.Controllers
                 CreatedAt = DateTime.Now
             };
 
-            // 1. Lưu comment vào Firebase như cũ
             using (var client = new HttpClient())
             {
                 var contentJson = new StringContent(JsonConvert.SerializeObject(comment), Encoding.UTF8, "application/json");
                 await client.PutAsync(FirebaseDbUrl + $"/comments/{productId}/{comment.CommentId}.json", contentJson);
             }
 
-            // 2. Lấy danh sách tất cả user có role là Admin và gửi thông báo cho họ
             var adminUserIds = await GetAdminUserIds();
-            string message = $"Có comment ở sản phẩm mới: \"{content}\"";
-
+            string message = $"Có comment mới ở sản phẩm: \"{content}\"";
             foreach (var adminId in adminUserIds)
             {
-                await AddNotification(adminId, message, productId, comment.CommentId);
+                await AddNotification(adminId, message, productId, comment.CommentId); 
             }
 
             return RedirectToAction("Details", new { id = productId });
         }
 
-        // Hàm lấy danh sách tất cả userId có role là admin
+
+
         private async Task<List<string>> GetAdminUserIds()
         {
             var adminUserIds = new List<string>();
+
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(FirebaseDbUrl + "/users.json");
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var dict = JsonConvert.DeserializeObject<Dictionary<string, ApplicationUser>>(json);
+
+                    // Kiểm tra dữ liệu JSON nhận được
+                    Console.WriteLine("Received JSON: " + json);
+
+                    // Deserialize thành Dictionary<string, dynamic> để dễ dàng xử lý
+                    var dict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+
                     if (dict != null)
                     {
                         foreach (var pair in dict)
                         {
-                            if (pair.Value.userRole == "Admin") // Chú ý: phải đúng property trong firebase (thường là userRole, không phải Role)
-                                adminUserIds.Add(pair.Key); // userId là key trên firebase
+                            // Kiểm tra xem đối tượng có phải là dynamic không và có trường "userRole"
+                            var user = pair.Value as JObject; // Chuyển về JObject
+                            if (user != null && user["userRole"]?.ToString() == "Admin")
+                            {
+                                adminUserIds.Add(pair.Key); // Lưu key là userId
+                            }
                         }
                     }
                 }
             }
+
             return adminUserIds;
         }
 
-        // Hàm ghi notification cho từng admin
-        private async Task AddNotification(string userId, string message, string productId, string commentId)
+
+        private async Task SendOrderNotification(string orderId, string userId)
         {
+            var adminNotification = new Notification
+            {
+                Message = $"Đơn hàng mới {orderId} của người dùng {userId} đang chờ xác nhận.",
+                IsRead = false,
+                CreatedAt = DateTime.Now,
+                Type = "OrderUpdate",
+                RelatedOrderId = orderId,
+                RedirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, protocol: Request.Url.Scheme) 
+            };
+
+            // Get all admin user IDs
+            var adminUserIds = await GetAdminUserIds();
+
+            using (var client = new HttpClient())
+            {
+                foreach (var adminId in adminUserIds)
+                {
+                    var jsonAdmin = JsonConvert.SerializeObject(adminNotification);
+                    var contentAdmin = new StringContent(jsonAdmin, Encoding.UTF8, "application/json");
+
+                    // Save the notification under the admin's notification node
+                    await client.PostAsync(FirebaseDbUrl + $"/notifications/{adminId}.json", contentAdmin);
+                }
+            }
+        }
+
+        private async Task AddNotification(string userId, string message, string productId, string commentId = null, string orderId = null)
+        {
+            string redirectUrl = string.Empty;
+            string notificationMessage = message;
+
+            // Kiểm tra nếu là bình luận
+            if (!string.IsNullOrEmpty(commentId))
+            {
+                redirectUrl = Url.Action("Details", "Home", new { id = productId, commentId = commentId }, protocol: Request.Url.Scheme);
+                notificationMessage = $"Bình luận mới: {message}";  // Thêm thông tin loại thông báo
+            }
+            // Kiểm tra nếu là đơn hàng
+            else if (!string.IsNullOrEmpty(orderId))
+            {
+                redirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, protocol: Request.Url.Scheme);
+                notificationMessage = $"Đơn hàng mới: {message}"; // Thêm thông tin loại thông báo
+            }
+
             var notification = new Notification
             {
                 NotificationId = Guid.NewGuid().ToString(),
                 UserId = userId,
-                Message = message,
+                Message = notificationMessage,  // Thông điệp đã chỉnh sửa
                 ProductId = productId,
                 CommentId = commentId,
+                OrderId = orderId,
                 IsRead = false,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                RedirectUrl = redirectUrl
             };
 
             using (var client = new HttpClient())
@@ -139,6 +198,10 @@ namespace SneakerSportStore.Controllers
                 );
             }
         }
+
+
+
+
 
         [HttpPost]
         public async Task<ActionResult> DeleteComment(string productId, string commentId)

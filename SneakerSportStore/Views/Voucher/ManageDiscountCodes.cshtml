@@ -1,6 +1,6 @@
 ﻿@model List<SneakerSportStore.Models.DiscountCode>
 
-<h2>Quản Lý Mã Giảm Giá</h2>
+<h2 class="page-title">Quản Lý Mã Giảm Giá</h2>
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -15,35 +15,36 @@
         @TempData["ErrorMessage"]
     </div>
 }
-<ul>
-    <li>@Html.ActionLink("Tạo Voucher", "CreateDiscountCode", "Voucher", null, new { @class = "nav-link" })</li>
 
+<ul class="nav-links">
+    <li>@Html.ActionLink("Tạo Voucher", "CreateDiscountCode", "Voucher", null, new { @class = "nav-link" })</li>
 </ul>
-<table class="table">
-    <thead>
+
+<table class="table table-striped">
+    <thead class="table-header">
         <tr>
-            <th>Tên Mã Giảm Giá</th>
-            <th>Điều Kiện</th>
-            <th>Giảm Giá (%)</th>
-            <th>Thời Gian Áp Dụng</th>
-            <th>Trạng Thái</th>
-            <th>Thao Tác</th>
+            <th class="column-title">Tên Mã Giảm Giá</th>
+            <th class="column-title">Điều Kiện</th>
+            <th class="column-title">Giảm Giá (%)</th>
+            <th class="column-title">Thời Gian Áp Dụng</th>
+            <th class="column-title">Trạng Thái</th>
+            <th class="column-title">Thao Tác</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var voucher in Model)
         {
-            <tr>
-                <td>@voucher.CodeName</td>
-                <td>@voucher.Condition</td>
-                <td>@voucher.DiscountValue %</td>
-                <td>@voucher.StartDate - @voucher.EndDate</td>
-                <td>@(voucher.IsPublic ? "Hiện" : "Ẩn")</td>
-                <td>
+            <tr class="voucher-row">
+                <td class="voucher-code">@voucher.CodeName</td>
+                <td class="voucher-condition">@voucher.Condition</td>
+                <td class="voucher-discount">@voucher.DiscountValue %</td>
+                <td class="voucher-dates">@voucher.StartDate - @voucher.EndDate</td>
+                <td class="voucher-status">@((voucher.IsPublic ? "Hiện" : "Ẩn"))</td>
+                <td class="voucher-actions">
                     <form action="@Url.Action("ToggleDiscountCode", "Voucher")" method="post">
                         <input type="hidden" name="codeName" value="@voucher.CodeName" />
                         <input type="hidden" name="isActive" value="@(voucher.IsPublic ? "false" : "true")" />
-                        <button type="submit" class="btn btn-secondary">
+                        <button type="submit" class="btn btn-secondary voucher-toggle">
                             @(voucher.IsPublic ? "Ẩn" : "Hiện")
                         </button>
                     </form>
@@ -52,3 +53,147 @@
         }
     </tbody>
 </table>
+
+<style>
+    /* Tổng quan giao diện */
+    .page-title {
+        font-size: 26px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .nav-links {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+        .nav-links li {
+            display: inline-block;
+            margin: 0 15px;
+        }
+
+        .nav-links .nav-link {
+            text-decoration: none;
+            color: #3498db;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+            .nav-links .nav-link:hover {
+                color: #1d75b8;
+            }
+
+    /* Cảnh báo và thông báo */
+    .alert {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background-color: #28a745;
+        color: white;
+        border: 1px solid #28a745;
+    }
+
+    .alert-danger {
+        background-color: #dc3545;
+        color: white;
+        border: 1px solid #dc3545;
+    }
+
+    /* Bảng quản lý */
+    .table {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+    .table-striped tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .table tbody tr:hover {
+        background-color: #e6f7ff;
+        cursor: pointer;
+    }
+
+    /* Các cột trong bảng */
+    .column-title {
+        font-size: 16px;
+        color: #333;
+    }
+
+    /* Thao tác trong bảng */
+    .voucher-actions .btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        text-align: center;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .voucher-toggle {
+        background-color: #f1c40f;
+        color: #fff;
+        border: none;
+    }
+
+        .voucher-toggle:hover {
+            background-color: #f39c12;
+        }
+
+    /* Cải thiện vẻ ngoài của các trạng thái */
+    .voucher-status {
+        font-weight: bold;
+        color: #2ecc71;
+    }
+
+        .voucher-status.Ẩn {
+            color: #e74c3c;
+        }
+
+    /* Các dòng trong bảng */
+    .voucher-row {
+        font-size: 14px;
+        color: #555;
+        transition: background-color 0.3s ease;
+    }
+
+        .voucher-row:hover {
+            background-color: #f1f1f1;
+        }
+
+    /* Màu nền cho các cột */
+    .voucher-code, .voucher-condition, .voucher-discount, .voucher-dates, .voucher-status, .voucher-actions {
+        padding-left: 20px;
+    }
+
+    /* Thêm khoảng cách và chỉnh sửa font cho các ô trong bảng */
+    .voucher-code, .voucher-condition, .voucher-discount, .voucher-dates {
+        font-weight: bold;
+    }
+
+    .voucher-actions form {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+</style>

@@ -1,0 +1,113 @@
+﻿@model SneakerSportStore.Models.Order
+<style>
+    .OrderDetail {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .OrderDetail__Title {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .OrderDetail__Info {
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+        .OrderDetail__Info div {
+            margin-bottom: 10px;
+        }
+
+    .OrderDetail__Products {
+        margin-bottom: 30px;
+    }
+
+        .OrderDetail__Products table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .OrderDetail__Products th, .OrderDetail__Products td {
+            text-align: left;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .OrderDetail__Products th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+    .OrderDetail__Cancel {
+        text-align: center;
+    }
+
+        .OrderDetail__Cancel button {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            .OrderDetail__Cancel button:hover {
+                background-color: #c0392b;
+            }
+
+</style>
+<div class="OrderDetail">
+    <h2 class="OrderDetail__Title">Chi tiết đơn hàng @Model.OrderId</h2>
+
+    <div class="OrderDetail__Info">
+        <div><strong>Trạng thái:</strong> @Model.Status</div>
+        <div><strong>Tên khách hàng:</strong> @Model.CustomerName</div>
+        <div><strong>Địa chỉ:</strong> @Model.Address</div>
+        <div><strong>Số điện thoại:</strong> @Model.PhoneNumber</div>
+    </div>
+
+    <div class="OrderDetail__Products">
+        <h4>Sản phẩm đã đặt:</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Tổng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("N0") VNĐ</td>
+                        <td>@(item.Price * item.Quantity).ToString("N0") VNĐ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Chỉ hiển thị nút hủy đơn hàng nếu trạng thái chưa là "Xác nhận", "Hủy" hoặc "Đã giao cho đơn vị vận chuyển" -->
+    @if (Model.Status != "Xác nhận" && Model.Status != "Hủy" && Model.Status != "Đã giao cho đơn vị vận chuyển"&&Model.Status!= "Đang chuẩn bị")
+    {
+        <div class="OrderDetail__Cancel">
+            <form method="post" action="@Url.Action("CancelOrder", "UserOrder", new { orderId = Model.OrderId })">
+                <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+            </form>
+        </div>
+    }
+</div>

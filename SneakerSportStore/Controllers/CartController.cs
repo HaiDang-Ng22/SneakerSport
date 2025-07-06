@@ -12,7 +12,31 @@ namespace SneakerSportStore.Controllers
 {
     public class CartController : Controller
     {
+
         private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+        [HttpPost]
+        public async Task<ActionResult> ProceedToCheckout(List<string> selectedProductIds)
+        {
+            var userId = Session["CustomerID"]?.ToString();
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            var cartItems = await GetCartItems(userId);
+            var selectedCartItems = cartItems.Where(x => selectedProductIds.Contains(x.ProductId)).ToList();
+
+            if (selectedCartItems.Count == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn sản phẩm để thanh toán!";
+                return RedirectToAction("Index");
+            }
+
+            Session["SelectedCartItems"] = selectedCartItems;
+
+            return RedirectToAction("Checkout", "Payment");
+        }
+
+
 
         private async Task<List<CartItem>> GetCartItems(string userId)
         {
@@ -43,30 +67,27 @@ namespace SneakerSportStore.Controllers
                 }
             }
         }
+
         [HttpPost]
         public async Task<ActionResult> AddToCart(string productId, int quantity)
         {
-            var userId = Session["CustomerID"]?.ToString();  // Lấy ID người dùng từ session
+            var userId = Session["CustomerID"]?.ToString();
 
             if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction("Login", "Account");  // Chuyển đến trang đăng nhập nếu chưa đăng nhập
-            }
+                return RedirectToAction("Login", "Account");
 
             using (var client = new HttpClient())
             {
                 var productResponse = await client.GetAsync(FirebaseDbUrl + "/products/" + productId + ".json");
                 if (!productResponse.IsSuccessStatusCode)
-                {
                     return HttpNotFound("Sản phẩm không tồn tại.");
-                }
 
                 var json = await productResponse.Content.ReadAsStringAsync();
                 var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(json);
 
                 var cart = await GetCartItems(userId);
 
-                var existingCartItem = cart.FirstOrDefault(c => c.FirebaseKey == productId);
+                var existingCartItem = cart.FirstOrDefault(c => c.ProductId == productId);
                 if (existingCartItem != null)
                 {
                     existingCartItem.Quantity += quantity;
@@ -76,6 +97,7 @@ namespace SneakerSportStore.Controllers
                     var newCartItem = new CartItem
                     {
                         FirebaseKey = Guid.NewGuid().ToString(),
+                        ProductId = productId,
                         ProductName = product.TenGiay,
                         Price = product.Gia,
                         Quantity = quantity,
@@ -91,6 +113,60 @@ namespace SneakerSportStore.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<ActionResult> RemoveFromCart(string firebaseKey)
+        {
+            var userId = Session["CustomerID"]?.ToString();
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.DeleteAsync($"{FirebaseDbUrl}/carts/{userId}/{firebaseKey}.json");
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Không thể xóa sản phẩm. Thử lại!";
+                }
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Checkout(List<string> selectedItems)
+        {
+            var userId = Session["CustomerID"]?.ToString();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (selectedItems == null || selectedItems.Count == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn ít nhất một sản phẩm để thanh toán.";
+                return RedirectToAction("Index");
+            }
+
+            var cartItems = await GetCartItems(userId);
+            var selectedCartItems = cartItems.Where(c => selectedItems.Contains(c.FirebaseKey)).ToList();
+
+            if (selectedCartItems.Count == 0)
+            {
+                TempData["ErrorMessage"] = "Không có sản phẩm nào được chọn cho thanh toán.";
+                return RedirectToAction("Index");
+            }
+
+            decimal total = selectedCartItems.Sum(item => item.Price * item.Quantity);
+
+
+            TempData["SuccessMessage"] = "Thanh toán thành công! Tổng giá trị đơn hàng: " + total.ToString("C");
+
+            return RedirectToAction("Index", "Product");  
+        }
 
         public async Task<ActionResult> Index()
         {
@@ -104,4 +180,5 @@ namespace SneakerSportStore.Controllers
             return View(cartItems);
         }
     }
+
 }

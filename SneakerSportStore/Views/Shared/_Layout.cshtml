@@ -18,13 +18,22 @@
             <ul class="nav-menu">
                 <li>@Html.ActionLink("Trang Chủ", "Index", "Home", null, new { @class = "nav-link" })</li>
                 @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+
                 {
                     <li>@Html.ActionLink("Chỉnh Sửa", "Index", "Product", null, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Thông Tin Khách Hàng", "Index", "Customer", null, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Khuyến Mãi", "ManageDiscountCodes", "Voucher", null, new { @class = "nav-link" })</li>
                     <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "nav-link" })</li>
+
 
                 }
                 <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "nav-link" })</li>
+                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
+            {
+                <li>@Html.ActionLink("Tin Tức Khuyến Mãi", "PromotionNews", "Voucher", null, new { @class = "nav-link" })</li>
+                <li>@Html.ActionLink("Khuyến Mãi", "UserVouchers", "Voucher", null, new { @class = "nav-link" })</li>
+
+            }
 
                 <li>@Html.ActionLink("Giới Thiệu", "About", "Home", null, new { @class = "nav-link" })</li>
                 @Html.ActionLink("Cài đặt", "Index", "Settings", null, new { @class = "nav-link" })
@@ -33,14 +42,14 @@
             <div class="login-logout">
                 @if (Session["Username"] != null)
                 {
-                    <div class="user-info">
+                    <!--<div class="user-info">-->
                         <!-- Hiển thị thông báo Hello [Họ và tên] -->
-                        <p>Hello, @Session["CustomerName"]!</p>
+                        <!--<p>Hello, @Session["CustomerName"]!</p>
                         <p>Email: @Session["Email"]</p>
                         <span>Roles: @Session["UserRole"]</span>
-                    </div>
+                    </div>-->
                     <!-- Đăng xuất -->
-                    <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>
+                    @*<li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>*@
                 }
                 else
                 {
@@ -82,7 +91,6 @@
     </main>
 
 
-    <!-- Footer Section -->
     <footer>
         <div class="container" style="color:#fff;">
             <h2 style="color:#ffffff">Thông tin liên hệ</h2>
@@ -164,10 +172,6 @@
         function viewProduct(productId) {
             window.location.href = '@Url.Action("Detail", "Product")?id=' + productId;
         }
-
-
-
-
     </script>
     @RenderSection("Scripts", required: false)
 

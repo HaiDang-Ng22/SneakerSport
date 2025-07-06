@@ -1,0 +1,32 @@
+﻿@model List<SneakerSportStore.Models.DiscountCode>
+
+<h2>Mã Giảm Giá Của Bạn</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên mã giảm giá</th>
+            <th>Điều kiện</th>
+            <th>Giảm giá (%)</th>
+            <th>Thời gian áp dụng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var voucher in Model)
+        {
+            <tr>
+                <td>@voucher.CodeName</td>
+                <td>@voucher.Condition</td>
+                <td>@voucher.DiscountValue %</td>
+                <td>@voucher.StartDate - @voucher.EndDate</td>
+            </tr>
+        }
+    </tbody>
+</table>

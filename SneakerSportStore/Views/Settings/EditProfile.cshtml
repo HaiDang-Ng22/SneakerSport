@@ -1,0 +1,35 @@
+﻿    @{
+        ViewBag.Title = "Cập nhật thông tin cá nhân";
+        var user = Model;
+    }
+    <h2>Cập nhật thông tin cá nhân</h2>
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @using (Html.BeginForm("EditProfile", "Settings", FormMethod.Post))
+    {
+        <input type="hidden" name="userId" value="@ViewBag.UserId" />
+        <div class="form-group">
+            <label>Họ tên</label>
+            <input type="text" name="hoTen" class="form-control" value="@user?.hoTen" />
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" value="@user?.email" />
+        </div>
+        <div class="form-group">
+            <label>Số điện thoại</label>
+            <input type="text" name="soDienThoai" class="form-control" value="@user?.soDienThoai" />
+        </div>
+        <div class="form-group">
+            <label>Địa chỉ</label>
+            <input type="text" name="diaChi" class="form-control" value="@user?.diaChi" />
+        </div>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Về trang cài đặt</a>
+    }

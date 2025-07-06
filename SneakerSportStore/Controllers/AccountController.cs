@@ -13,14 +13,12 @@ namespace SneakerSportStore.Controllers
         private readonly string FirebaseApiKey = "AIzaSyCETbgg3mnPMIMha_KYFmFauleZwV6CSo4";
         private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-        // GET: Login
         [HttpGet]
         public ActionResult Login()
         {
             return View();
         }
 
-        // POST: Login
         [HttpPost]
         public async Task<ActionResult> Login(string username, string password)
         {
@@ -59,8 +57,8 @@ namespace SneakerSportStore.Controllers
                     Session["UserRole"] = userData?.userRole ?? "User";
                     Session["FullName"] = userData?.hoTen ?? "";
                     Session["Email"] = result.email;
-                    Session["CustomerID"] = userId; // ID người dùng (dùng cho mọi nghiệp vụ)
-                    Session["UserId"] = userId;     // Gán thêm key này nếu bạn muốn dễ nhớ hơn
+                    Session["CustomerID"] = userId; 
+                    Session["UserId"] = userId;     
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -70,7 +68,6 @@ namespace SneakerSportStore.Controllers
             }
         }
 
-        // GET: Register
         [HttpGet]
         public ActionResult Register()
         {
@@ -86,7 +83,7 @@ namespace SneakerSportStore.Controllers
                 return View(newUser);
             }
 
-            string role = "User"; // Tài khoản mới luôn là User
+            string role = "User";
 
             var payload = new
             {
@@ -144,5 +141,53 @@ namespace SneakerSportStore.Controllers
             TempData["SuccessMessage"] = "Bạn đã đăng xuất thành công.";
             return RedirectToAction("Login");
         }
+        [HttpPost]
+        public async Task<ActionResult> DeleteAccount()
+        {
+            var userId = Session["UserId"]?.ToString();
+            var idToken = Session["FirebaseToken"]?.ToString();
+
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(idToken))
+            {
+                ViewBag.ErrorMessage = "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.";
+                return RedirectToAction("Login");
+            }
+
+            using (var client = new HttpClient())
+            {
+                // First, delete the user data from Firebase Realtime Database
+                var dbDeleteResponse = await client.DeleteAsync($"{FirebaseDbUrl}/users/{userId}.json");
+
+                if (!dbDeleteResponse.IsSuccessStatusCode)
+                {
+                    ViewBag.ErrorMessage = "Lỗi khi xóa dữ liệu người dùng từ Firebase Database.";
+                    return View();
+                }
+
+                // Now, delete the user from Firebase Authentication
+                var deletePayload = new
+                {
+                    idToken = idToken
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(deletePayload), Encoding.UTF8, "application/json");
+                var authDeleteResponse = await client.PostAsync($"https://identitytoolkit.googleapis.com/v1/accounts:delete?key={FirebaseApiKey}", content);
+                var authDeleteResponseBody = await authDeleteResponse.Content.ReadAsStringAsync();
+
+                if (authDeleteResponse.IsSuccessStatusCode)
+                {
+                    // Clear session and redirect to login
+                    Session.Clear();
+                    TempData["SuccessMessage"] = "Tài khoản đã được xóa thành công.";
+                    return RedirectToAction("Login");
+                }
+
+                // Handle any error from Firebase Authentication
+                dynamic errorResult = JsonConvert.DeserializeObject(authDeleteResponseBody);
+                ViewBag.ErrorMessage = $"Lỗi Firebase: {errorResult?.error?.message ?? "Không xác định"}";
+                return View();
+            }
+        }
     }
 }
+

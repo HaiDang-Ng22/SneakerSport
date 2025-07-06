@@ -1,7 +1,130 @@
 ﻿@model IEnumerable<SneakerSportStore.Models.Giay>
 <link href="~/Content/Product.css" rel="stylesheet" />
+<style>
+    body {
+        background: #222;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
 
-<div class="block-product" style="background-color:#333;">
+    /* Tổng block chứa sản phẩm */
+    .block-product {
+        padding: 36px 0 48px 0;
+        background: #222; /* nền tối tổng thể */
+    }
+
+    /* Lưới sản phẩm */
+    .product-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 38px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Card từng sản phẩm */
+    .product {
+        background: #24262b;
+        border-radius: 18px;
+        box-shadow: 0 4px 28px #0005;
+        padding: 26px 32px 24px 32px;
+        width: 230px;
+        text-align: center;
+        transition: transform .14s, box-shadow .18s, background .18s;
+        position: relative;
+    }
+
+        .product:hover {
+            background: #292d36;
+            transform: translateY(-4px) scale(1.025);
+            box-shadow: 0 10px 36px #0006;
+        }
+
+        /* Ảnh sản phẩm */
+        .product img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 1.5px 7px #0002;
+            background: #fff;
+            border: 1.5px solid #4b5563;
+        }
+
+        /* Tên sản phẩm */
+        .product h3 {
+            color: #fff;
+            font-size: 1.16rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+            min-height: 42px;
+        }
+
+        /* Giá sản phẩm */
+        .product p {
+            color: #ffdc5a;
+            font-size: 1.08rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+    /* Nhóm nút */
+    .product-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    /* Style chung cho các nút */
+    .product .btn {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 1.02rem;
+        font-weight: 500;
+        color: #fff;
+        background: #d90429;
+        cursor: pointer;
+        box-shadow: 0 2px 7px #0001;
+        transition: background 0.15s, transform .13s;
+    }
+
+    .product .btn-detail {
+        background: linear-gradient(90deg, #ba181b 70%, #770e12 100%);
+    }
+
+    .product .btn-buy {
+        background: linear-gradient(90deg, #3b82f6 70%, #2563eb 100%);
+    }
+
+    .product .btn-detail:hover {
+        background: #ee4149;
+        transform: scale(1.06);
+    }
+
+    .product .btn-buy:hover {
+        background: #16408c;
+        transform: scale(1.06);
+    }
+
+    /* Notification popup */
+    #notification {
+        font-size: 1.05em;
+        font-weight: 500;
+        padding: 13px 32px;
+        border-radius: 13px;
+        box-shadow: 0 7px 32px #0006;
+        color: #fff;
+        min-width: 260px;
+        text-align: center;
+        z-index: 9999;
+    }
+</style>
+
+<div class="block-product" ">
     <div class="product-list">
         @foreach (var product in Model)
         {

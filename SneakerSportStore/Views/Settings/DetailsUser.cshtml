@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "Thông tin tài khoản";
+}
+<style>
+    /* Toàn bộ layout của thông tin tài khoản */
+    .AccountInfo {
+        max-width: 600px;
+        margin: 40px auto;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+        /* Tiêu đề */
+        .AccountInfo h2 {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+    /* Thông tin tài khoản */
+    .AccountInfo__Details {
+        margin-bottom: 30px;
+    }
+
+        .AccountInfo__Details h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .AccountInfo__Details p {
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .AccountInfo__Details strong {
+            color: #333;
+        }
+
+    /* Các nút hành động */
+    .AccountInfo__Actions,
+    .AccountInfo__Orders,
+    .AccountInfo__Delete {
+        display: flex;
+        flex-direction: column; /* Sắp xếp theo chiều dọc */
+        gap: 10px; /* Khoảng cách giữa các nút */
+        margin-bottom: 20px; /* Khoảng cách dưới cùng */
+        align-items: center; /* Căn giữa các nút */
+    }
+
+        .AccountInfo__Actions .btn,
+        .AccountInfo__Orders .btn,
+        .AccountInfo__Delete .btn {
+            font-size: 14px;
+            padding: 10px 20px; /* Padding cho các nút */
+            text-align: center;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            width: 100%; /* Nút chiếm toàn bộ chiều rộng */
+        }
+
+            /* Hiệu ứng hover cho các nút */
+            .AccountInfo__Actions .btn:hover,
+            .AccountInfo__Orders .btn:hover,
+            .AccountInfo__Delete .btn:hover {
+                background-color: #f7f7f7;
+                border-color: #999;
+            }
+
+        /* Nút xóa tài khoản */
+        .AccountInfo__Delete .btn-danger {
+            background-color: #fff;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+            .AccountInfo__Delete .btn-danger:hover {
+                background-color: #f7f7f7;
+                border-color: #bd2130;
+            }
+
+</style>
+<div class="AccountInfo">
+    <h2>Thông tin tài khoản</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="AccountInfo__Details">
+        <h3>Thông tin tài khoản</h3>
+        <p><strong>Họ và tên:</strong> @ViewBag.User.HoTen</p>
+        <p><strong>Email:</strong> @ViewBag.User.Email</p>
+        <p><strong>Số điện thoại:</strong> @ViewBag.User.SoDienThoai</p>
+        <p><strong>Địa chỉ:</strong> @ViewBag.User.DiaChi</p>
+    </div>
+    <div class="AccountInfo__Actions">
+        <a href="@Url.Action("EditProfile", "Settings", new { userId = ViewBag.UserId })" class="btn">Cập nhật thông tin cá nhân</a>
+        <a href="@Url.Action("ForgotPassword", "Settings")" class="btn">Đổi mật khẩu</a>
+    </div>
+
+    @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
+    {
+        <div class="AccountInfo__Orders">
+            <a href="@Url.Action("MyOrders", "UserOrder")" class="btn">Đơn hàng</a>
+        </div>
+    }
+
+    <div class="AccountInfo__Delete">
+        <form action="@Url.Action("DeleteAccount")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản?');">
+            <input type="hidden" name="userId" value="@ViewBag.UserId" />
+            <button type="submit" class="btn btn-danger">Xóa tài khoản</button>
+        </form>
+    </div>
+</div>

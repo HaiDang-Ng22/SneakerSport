@@ -1,0 +1,143 @@
+﻿@model List<SneakerSportStore.Models.CartItem>
+
+<h2>Thanh Toán</h2>
+<style>
+    /* Styles similar to your cart styles, adjusted for the checkout form */
+    body {
+        background: #f6f8fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        margin-top: 35px;
+        margin-bottom: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: 1px;
+    }
+
+    .table {
+        width: 95%;
+        margin: 30px auto 48px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 3px 24px #0001;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+    }
+
+        .table th, .table td {
+            padding: 14px 18px;
+            text-align: center;
+            font-size: 1.07rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #ecedf2;
+        }
+
+        .table th {
+            background: linear-gradient(90deg, #3b82f6 30%, #60a5fa 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.08rem;
+            border-bottom: 3px solid #60a5fa;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f1f5f9;
+        }
+
+        .table tbody tr:hover {
+            background: #e0ecfc;
+        }
+
+        .table img {
+            border-radius: 7px;
+            box-shadow: 0 1px 8px #0001;
+            max-width: 62px;
+            max-height: 62px;
+        }
+
+    .btn {
+        border: none;
+        border-radius: 7px;
+        padding: 7px 18px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 1px 5px #0001;
+        transition: background .14s, color .14s;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+    }
+
+    .btn-success {
+        background: #3b82f6;
+        color: #fff;
+        width: 180px;
+        font-size: 1.11rem;
+        padding: 11px 0;
+        border-radius: 9px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 7px #0001;
+    }
+
+    .voucher-input {
+        width: 50%;
+        padding: 8px;
+        font-size: 1rem;
+        margin-top: 10px;
+    }
+</style>
+
+<form action="@Url.Action("Checkout", "Cart")" method="post">
+    <h3>Thông Tin Khách Hàng</h3>
+    <label for="fullName">Họ Và Tên:</label>
+    <input type="text" id="fullName" name="fullName" required><br>
+
+    <label for="phone">Số Điện Thoại:</label>
+    <input type="text" id="phone" name="phone" required><br>
+
+    <label for="address">Địa Chỉ:</label>
+    <input type="text" id="address" name="address" required><br>
+
+    <h3>Danh Sách Sản Phẩm</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Số Lượng</th>
+                <th>Tổng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><img src="@item.ProductImage" alt="@item.ProductName" width="50" /></td>
+                    <td>@item.ProductName</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.Price * item.Quantity) VND</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="voucher-section">
+        <label for="voucher">Mã Giảm Giá:</label>
+        <input type="text" id="voucher" name="voucherCode" class="voucher-input" placeholder="Nhập mã giảm giá nếu có" />
+    </div>
+
+    <h3>Tổng Tiền: @(Model.Sum(item => item.Price * item.Quantity)).ToString("C")</h3>
+
+    <button type="submit" class="btn btn-success">Thanh Toán</button>
+</form>

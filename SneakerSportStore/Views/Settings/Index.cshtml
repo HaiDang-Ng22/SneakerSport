@@ -1,52 +1,98 @@
 ﻿@{
     ViewBag.Title = "Cài đặt tài khoản";
-    var user = Model;
 }
+<div class="AccountSettingsSimple">
+    <h2 class="AccountSettings__Title">Cài đặt tài khoản</h2>
 
-<h2>🔐 Cài đặt tài khoản</h2>
+    <!-- Hiển thị thông báo thành công -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success AccountSettings__AlertSuccess">@TempData["Message"]</div>
+    }
 
-@if (TempData["Message"] != null)
-{
-    <div style="color: green">@TempData["Message"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div style="color: red">@TempData["Error"]</div>
-}
+    <!-- Hiển thị thông báo lỗi -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger AccountSettings__AlertError">@TempData["Error"]</div>
+    }
 
-<hr />
-<h3>👤 Thông tin cá nhân</h3>
+    <!-- Cập nhật thông tin cá nhân và đổi mật khẩu -->
+     <!--<div class="AccountSettings__Actions">
+        <a href="@Url.Action("EditProfile")" class="btn btn-simple">Cập nhật thông tin cá nhân</a>
+        <a href="@Url.Action("ForgotPassword")" class="btn btn-simple">Đổi mật khẩu</a>
+    </div>-->
 
-@using (Html.BeginForm("UpdateInfo", "Settings", FormMethod.Post))
-{
-    <input type="hidden" name="userId" value="@Session["UserID"]" />
+    <!-- Các liên kết dành cho người dùng -->
+    <div class="AccountSettings__UserActions">
+        <ul>
+            @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+            {
+                <li>@Html.ActionLink("Đơn hàng", "Index", "AdminOrder", null, new { @class = "nav-link" })</li>
+            }
 
-    <label>Họ tên:</label>
-    <input type="text" name="hoTen" value="@user.hoTen" class="form-control" />
+            <li>@Html.ActionLink("Tài khoản", "DetailsUser", "Settings", null, new { @class = "nav-link" })</li>
+            <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>
+        </ul>
+    </div>
+</div>
 
-    <label>Email:</label>
-    <input type="email" name="email" value="@user.email" class="form-control" />
 
-    <label>Số điện thoại:</label>
-    <input type="text" name="soDienThoai" value="@user.soDienThoai" class="form-control" />
+<style>
+    /* Bao bọc phần cài đặt tài khoản */
+    .AccountSettingsSimple {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
 
-    <label>Địa chỉ:</label>
-    <input type="text" name="diaChi" value="@user.diaChi" class="form-control" />
+        /* Tiêu đề */
+        .AccountSettingsSimple h2 {
+            font-size: 20px;
+            color: #333;
+            text-align: left;
+            margin-bottom: 20px;
+        }
 
-    <br />
-    <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
-}
+    /* Các nút hành động */
+    .AccountSettings__Actions {
+        margin-bottom: 20px;
+    }
 
-<hr />
-<h3>🔑 Đổi mật khẩu</h3>
+        .AccountSettings__Actions .btn-simple {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px 0;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+            text-align: center;
+        }
 
-@using (Html.BeginForm("ChangePassword", "Settings", FormMethod.Post))
-{
-    <input type="hidden" name="idToken" value="@Session["FirebaseToken"]" />
+    /* Các liên kết */
+    .AccountSettings__UserActions ul {
+        list-style-type: none;
+        padding: 0;
+    }
 
-    <label>Mật khẩu mới:</label>
-    <input type="password" name="newPassword" class="form-control" required />
+    .AccountSettings__UserActions li {
+        margin-bottom: 10px;
+        text-align: left;
+    }
 
-    <br />
-    <button type="submit" class="btn btn-warning">Đổi mật khẩu</button>
-}
+    .AccountSettings__UserActions .nav-link {
+        font-size: 16px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .AccountSettings__UserActions .nav-link:hover {
+            text-decoration: underline;
+        }
+
+
+</style>

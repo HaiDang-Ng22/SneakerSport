@@ -1,0 +1,113 @@
+﻿@model List<SneakerSportStore.Models.Order>
+
+<h2>Quản lý đơn hàng</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">Không có đơn hàng nào.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã đơn hàng</th>
+                <th>Tên khách hàng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.Status</td>
+                    <td>
+                        <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-info">Xem chi tiết</a>
+
+                        <!-- Cập nhật trạng thái đơn hàng -->
+                        @if (order.Status == "Chờ xác nhận" && order.Status != "Hủy")
+                        {
+                            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Xác nhận" })">
+                                <button type="submit" class="btn btn-success">Xác nhận</button>
+                            </form>
+                        }
+                        @if (order.Status == "Xác nhận" && order.Status != "Hủy")
+                        {
+                            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đang chuẩn bị" })">
+                                <button type="submit" class="btn btn-warning">Đang chuẩn bị</button>
+                            </form>
+                        }
+                        @if (order.Status == "Đang chuẩn bị" && order.Status != "Hủy")
+                        {
+                            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đã giao cho đơn vị vận chuyển" })">
+                                <button type="submit" class="btn btn-warning">Đã giao </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+<style>
+    /* Thiết lập chung cho bảng */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+    /* Tạo kiểu cho các nút */
+    .btn {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-sm {
+        font-size: 12px;
+    }
+
+    /* Màu sắc các nút */
+    .btn-info {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #fff;
+    }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+</style>

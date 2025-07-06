@@ -4,6 +4,113 @@
     ViewBag.Title = "Danh sách khách hàng";
 }
 
+<style>
+    body {
+        background: #f6f8fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        margin-top: 30px;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: 1px;
+    }
+
+    .alert {
+        width: 75%;
+        margin: 18px auto;
+        padding: 15px 24px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        box-shadow: 0 3px 12px #0001;
+    }
+
+    .alert-success {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .alert-danger {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .table {
+        width: 92%;
+        margin: 28px auto 45px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 3px 24px #0002;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+    }
+
+        .table th, .table td {
+            padding: 15px 22px;
+            text-align: left;
+            font-size: 1.07rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #ecedf2;
+        }
+
+        .table th {
+            background: linear-gradient(90deg, #3b82f6 30%, #60a5fa 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.08rem;
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid #60a5fa;
+        }
+
+        .table tr {
+            transition: background 0.18s;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f1f5f9;
+        }
+
+        .table tbody tr:hover {
+            background: #e0ecfc;
+        }
+
+        .table td:last-child {
+            min-width: 150px;
+        }
+
+    .btn {
+        border: none;
+        border-radius: 6px;
+        padding: 7px 17px;
+        font-size: .98rem;
+        cursor: pointer;
+        margin-right: 6px;
+        transition: background .15s, box-shadow .15s;
+        box-shadow: 0 1px 5px #0001;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: #fff;
+    }
+
+        .btn-primary:hover {
+            background: #1e40af;
+        }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+    }
+
+        .btn-danger:hover {
+            background: #991b1b;
+        }
+</style>
+
 <h2>Danh sách khách hàng</h2>
 
 @if (TempData["Message"] != null)
@@ -17,7 +124,9 @@
 
 @if (Model == null || !Model.Any())
 {
-    <p>Không có khách hàng nào.</p>
+    <p style="text-align:center; margin-top:40px; color:#888; font-size:1.13em;">
+        Không có khách hàng nào.
+    </p>
 }
 else
 {
@@ -43,10 +152,9 @@ else
                     <td>@kh.DiaChi</td>
                     <td>
                         <a class="btn btn-primary btn-sm" href="@Url.Action("Details", "Customer", new { id = id })">Chi tiết</a>
-
                         @if (Session["UserRole"]?.ToString() == "Admin")
                         {
-                            using (Html.BeginForm("Delete", "Customer", FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn xóa tài khoản này?');" }))
+                            using (Html.BeginForm("Delete", "Customer", FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn xóa tài khoản này?');", style = "display:inline-block;" }))
                             {
                                 @Html.Hidden("id", id)
                                 <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
@@ -57,4 +165,5 @@ else
             }
         </tbody>
     </table>
+
 }

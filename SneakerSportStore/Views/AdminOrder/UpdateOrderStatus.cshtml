@@ -1,0 +1,32 @@
+﻿<h2>Danh sách đơn hàng của bạn</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Mã đơn hàng</th>
+            <th>Tên khách hàng</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.CustomerName</td>
+                <td>@order.FinalTotal.ToString("N0") VNĐ</td>
+                <td>@order.Status</td>
+                <td>
+                    <a href="@Url.Action("Details", "UserOrder", new { id = order.OrderId })" class="btn btn-info">Chi tiết</a>
+                    @if (order.Status != "Đã giao hàng")
+                    {
+                        <form method="post" action="@Url.Action("CancelOrder", "UserOrder", new { id = order.OrderId })">
+                            <button type="submit" class="btn btn-danger">Hủy đơn</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -20,9 +20,24 @@ namespace SneakerSportStore
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
+            //=================================================================
 
-           
 
+            routes.MapRoute(
+                name: "UserChat",
+                url: "chat",
+                defaults: new { controller = "Chat", action = "UserChat" }
+            );
+
+            routes.MapRoute(
+                name: "AdminChat",
+                url: "admin/chat",
+                defaults: new { controller = "Chat", action = "AdminChat" }
+            );
+
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            routes.IgnoreRoute("Content/{*pathInfo}");
+            routes.IgnoreRoute("Scripts/{*pathInfo}");
         }
     }
 

@@ -33,6 +33,8 @@ namespace SneakerSportStore.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ChiTietDonDatHang> ChiTietDonDatHangs { get; set; }
+        //public virtual LoaiGiay LoaiGiay { get; set; }
+        //public virtual NhaSanXuat NhaSanXuat { get; set; }   
         public virtual LoaiGiay LoaiGiay { get; set; }
         public virtual NhaSanXuat NhaSanXuat { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

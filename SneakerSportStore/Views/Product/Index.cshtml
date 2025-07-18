@@ -1,204 +1,219 @@
-﻿﻿@model List<SneakerSportStore.Models.Giay>
+﻿@model List<SneakerSportStore.Models.ProductFireBaseKey>
 @{
     ViewBag.Title = "Danh sách sản phẩm";
 }
 
-<link href="~/Content/IndexProduct.css" rel="stylesheet" />
-
 <style>
-    body {
-        background: #f7f8fa;
-        font-family: 'Segoe UI', Arial, sans-serif;
+    .product-index-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 25px;
     }
 
-    h2 {
-        text-align: center;
+    .product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .product-title {
+        color: #2b2b2b;
+        font-size: 28px;
         font-weight: 700;
-        color: #0a2647;
-        margin: 32px 0 18px 0;
-        letter-spacing: 1px;
     }
 
-    .btn-primary {
-        background: #2563eb;
-        color: #fff;
-        border-radius: 6px;
-        padding: 8px 20px;
-        text-decoration: none;
-        font-weight: 500;
-        margin-bottom: 24px;
-        box-shadow: 0 3px 15px #0001;
+    .btn-add {
+        background: linear-gradient(135deg, #4a90e2, #5e60ce);
+        color: white;
         border: none;
-        transition: background .18s;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
     }
 
-        .btn-primary:hover {
-            background: #1d4ed8;
-            color: #fff;
+        .btn-add i {
+            margin-right: 8px;
         }
 
-    .table {
-        width: 94%;
-        margin: 24px auto 40px auto;
-        background: #fff;
-        border-radius: 15px;
-        box-shadow: 0 6px 32px #0002;
-        border-collapse: separate;
-        border-spacing: 0;
+        .btn-add:hover {
+            background: linear-gradient(135deg, #3a7bc8, #4d4fce);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+
+    .table-container {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
         overflow: hidden;
     }
 
-        .table th, .table td {
-            padding: 16px 22px;
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .product-table th {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            color: white;
+            padding: 15px 20px;
             text-align: left;
-            font-size: 1.08em;
-            vertical-align: middle;
-            border-bottom: 1px solid #ecedf2;
-        }
-
-        .table.td{
-            color:#00000;
-        }
-        .table th {
-            background: linear-gradient(90deg, #2563eb 40%, #38bdf8 100%);
-            color: #fff;
             font-weight: 600;
-            font-size: 1.09em;
-            border-bottom: 3px solid #60a5fa;
-            letter-spacing: 0.6px;
         }
 
-        .table tr {
-            transition: background 0.16s;
+        .product-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .table tbody tr:nth-child(even) {
-            background: #f4f7fc;
+        .product-table tr:nth-child(even) {
+            background-color: #f9fafb;
         }
 
-        .table tbody tr:hover {
-            background: #e3edfa;
+        .product-table tr:hover {
+            background-color: #f0f7ff;
         }
 
-        .table td img {
-            max-width: 74px;
-            max-height: 60px;
-            border-radius: 7px;
-            box-shadow: 0 2px 10px #0001;
-            border: 1.5px solid #e5e7eb;
-        }
-
-    .btn-sm {
-        font-size: 1em;
-        padding: 6px 14px;
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
         border-radius: 6px;
-        border: none;
-        margin-right: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 14px;
         font-weight: 500;
-        cursor: pointer;
-        transition: background .14s, color .14s;
-        box-shadow: 0 1px 7px #0001;
+        margin-right: 5px;
+        text-decoration: none;
+        display: inline-block;
     }
 
-    .btn-warning {
-        background: #facc15;
-        color: #3b3b1b;
+    .btn-edit {
+        background: #f59e0b;
+        color: #fff;
     }
 
-        .btn-warning:hover {
-            background: #eab308;
-            color: #23230a;
+        .btn-edit:hover {
+            background: #d97706;
         }
 
-    .btn-danger {
+    .btn-delete {
         background: #ef4444;
         color: #fff;
     }
 
-        .btn-danger:hover {
-            background: #b91c1c;
-            color: #fff;
+        .btn-delete:hover {
+            background: #dc2626;
         }
 
-    .alert-danger {
-        background: #fee2e2;
-        color: #c81e1e;
-        margin: 28px auto;
-        max-width: 540px;
-        border-radius: 9px;
-        padding: 14px 24px;
-        font-size: 1.08em;
-        box-shadow: 0 1px 8px #0001;
+    .empty-message {
         text-align: center;
+        padding: 40px;
+        color: #6b7280;
+        font-size: 18px;
     }
 
-    .text-muted {
-        color: #8892b0;
-        font-size: 1.14em;
-        text-align: center;
-        margin-top: 34px;
+    .alert {
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
     }
-    .Content-order td {
-        color: #222c35 !important;
-        font-weight: 500;
-        letter-spacing: 0.01em;
+
+    .alert-success {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+        color: white;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #ff5858, #f09819);
+        color: white;
     }
 </style>
 
-<h2>Danh sách sản phẩm</h2>
-
-<div style="margin-top:20px;">
-    <a href="@Url.Action("Create", "Product")" class="btn btn-primary"> Thêm sản phẩm mới</a>
-</div>
-<div class="content">
-@if (!string.IsNullOrEmpty(ViewBag.Error))
-{
-    <div class="alert alert-danger" role="alert">
-        @ViewBag.Error
+<div class="product-index-container">
+    <div class="product-header">
+        <h2 class="product-title">Danh sách sản phẩm</h2>
+        <a href="@Url.Action("Create", "Product")" class="btn-add">
+            <i class="fas fa-plus"></i> Thêm sản phẩm
+        </a>
     </div>
-}
 
-@if (Model != null && Model.Any())
-{
-    <table class="table table-bordered table-striped mt-4">
-        <thead>
-            <tr>
-                <th>Tên giày</th>
-                <th>Giá</th>
-                <th>Mô tả</th>
-                <th>Hình ảnh</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr class="Content-order">
-                    <td>@item.TenGiay</td>
-                    <td>@String.Format("{0:N0}", item.Gia) VNĐ</td>
-                    <td>@item.MoTa</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.HinhAnh))
-                        {
-                            <img src="@item.HinhAnh" alt="Ảnh giày" style="width:80px;" />
-                        }
-                        else
-                        {
-                            <span>Không có ảnh</span>
-                        }
-                    </td>
-                    <td>
-                        <a href="@Url.Action("Edit", "Product", new { id = item.GiayId })" class="btn btn-sm btn-warning">Sửa</a>
-                        <a href="@Url.Action("Delete", "Product", new { id = item.GiayId })" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
-                    </td>
-                </tr>
-            }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
 
-        </tbody>
-    </table>
-}
-else
-{
-    <p class="text-muted mt-3">Không có sản phẩm nào.</p>
-}
+    <div class="table-container">
+        @if (Model != null && Model.Any())
+        {
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Tên giày</th>
+                        <th>Giá</th>
+                        <th>Mô tả</th>
+                        <th>Hình ảnh</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TenGiay</td>
+                            <td>@String.Format("{0:N0}", item.Gia) VNĐ</td>
+                            <td>@(item.MoTa != null && item.MoTa.Length > 50 ? item.MoTa.Substring(0, 50) + "..." : item.MoTa)</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                {
+                                    <img src="@item.HinhAnh" alt="Ảnh giày" class="product-image" />
+                                }
+                                else
+                                {
+                                    <span>Không có ảnh</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Edit", "Product", new { id = item.GiayId })" class="btn-action btn-edit">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a href="@Url.Action("Delete", "Product", new { id = item.GiayId })" class="btn-action btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-message">
+                <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p>Không có sản phẩm nào</p>
+            </div>
+        }
+    </div>
 </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+}

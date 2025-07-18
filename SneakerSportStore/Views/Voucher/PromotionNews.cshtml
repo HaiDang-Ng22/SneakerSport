@@ -1,46 +1,282 @@
 ﻿@model List<SneakerSportStore.Models.DiscountCode>
 
-<h2>Thông Tin Khuyến Mãi</h2>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
+@{
+    ViewBag.Title = "Tin Khuyến Mãi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-<table>
-    <tr>
-        <th>Tên Mã Giảm Giá</th>
-        <th>Điều Kiện</th>
-        <th>Giảm Giá (%)</th>
-        <th>Thời Gian Áp Dụng</th>
-        <th>Trạng Thái</th>
-        <th>Thao Tác</th>
-    </tr>
-    @foreach (var v in Model)
-    {
-        <tr>
-            <td>@v.CodeName</td>
-            <td>@v.Condition</td>
-            <td>
-                @(v.DiscountType == "percent" ? (v.DiscountValue + "%") : (v.DiscountValue.ToString("N0") + " VNĐ"))
-            </td>
-            <td>@v.StartDate - @v.EndDate</td>
-            <td>@(v.IsPublic ? "Hiển Thị" : "Ẩn")</td>
-            <td>
-                <form action="@Url.Action("SaveDiscountCode", "Voucher")" method="post" style="display:inline;">
-                    <input type="hidden" name="voucherId" value="@v.IdVoucher" />
-                    <button type="submit">Lưu Mã</button>
-                </form>
-            </td>
-        </tr>
+<style>
+    .voucher-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
     }
-</table>
+
+    .page-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+
+    .voucher-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .voucher-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        border: 1px solid #eaeaea;
+    }
+
+        .voucher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+    .voucher-header {
+        background: linear-gradient(90deg, #3498db, #2c3e50);
+        color: white;
+        padding: 15px 20px;
+        text-align: center;
+    }
+
+    .voucher-code {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+
+    .voucher-body {
+        padding: 20px;
+    }
+
+    .voucher-condition {
+        font-size: 1rem;
+        color: #555;
+        min-height: 60px;
+        margin-bottom: 15px;
+    }
+
+    .voucher-details {
+        background-color: #f1f8ff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .voucher-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .voucher-label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .voucher-value {
+        color: #e74c3c;
+        font-weight: 600;
+    }
+
+    .voucher-dates {
+        display: flex;
+        justify-content: space-between;
+        background-color: #e8f4ff;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .voucher-footer {
+        padding: 15px 20px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+
+    .save-btn {
+        background: linear-gradient(90deg, #27ae60, #2ecc71);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .save-btn:hover {
+            background: linear-gradient(90deg, #219653, #27ae60);
+            transform: scale(1.05);
+        }
+
+        .save-btn.saved {
+            background: #95a5a6;
+            cursor: default;
+        }
+
+            .save-btn.saved:hover {
+                transform: none;
+            }
+
+    .voucher-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: #e74c3c;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .no-vouchers {
+        text-align: center;
+        padding: 40px;
+        grid-column: 1 / -1;
+    }
+
+        .no-vouchers i {
+            font-size: 4rem;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .no-vouchers h3 {
+            color: #7f8c8d;
+        }
+
+    .expired-badge {
+        background-color: #95a5a6;
+    }
+</style>
+
+<div class="voucher-container">
+    <h1 class="page-title">Tin Khuyến Mãi</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="no-vouchers">
+            <i class="bi bi-tag"></i>
+            <h3>Hiện chưa có khuyến mãi nào</h3>
+            <p>Quay lại sau để xem các chương trình khuyến mãi mới nhất!</p>
+        </div>
+    }
+    else
+    {
+        <div class="voucher-grid">
+            @foreach (var voucher in Model)
+            {
+                bool isExpired = voucher.EndDate < DateTime.Now;
+                bool isSaved = ViewBag.SavedVouchers != null && ViewBag.SavedVouchers.Contains(voucher.IdVoucher);
+
+                <div class="voucher-card">
+                    @if (isExpired)
+                    {
+                        <div class="voucher-badge expired-badge">ĐÃ HẾT HẠN</div>
+                    }
+                    else
+                    {
+                        <div class="voucher-badge">MỚI</div>
+                    }
+
+                    <div class="voucher-header">
+                        <h3 class="voucher-code">@voucher.CodeName</h3>
+                    </div>
+
+                    <div class="voucher-body">
+                        <p class="voucher-condition">@voucher.Condition</p>
+
+                        <div class="voucher-details">
+                            <div class="voucher-detail">
+                                <span class="voucher-label">Giảm:</span>
+                                <span class="voucher-value">
+                                    @if (voucher.DiscountType == SneakerSportStore.Models.DiscountType.Percentage)
+                                    {
+                                        @($"{voucher.DiscountValue}%")
+                                    }
+                                    else
+                                    {
+                                        @($"{voucher.DiscountValue:N0} VNĐ")
+                                    }
+                                </span>
+                            </div>
+
+                            <div class="voucher-detail">
+                                <span class="voucher-label">Đơn tối thiểu:</span>
+                                <span class="voucher-value">@voucher.MinimumOrderValue.ToString("N0") VNĐ</span>
+                            </div>
+                        </div>
+
+                        <div class="voucher-dates">
+                            <div>
+                                <span class="voucher-label">Ngày bắt đầu:</span>
+                                <span>@voucher.StartDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div>
+                                <span class="voucher-label">Ngày kết thúc:</span>
+                                <span>@voucher.EndDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="voucher-footer">
+                        @if (isExpired)
+                        {
+                            <button class="save-btn saved" disabled>VOUCHER HẾT HẠN</button>
+                        }
+                        else if (isSaved)
+                        {
+                            <button class="save-btn saved" disabled>
+                                <i class="bi bi-check-circle"></i> ĐÃ LƯU
+                            </button>
+                        }
+                        else
+                        {
+                            using (Html.BeginForm("SaveDiscountCode", "Voucher", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="voucherId" value="@voucher.IdVoucher" />
+                                <button type="submit" class="save-btn">
+                                    <i class="bi bi-bookmark-plus"></i> LƯU VOUCHER
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,156 +1,660 @@
 ﻿<!DOCTYPE html>
 <html lang="vi">
-<head class=" background-color:#333;">
+<head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Sneaker Store</title>
-    <link href="~/Content/Footer.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/Content/Header.css" />
-    @*đây là đoạn code thêm logo vào*@
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="~/Content/Footer.css" rel="stylesheet" />
-</head>
-<body class=" background-color:#333;">
+    <style>
+        /* ===== Reset & Base Styles ===== */
+        :root {
+            --primary-color: #FF6B6B;
+            --primary-dark: #FF5252;
+            --dark-color: #1A1A1A;
+            --gray-dark: #333;
+            --gray-light: #F5F5F5;
+            --white: #FFFFFF;
+            --text-color: #333;
+            --text-light: #777;
+        }
 
-    <header class="header">
-        <nav class="nav-bar">
-            <img src="~/Images/LOGO.jpg" class="logo-left" alt="Logo">
-            <ul class="nav-menu">
-                <li>@Html.ActionLink("Trang Chủ", "Index", "Home", null, new { @class = "nav-link" })</li>
-                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-                {
-                    <li>@Html.ActionLink("Chỉnh Sửa", "Index", "Product", null, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Thông Tin Khách Hàng", "Index", "Customer", null, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Khuyến Mãi", "ManageDiscountCodes", "Voucher", null, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "nav-link" })</li>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--gray-light);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
 
-                }
-                <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "nav-link" })</li>
-                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
-            {
-                <li>@Html.ActionLink("Tin Tức Khuyến Mãi", "PromotionNews", "Voucher", null, new { @class = "nav-link" })</li>
-                <li>@Html.ActionLink("Khuyến Mãi", "UserVouchers", "Voucher", null, new { @class = "nav-link" })</li>
+        ul {
+            list-style: none;
+        }
 
+        /* ===== Sneaker Header Styles ===== */
+        .sneaker-header {
+            background: linear-gradient(135deg, var(--dark-color) 0%, var(--gray-dark) 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0 5%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .sneaker-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .sneaker-logo {
+            height: 60px;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .sneaker-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .sneaker-menu {
+            display: flex;
+            gap: 25px;
+        }
+
+        .sneaker-nav-link {
+            color: var(--white);
+            font-weight: 500;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sneaker-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sneaker-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .sneaker-nav-link:hover::after {
+            width: 100%;
+        }
+
+        .sneaker-auth {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--white);
+        }
+
+        .sneaker-auth .sneaker-nav-link {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sneaker-auth .sneaker-nav-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .sneaker-divider {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Search Bar with Toggle */
+        .sneaker-search-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .sneaker-search-toggle {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        .sneaker-search-form {
+            display: none;
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .sneaker-search-form.active {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        .sneaker-search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px 0 0 30px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            outline: none;
+        }
+
+        .sneaker-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sneaker-search-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 0 30px 30px 0;
+            background: var(--primary-color);
+            color: var(--white);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .sneaker-search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* ===== Main Content Styles ===== */
+        .sneaker-main {
+            flex: 1;
+            width: 100%;
+            max-width: 1530px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Form Improvements */
+        .sneaker-form-group {
+            margin-bottom: 20px;
+        }
+
+        .sneaker-form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .sneaker-form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .sneaker-form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .sneaker-btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .sneaker-btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .sneaker-btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        /* ===== Sneaker Footer Styles ===== */
+        .sneaker-footer {
+            background: linear-gradient(135deg, var(--dark-color) 0%, var(--gray-dark) 100%);
+            color: var(--white);
+            padding: 50px 5% 30px;
+            margin-top: auto;
+        }
+
+        .sneaker-footer-container {
+            max-width: 1530px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .sneaker-footer-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .sneaker-footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+
+        .sneaker-contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sneaker-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .sneaker-contact-icon {
+            color: var(--primary-color);
+            font-size: 18px;
+            margin-top: 3px;
+        }
+
+        .sneaker-footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sneaker-footer-link {
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .sneaker-footer-link:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+
+        .sneaker-social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .sneaker-social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .sneaker-social-link:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .sneaker-map-container {
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sneaker-map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .sneaker-copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Chat Icon */
+        .sneaker-chat-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .sneaker-chat-icon:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .sneaker-chat-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--white);
+            color: var(--primary-color);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Animations */
+        keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== Responsive Styles ===== */
+        media (max-width: 992px) {
+            .sneaker-menu {
+                gap: 15px;
             }
 
-                <li>@Html.ActionLink("Giới Thiệu", "About", "Home", null, new { @class = "nav-link" })</li>
-                @Html.ActionLink("Cài đặt", "Index", "Settings", null, new { @class = "nav-link" })
+            .sneaker-nav-link {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
 
-            </ul>
-            <div class="login-logout">
-                @if (Session["Username"] != null)
+            .sneaker-footer-container {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 30px;
+            }
+        }
+
+        media (max-width: 768px) {
+            .sneaker-nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .sneaker-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .sneaker-auth {
+                margin-top: 10px;
+            }
+
+            .sneaker-search-form {
+                max-width: 100%;
+            }
+
+            .sneaker-footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="sneaker-header">
+        <nav class="sneaker-nav">
+            <img src="~/Images/LOGO.jpg" class="sneaker-logo" alt="Sneaker Store Logo">
+            <ul class="sneaker-menu">
+                <li>@Html.ActionLink("Trang Chủ", "Index", "Home", null, new { @class = "sneaker-nav-link" })</li>
+                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
                 {
-                    <!--<div class="user-info">-->
-                        <!-- Hiển thị thông báo Hello [Họ và tên] -->
-                        <!--<p>Hello, @Session["CustomerName"]!</p>
-                        <p>Email: @Session["Email"]</p>
-                        <span>Roles: @Session["UserRole"]</span>
-                    </div>-->
-                    <!-- Đăng xuất -->
-                    @*<li>@Html.ActionLink("Đăng xuất", "Logout", "Account", null, new { @class = "nav-link" })</li>*@
+                    <li>@Html.ActionLink("Chỉnh Sửa", "Index", "Product", null, new { @class = "sneaker-nav-link" })</li>
+                    <li>@Html.ActionLink("Thông Tin KH", "Index", "Customer", null, new { @class = "sneaker-nav-link" })</li>
+                    <li>@Html.ActionLink("Khuyến Mãi", "ManageDiscountCodes", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
+                    <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "sneaker-nav-link" })</li>
+                    if (Session["UserRole"]?.ToString() == "Admin")
+                    {
+                        <li>@Html.ActionLink("Quản lý chat", "AdminChat", "Chat", null, new { @class = "sneaker-nav-link" })</li>
+                    }
+                }
+
+                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
+                {
+                    <li>@Html.ActionLink("Tin Tức KM", "PromotionNews", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
+                    <li>@Html.ActionLink("Khuyến Mãi", "UserVouchers", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
+                  
+                }
+
+                <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "sneaker-nav-link" })</li>
+                <li>@Html.ActionLink("Giới Thiệu", "About", "Home", null, new { @class = "sneaker-nav-link" })</li>
+                <li>@Html.ActionLink("Cài đặt", "Dashboard", "Settings", null, new { @class = "sneaker-nav-link" })</li>
+            </ul>
+
+            <div class="sneaker-auth">
+                @if (Session["UserId"] != null)
+                {
+                    if (Session["UserRole"] != "Admin")
+                    {
+                    <div class="sneaker-chat-icon" id="sneakerChatIcon">
+                        <i class="fas fa-comments"></i>
+                        <span class="sneaker-chat-badge" id="sneakerUnreadCount" style="display: none">0</span>
+                    </div>
+
+                    }
                 }
                 else
                 {
-                    <!-- Hiển thị nút Đăng nhập và Đăng ký nếu chưa đăng nhập -->
-                    <li>@Html.ActionLink("Đăng Nhập", "Login", "Account", null, new { @class = "nav-link" })</li>
-                    <span class="divider">/</span>
-                    <li>@Html.ActionLink("Đăng Ký", "Register", "Account", null, new { @class = "nav-link" })</li>
+                    @Html.ActionLink("Đăng Nhập", "Login", "Account", null, new { @class = "sneaker-nav-link" })
+                    <span class="sneaker-divider">/</span>
+                    @Html.ActionLink("Đăng Ký", "Register", "Account", null, new { @class = "sneaker-nav-link" })
                 }
             </div>
         </nav>
 
+        <!-- Search Bar with Toggle -->
+        <div class="sneaker-search-container">
+            <button class="sneaker-search-toggle" id="searchToggle">
+                <i class="fas fa-search"></i>
+            </button>
 
-
-        <div class="search-bar">
-            <div class="search-container">
-                @using (Html.BeginForm("Index", "Home", FormMethod.Get))
-                {
-                    <input type="text" name="searchTerm" value="@Request.QueryString["searchTerm"]" class="search-box" placeholder="Tìm kiếm sản phẩm..." />
-                    <button class="search-button">
-                        <i class="fas fa-search search-icon"></i>
-                    </button>
-                }
-            </div>
+            @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "sneaker-search-form", id = "searchForm" }))
+            {
+                <input type="text" name="searchTerm" value="@Request.QueryString["searchTerm"]" class="sneaker-search-input" placeholder="Tìm kiếm sản phẩm..." />
+                <button type="submit" class="sneaker-search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            }
         </div>
     </header>
 
-    <main style=" width: 1530px; height: auto;">
-        <div class="dropdown" style="background-color:#ffffff00">
-            <button class="dropdown-button"><i class="fas fa-bars"></i></button>
-            <div class="dropdown-content">
-                <a href="@Url.Action("IndexProduct", "Product", new { category = "Jordan" })">Jordan</a>
-                <a href="@Url.Action("IndexProduct", "Product", new { category = "Air Force" })">Air Force</a>
-                <a href="@Url.Action("IndexProduct", "Product", new { category = "Puma Classic" })">Puma Classic</a>
-                <a href="@Url.Action("IndexProduct", "Product", new { category = "Vans Classic" })">Vans Classic</a>
-                <a href="@Url.Action("IndexProduct", "Product", new { category = "Adidas Classic" })">Adidas Classic</a>
-            </div>
-        </div>
+    <!-- Main Content -->
+    <main class="sneaker-main">
         @RenderBody()
     </main>
 
-
-    <footer>
-        <div class="container" style="color:#fff;">
-            <h2 style="color:#ffffff">Thông tin liên hệ</h2>
-            <div class="contact-info">
-                <div style=" margin-left:20px;">
-                    <span class="Hotline"><strong>HOTLINE</strong>: 0799192226</span>
-                    <span><strong>Gmail:</strong> <a href="mailto:dh813345@gmail.com">dh8133455@gmail.com</a></span>
-                    <span><strong>Địa chỉ:</strong> 49 Lê lợi, khu phố 1, phường 1, thị xã Kiến Tường, tỉnh Long An</span>
-
-                    <span>Uy tín sản phẩm luôn luôn đặt lên hàng đầu.</span>
-                    <div style="margin-left:39px;">
-                        <span><strong>Chi nhánh 1</strong>:Khu 13 phường XX</span>
-                        <span><strong>Chi nhánh 2</strong>:Khu 14 phường XX</span>
-                        <span><strong>Chi nhánh 3</strong>:Khu 15 phường XX</span>
-                        <span><strong>Chi nhánh 4</strong>:Khu 16 phường XX</span>
-                        <span><strong>Chi nhánh 5</strong>:Khu 17 phường XX</span>
+    <!-- Footer -->
+    <footer class="sneaker-footer">
+        <div class="sneaker-footer-container">
+            <div class="sneaker-footer-section">
+                <h3>Thông tin liên hệ</h3>
+                <div class="sneaker-contact-info">
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-phone sneaker-contact-icon"></i>
+                        <div>
+                            <strong>HOTLINE:</strong> 0799192226
+                        </div>
                     </div>
-                    <span>Cách đặt hàng: @Html.ActionLink("tại đây", "Guide", "Home")</span>
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-envelope sneaker-contact-icon"></i>
+                        <div>
+                            <strong>Gmail:</strong> <a href="mailto:dh813345@gmail.com">dh8133455@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-map-marker-alt sneaker-contact-icon"></i>
+                        <div>
+                            <strong>Địa chỉ:</strong> 49 Lê lợi, khu phố 1, phường 1, thị xã Kiến Tường, tỉnh Long An
+                        </div>
+                    </div>
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-star sneaker-contact-icon"></i>
+                        <div>Uy tín sản phẩm luôn luôn đặt lên hàng đầu.</div>
+                    </div>
                 </div>
-                <hr>
-
-                <table class="LienHe">
-                    <thead>
-                        <tr>
-                            <th>VỀ CHÚNG TÔI</th>
-                            <th>DANH MỤC</th>
-                            <th>KHÁCH HÀNG</th>
-                            <th>Mạng xã hội</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><a href="#">Khách hàng</a></td>
-                            <td><a href="#">Trang chủ</a></td>
-                            <td><a href="#">Đánh giá</a></td>
-                            <td><a href="https://www.facebook.com/profile.php?id=100016524611731&locale=vi_VN"><i class="fab fa-facebook"></i></a></td>
-
-                        </tr>
-                        <tr>
-                            <td><a href="#">Điều khoản sử dụng</a></td>
-                            <td><a href="#">Chính sách</a></td>
-                            <td><a href="#">Uy tín</a></td>
-                            <td><a href="https://www.instagram.com/he_den.ng209/"><i class="fab fa-instagram"></i></a></td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
-            <div class="Block">
-                <div class="map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d15678.015454887345!2d105.93620054107296!3d10.772667815888587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1svi!2s!4v1714401576729!5m2!1svi!2s" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+            <div class="sneaker-footer-section">
+                <h3>Chi nhánh</h3>
+                <div class="sneaker-contact-info">
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-store sneaker-contact-icon"></i>
+                        <div><strong>Chi nhánh 1:</strong> Khu 13 phường XX</div>
+                    </div>
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-store sneaker-contact-icon"></i>
+                        <div><strong>Chi nhánh 2:</strong> Khu 14 phường XX</div>
+                    </div>
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-store sneaker-contact-icon"></i>
+                        <div><strong>Chi nhánh 3:</strong> Khu 15 phường XX</div>
+                    </div>
+                    <div class="sneaker-contact-item">
+                        <i class="fas fa-info-circle sneaker-contact-icon"></i>
+                        <div>Cách đặt hàng: @Html.ActionLink("tại đây", "Guide", "Home")</div>
+                    </div>
                 </div>
-                <div class="link-guide">
-                    <span>Link hướng dẫn: <a href="https://maps.app.goo.gl/s9Ze4ufji6g5XJuT7" target="_blank">Ấn vào đây để đến địa chỉ</a></span>
+            </div>
+
+            <div class="sneaker-footer-section">
+                <h3>Liên kết</h3>
+                <div class="sneaker-footer-links">
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fas fa-chevron-right"></i> Về chúng tôi
+                    </a>
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fas fa-chevron-right"></i> Điều khoản sử dụng
+                    </a>
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fas fa-chevron-right"></i> Chính sách bảo mật
+                    </a>
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fas fa-chevron-right"></i> Hướng dẫn mua hàng
+                    </a>
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fas fa-chevron-right"></i> Chính sách đổi trả
+                    </a>
+                </div>
+            </div>
+
+            <div class="sneaker-footer-section">
+                <h3>Mạng xã hội</h3>
+                <div class="sneaker-footer-links">
+                    <a href="https://www.facebook.com/profile.php?id=100016524611731&locale=vi_VN" class="sneaker-footer-link">
+                        <i class="fab fa-facebook"></i> Facebook
+                    </a>
+                    <a href="https://www.instagram.com/he_den.ng209/" class="sneaker-footer-link">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </a>
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fab fa-youtube"></i> YouTube
+                    </a>
+                    <a href="#" class="sneaker-footer-link">
+                        <i class="fab fa-tiktok"></i> TikTok
+                    </a>
+                </div>
+
+                <div class="sneaker-social-links">
+                    <a href="https://www.facebook.com/profile.php?id=100016524611731&locale=vi_VN" class="sneaker-social-link">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/he_den.ng209/" class="sneaker-social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="sneaker-social-link">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="sneaker-social-link">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+
+                <div class="sneaker-map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d15678.015454887345!2d105.93620054107296!3d10.772667815888587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1svi!2s!4v1714401576729!5m2!1svi!2s" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>
+
+        <div class="sneaker-copyright">
+            &copy; @DateTime.Now.Year Sneaker Store. Tất cả quyền được bảo lưu.
+        </div>
     </footer>
 
-    <!-- Script hỗ trợ thao tác với sản phẩm -->
     <script>
+        // Toggle search bar
+        document.getElementById('searchToggle').addEventListener('click', function() {
+            document.getElementById('searchForm').classList.toggle('active');
+        });
+
+        // Hàm hỗ trợ thao tác với sản phẩm
         function buyNow(productId) {
             window.location.href = '@Url.Action("Buy", "Product")?id=' + productId;
         }
@@ -172,8 +676,39 @@
         function viewProduct(productId) {
             window.location.href = '@Url.Action("Detail", "Product")?id=' + productId;
         }
+
+        // Chat functionality
+        document.getElementById('sneakerChatIcon').addEventListener('click', function() {
+            window.location.href = '@Url.Action("UserChat", "Chat")';
+        });
+
+        // Kiểm tra tin nhắn chưa đọc
+        function checkUnreadMessages() {
+            $.get('@Url.Action("GetUnreadCount", "Chat")', function(count) {
+                const badge = document.getElementById('sneakerUnreadCount');
+                if (count > 0) {
+                    badge.style.display = 'block';
+                    badge.textContent = count;
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+        }
+
+        // Kiểm tra mỗi 30 giây
+        setInterval(checkUnreadMessages, 30000);
+        checkUnreadMessages();
+
+        // Hiệu ứng cuộn mượt cho các liên kết
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
     </script>
     @RenderSection("Scripts", required: false)
-
 </body>
 </html>

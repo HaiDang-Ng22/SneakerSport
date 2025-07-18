@@ -1,19 +1,113 @@
-﻿@model IEnumerable<SneakerSportStore.Models.Giay>
-<link href="~/Content/Product.css" rel="stylesheet" />
+﻿@model IEnumerable<SneakerSportStore.Models.ProductFireBaseKey>
+<style>
 
-<div class="block-product" style="background-color:#333;">
+    body {
+        background: #fffdfd;
+        font-family: 'Times New Roman', Times, serif
+    }
+
+  /*  .block-product {
+        padding: 36px 0 48px 0;
+        background: #ffffff;
+    }*/
+
+    .product-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 38px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .product {
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 4px 28px #0005;
+        padding: 26px 32px 24px 32px;
+        width: 200px;
+        text-align: left;
+        /* margin-bottom: 100px; */
+        transition: transform .14s, box-shadow .18s, background .18s;
+        position: relative;
+    }
+
+        .product:active {
+            background: #dddddd;
+            transform: translateY(-1px) scale(1.025);
+            box-shadow: 0 10px 36px rgba(120, 119, 119, 0.4);
+        }
+/* hình ảnh */
+        .product img {
+            margin-top: -20px;
+            width: 250px;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 40px;
+            border-radius: 5px;
+            box-shadow: 0 1.5px 7px #0002;
+            background: #fff;
+            border: 1.5px solid #999999;
+            margin-left: -25px;
+            margin-bottom: 40px;
+         
+        }
+    /* tiêu đề */
+    .title {
+        /* margin-bottom: 90px; */
+        margin-left: -25px;
+        position: absolute;
+        top: 190px;
+    }
+    /*tên*/
+    .product h3 {
+        max-width: 400px;
+        color: #000000;
+        font-size: 1.16rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        /* margin-bottom:0px; */
+        /* min-height: 42px; */
+    }
+    /* Giá */
+    .product p {
+        margin-top: -10px;
+        color: #000000;
+        font-size: 1.3rem;
+        margin-bottom: 80px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+
+    .Price {
+        font-size: 15px;
+        color: #000000c1;
+    }
+    #notification {
+        font-size: 1.05em;
+        font-weight: 500;
+        padding: 13px 32px;
+        border-radius: 13px;
+        box-shadow: 0 7px 32px #0006;
+        color: #fff;
+        min-width: 260px;
+        text-align: center;
+        z-index: 9999;
+    }
+</style>
+<div class="block-product">
     <div class="product-list">
         @foreach (var product in Model)
         {
             <div class="product">
-                <!-- Nhấn vào hình ảnh hoặc tên sản phẩm để dẫn đến trang chi tiết -->
-                <a href="@Url.Action("Details", "Home", new { id = product.GiayId })">
-                    <img src="@product.HinhAnh" alt="@product.TenGiay" style="width:150px; height:150px;" />
-                    <h3 style="color:#fff;">@product.TenGiay</h3>
+                <a class="product-image" href="@Url.Action("Details", "Home", new { id = product.GiayId })">
+                        <img src="@product.HinhAnh" alt="@product.TenGiay"/>
                 </a>
+                    <div class="title">
+                        <h3 class="product-name" >@product.TenGiay</h3>
+                        <p class="product-price"><span class="Price">Giá: </span>@String.Format("{0:N0}", product.Gia) VND</p>
+                    </div>
 
-                <!-- Hiển thị giá sản phẩm -->
-                <p style="color:white;">Giá: @String.Format("{0:N0}", product.Gia) USD</p>
             </div>
         }
     </div>

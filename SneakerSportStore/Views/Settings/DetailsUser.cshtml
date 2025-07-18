@@ -1,128 +1,429 @@
-﻿@{
-    ViewBag.Title = "Thông tin tài khoản";
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+</body>
+@{
+    ViewBag.Title = "Cài đặt tài khoản";
+    var userInfo = ViewBag.User as SneakerSportStore.Models.UserInfo;
 }
-<style>
-    /* Toàn bộ layout của thông tin tài khoản */
-    .AccountInfo {
-        max-width: 600px;
-        margin: 40px auto;
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
 
-        /* Tiêu đề */
-        .AccountInfo h2 {
-            font-size: 24px;
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
+<div class="AccountSettingsSimple">
+    <h2 class="AccountSettings__Title">Cài đặt tài khoản</h2>
+
+    <!-- Hiển thị thông báo -->
+    <div id="messageContainer">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success AccountSettings__AlertSuccess">@TempData["Message"]</div>
         }
-
-    /* Thông tin tài khoản */
-    .AccountInfo__Details {
-        margin-bottom: 30px;
-    }
-
-        .AccountInfo__Details h3 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 15px;
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger AccountSettings__AlertError">@TempData["Error"]</div>
         }
-
-        .AccountInfo__Details p {
-            font-size: 14px;
-            margin: 8px 0;
-        }
-
-        .AccountInfo__Details strong {
-            color: #333;
-        }
-
-    /* Các nút hành động */
-    .AccountInfo__Actions,
-    .AccountInfo__Orders,
-    .AccountInfo__Delete {
-        display: flex;
-        flex-direction: column; /* Sắp xếp theo chiều dọc */
-        gap: 10px; /* Khoảng cách giữa các nút */
-        margin-bottom: 20px; /* Khoảng cách dưới cùng */
-        align-items: center; /* Căn giữa các nút */
-    }
-
-        .AccountInfo__Actions .btn,
-        .AccountInfo__Orders .btn,
-        .AccountInfo__Delete .btn {
-            font-size: 14px;
-            padding: 10px 20px; /* Padding cho các nút */
-            text-align: center;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            color: #333;
-            text-decoration: none;
-            border-radius: 4px;
-            width: 100%; /* Nút chiếm toàn bộ chiều rộng */
-        }
-
-            /* Hiệu ứng hover cho các nút */
-            .AccountInfo__Actions .btn:hover,
-            .AccountInfo__Orders .btn:hover,
-            .AccountInfo__Delete .btn:hover {
-                background-color: #f7f7f7;
-                border-color: #999;
-            }
-
-        /* Nút xóa tài khoản */
-        .AccountInfo__Delete .btn-danger {
-            background-color: #fff;
-            color: #dc3545;
-            border: 1px solid #dc3545;
-        }
-
-            .AccountInfo__Delete .btn-danger:hover {
-                background-color: #f7f7f7;
-                border-color: #bd2130;
-            }
-
-</style>
-<div class="AccountInfo">
-    <h2>Thông tin tài khoản</h2>
-
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-success">@TempData["Message"]</div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">@TempData["Error"]</div>
-    }
-
-    <div class="AccountInfo__Details">
-        <h3>Thông tin tài khoản</h3>
-        <p><strong>Họ và tên:</strong> @ViewBag.User.HoTen</p>
-        <p><strong>Email:</strong> @ViewBag.User.Email</p>
-        <p><strong>Số điện thoại:</strong> @ViewBag.User.SoDienThoai</p>
-        <p><strong>Địa chỉ:</strong> @ViewBag.User.DiaChi</p>
-    </div>
-    <div class="AccountInfo__Actions">
-        <a href="@Url.Action("EditProfile", "Settings", new { userId = ViewBag.UserId })" class="btn">Cập nhật thông tin cá nhân</a>
-        <a href="@Url.Action("ForgotPassword", "Settings")" class="btn">Đổi mật khẩu</a>
     </div>
 
-    @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
-    {
-        <div class="AccountInfo__Orders">
-            <a href="@Url.Action("MyOrders", "UserOrder")" class="btn">Đơn hàng</a>
+    <!-- Panel thông tin tài khoản -->
+    <div class="AccountSettings__Card">
+        <h3 class="AccountSettings__CardTitle">Thông tin tài khoản</h3>
+        <div class="AccountSettings__CardBody">
+            <div class="AccountSettings__InfoItem">
+                <span class="AccountSettings__InfoLabel">Họ tên:</span>
+                <span id="userName">@(userInfo?.HoTen ?? "Chưa cập nhật")</span>
+            </div> 
+            <div class="AccountSettings__InfoItem">
+                <span class="AccountSettings__InfoLabel">Tên Tài Khoản :</span>
+                <span id="userName">@(userInfo?.TenDangNhap ?? "Chưa cập nhật")</span>
+            </div>
+            <div class="AccountSettings__InfoItem">
+                <span class="AccountSettings__InfoLabel">Email:</span>
+                <span id="userEmail">@(userInfo?.Email ?? "Chưa cập nhật")</span>
+            </div>
+            <div class="AccountSettings__InfoItem">
+                <span class="AccountSettings__InfoLabel">Số điện thoại:</span>
+                <span id="userPhone">@(userInfo?.SoDienThoai ?? "Chưa cập nhật")</span>
+            </div>
+            <div class="AccountSettings__InfoItem">
+                <span class="AccountSettings__InfoLabel">Địa chỉ:</span>
+                <span id="userAddress">@(userInfo?.DiaChi ?? "Chưa cập nhật")</span>
+            </div>
+            <button id="editProfileBtn" class="btn btn-primary AccountSettings__EditBtn">
+                <i class="fas fa-edit"></i> Chỉnh sửa
+            </button>
         </div>
-    }
+    </div>
 
-    <div class="AccountInfo__Delete">
-        <form action="@Url.Action("DeleteAccount")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản?');">
-            <input type="hidden" name="userId" value="@ViewBag.UserId" />
-            <button type="submit" class="btn btn-danger">Xóa tài khoản</button>
-        </form>
+    <!-- Các chức năng chính -->
+    <div class="AccountSettings__Actions">
+        <div class="AccountSettings__ActionCard" id="changePasswordCard">
+            <h3 class="AccountSettings__CardTitle">Bảo mật</h3>
+            <button class="btn btn-simple AccountSettings__ActionBtn" id="changePasswordBtn">
+                <i class="fas fa-lock"></i> Đổi mật khẩu
+            </button>
+            <button class="btn btn-simple AccountSettings__ActionBtn" id="forgotPasswordBtn">
+                <i class="fas fa-key"></i> Quên mật khẩu
+            </button>
+        </div>
+
+        <div class="AccountSettings__ActionCard">
+            <h3 class="AccountSettings__CardTitle">Nhật ký hoạt động</h3>
+            <button class="btn btn-simple AccountSettings__ActionBtn" id="activityLogBtn">
+                <i class="fas fa-history"></i> Xem lịch sử
+            </button>
+        </div>
+
+        <div class="AccountSettings__ActionCard">
+            <h3 class="AccountSettings__CardTitle">Tài khoản ngân hàng</h3>
+            <a href="@Url.Action("BankAccountInfo", "BankAccount")" class="btn btn-simple AccountSettings__ActionBtn">
+                <i class="fas fa-university"></i> Quản lý
+            </a>
+            <a href="@Url.Action("DetailsUser", "Settings")" class="btn btn-simple AccountSettings__ActionBtn">
+                <i class="fas fa-university"></i>Thông Tin Chi Tiết Tài Khoản
+            </a>
+        </div>
+    </div>
+
+    <!-- Các liên kết nhanh -->
+    <div class="AccountSettings__QuickLinks">
+        <h3 class="AccountSettings__CardTitle">Hành động nhanh</h3>
+        <div class="AccountSettings__QuickLinksContainer">
+            @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+            {
+                <a href="@Url.Action("Index", "AdminOrder")" class="AccountSettings__QuickLink">
+                    <i class="fas fa-shopping-cart"></i> Quản lý đơn hàng
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("MyOrders", "UserOrder")" class="AccountSettings__QuickLink">
+                    <i class="fas fa-shopping-cart"></i> Đơn hàng
+                </a>
+            }
+            <button id="deleteAccountBtn" class="AccountSettings__QuickLink text-danger">
+                <i class="fas fa-trash-alt"></i> Xóa tài khoản
+            </button>
+            <a href="@Url.Action("Logout", "Account")" class="AccountSettings__QuickLink">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        </div>
     </div>
 </div>
+
+<!-- Modal chỉnh sửa thông tin -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa thông tin</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    <input type="hidden" id="userId" value="@Session["CustomerID"]" />
+                    <div class="form-group">
+                        <label for="hoTen">Họ tên</label>
+                        <input type="text" class="form-control" id="hoTen" value="@(userInfo?.HoTen)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hoTen">Tên Tài Khoản</label>
+                        <input type="text" class="form-control" id="tenDangNhap" value="@(userInfo?.TenDangNhap)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" value="@(userInfo?.Email)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="soDienThoai">Số điện thoại</label>
+                        <input type="tel" class="form-control" id="soDienThoai" value="@(userInfo?.SoDienThoai)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diaChi">Địa chỉ</label>
+                        <textarea class="form-control" id="diaChi">@(userInfo?.DiaChi)</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveProfileBtn">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Mở modal chỉnh sửa thông tin
+            $("#editProfileBtn").click(function () {
+                $("#editProfileModal").modal('show');
+            });
+
+            // Xử lý lưu thông tin cá nhân
+            $("#saveProfileBtn").click(function () {
+                var userId = $("#userId").val();
+                var profileData = {
+                    hoTen: $("#hoTen").val(),
+                    email: $("#email").val(),
+                    soDienThoai: $("#soDienThoai").val(),
+                    diaChi: $("#diaChi").val()
+                };
+
+                $.ajax({
+                    url: '/Settings/Profile',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(profileData),
+                    success: function (response) {
+                        if (response.Success) {
+                            // Cập nhật thông tin trên giao diện
+                            $("#userName").text(profileData.hoTen);
+                            $("#userEmail").text(profileData.email);
+                            $("#userPhone").text(profileData.soDienThoai);
+                            $("#userAddress").text(profileData.diaChi);
+
+                            // Hiển thị thông báo
+                            showMessage("Cập nhật thông tin thành công!", "success");
+                            $("#editProfileModal").modal('hide');
+                        } else {
+                            showMessage("Lỗi: " + response.Message, "error");
+                        }
+                    },
+                    error: function () {
+                        showMessage("Lỗi hệ thống khi cập nhật", "error");
+                    }
+                });
+            });
+
+            // Xử lý xóa tài khoản
+            $("#deleteAccountBtn").click(function () {
+                if (confirm("Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác!")) {
+                    $.ajax({
+                        url: '/Settings/Account',
+                        type: 'DELETE',
+                        success: function (response) {
+                            if (response.Success) {
+                                window.location.href = '@Url.Action("Index", "Home")';
+                            } else {
+                                showMessage("Lỗi: " + response.Message, "error");
+                            }
+                        },
+                        error: function () {
+                            showMessage("Lỗi hệ thống khi xóa tài khoản", "error");
+                        }
+                    });
+                }
+            });
+
+            // Chuyển hướng đến các trang chức năng
+            $("#changePasswordBtn").click(function () {
+                window.location.href = '@Url.Action("ChangePassword", "Settings")';
+            });
+
+            $("#forgotPasswordBtn").click(function () {
+                window.location.href = '@Url.Action("ForgotPassword", "Settings")';
+            });
+
+            $("#activityLogBtn").click(function () {
+                window.location.href = '@Url.Action("ActivityLog", "Settings")';
+            });
+
+            // Hiển thị thông báo
+            function showMessage(message, type) {
+                var alertClass = type === "success" ? "alert-success" : "alert-danger";
+                var html = `<div class="alert ${alertClass} AccountSettings__Alert">${message}</div>`;
+                $("#messageContainer").html(html);
+
+                // Tự động ẩn sau 5s
+                setTimeout(function() {
+                    $(".AccountSettings__Alert").fadeOut();
+                }, 5000);
+            }
+        });
+    </script>
+}
+
+<style>
+    /* Bao bọc phần cài đặt tài khoản */
+    .AccountSettingsSimple {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 25px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Tiêu đề */
+    .AccountSettings__Title {
+        font-size: 24px;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* Card thông tin */
+    .AccountSettings__Card {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #eaeaea;
+    }
+
+    .AccountSettings__CardTitle {
+        font-size: 18px;
+        color: #3498db;
+        margin-bottom: 15px;
+    }
+
+    /* Item thông tin */
+    .AccountSettings__InfoItem {
+        display: flex;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed #eee;
+    }
+
+    .AccountSettings__InfoLabel {
+        font-weight: 600;
+        min-width: 120px;
+        color: #555;
+    }
+
+    /* Nút chỉnh sửa */
+    .AccountSettings__EditBtn {
+        margin-top: 15px;
+        width: 100%;
+        padding: 10px;
+    }
+
+    /* Khu vực chức năng */
+    .AccountSettings__Actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .AccountSettings__ActionCard {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid #eaeaea;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .AccountSettings__ActionBtn {
+        margin-top: 10px;
+        text-align: left;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+        .AccountSettings__ActionBtn i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .AccountSettings__ActionBtn:hover {
+            background-color: #f0f5ff;
+            border-color: #3498db;
+            color: #3498db;
+        }
+
+    /* Liên kết nhanh */
+    .AccountSettings__QuickLinks {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid #eaeaea;
+    }
+
+    .AccountSettings__QuickLinksContainer {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .AccountSettings__QuickLink {
+        padding: 12px 15px;
+        border: 1px solid #eaeaea;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        color: #555;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+        .AccountSettings__QuickLink i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .AccountSettings__QuickLink:hover {
+            background-color: #f8f9fa;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .AccountSettings__QuickLink.text-danger {
+            color: #e74c3c;
+        }
+
+            .AccountSettings__QuickLink.text-danger:hover {
+                background-color: #fef2f2;
+                border-color: #f8d7da;
+            }
+
+    /* Thông báo */
+    .AccountSettings__Alert {
+        margin-bottom: 20px;
+        padding: 12px 15px;
+        border-radius: 5px;
+    }
+
+    .AccountSettings__AlertSuccess {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .AccountSettings__AlertError {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .AccountSettingsSimple {
+            padding: 15px;
+        }
+
+        .AccountSettings__Actions {
+            grid-template-columns: 1fr;
+        }
+
+        .AccountSettings__QuickLinksContainer {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</html>

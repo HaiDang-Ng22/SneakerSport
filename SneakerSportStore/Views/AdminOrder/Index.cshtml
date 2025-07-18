@@ -1,113 +1,502 @@
 ﻿@model List<SneakerSportStore.Models.Order>
+@{
+    ViewBag.Title = "Quản lý Đơn hàng";
 
-<h2>Quản lý đơn hàng</h2>
-
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">Không có đơn hàng nào.</div>
 }
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Mã đơn hàng</th>
-                <th>Tên khách hàng</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                <tr>
-                    <td>@order.OrderId</td>
-                    <td>@order.CustomerName</td>
-                    <td>@order.Status</td>
-                    <td>
-                        <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-info">Xem chi tiết</a>
+<div class="admin-container">
+    <h2 class="admin-header">Quản lý Đơn hàng</h2>
+    
+    <div class="admin-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm đơn hàng..." class="form-control">
+            <button class="btn btn-primary" id="searchBtn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <div class="filter-container">
+            <select id="statusFilter" class="form-control">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="Chờ xử lý">Chờ xử lý</option>
+                <option value="Xác nhận">Xác nhận</option>
+                <option value="Đang chuẩn bị">Đang chuẩn bị</option>
+                <option value="Đã giao cho đơn vị vận chuyển">Đã giao vận chuyển</option>
+                <option value="Đang giao đến bạn">Đang giao hàng</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Hủy">Đã hủy</option>
+            </select>
+        </div>
+    </div>
 
-                        <!-- Cập nhật trạng thái đơn hàng -->
-                        @if (order.Status == "Chờ xác nhận" && order.Status != "Hủy")
-                        {
-                            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Xác nhận" })">
-                                <button type="submit" class="btn btn-success">Xác nhận</button>
-                            </form>
-                        }
-                        @if (order.Status == "Xác nhận" && order.Status != "Hủy")
-                        {
-                            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đang chuẩn bị" })">
-                                <button type="submit" class="btn btn-warning">Đang chuẩn bị</button>
-                            </form>
-                        }
-                        @if (order.Status == "Đang chuẩn bị" && order.Status != "Hủy")
-                        {
-                            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đã giao cho đơn vị vận chuyển" })">
-                                <button type="submit" class="btn btn-warning">Đã giao </button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-
-        </tbody>
-    </table>
-}
-
-<style>
-    /* Thiết lập chung cho bảng */
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info no-orders">
+            <i class="fas fa-box-open"></i>
+            <p>Không có đơn hàng nào</p>
+        </div>
     }
+    else
+    {
+        <div class="orders-table-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Phương thức</th>
+                        <th class="status-col">Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr class="order-row" data-status="@order.Status">
+                            <td>@order.OrderId.Substring(0, 8).ToUpper()</td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-name">@order.CustomerName</div>
+                                    <div class="customer-phone">@order.PhoneNumber</div>
+                                </div>
+                            </td>
+                            <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-right">@order.FinalTotal.ToString("N0") đ</td>
+                            <td>
+                                <span class="payment-method-badge">
+                                    @(order.PaymentMethod == "cod" ? "COD" : "Chuyển khoản")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-@order.Status.Replace(" ", "-")">
+                                    @order.Status
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" 
+                                   class="btn btn-view" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                
+                                @if (order.Status == "Chờ xác nhận" && order.Status != "Hủy")
+                                {
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Xác nhận" })">
+                                        <button type="submit" class="btn btn-confirm" title="Xác nhận đơn hàng">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                @if (order.Status == "Xác nhận" && order.Status != "Hủy")
+                                {
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đang chuẩn bị" })">
+                                        <button type="submit" class="btn btn-prepare" title="Chuẩn bị hàng">
+                                            <i class="fas fa-box"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                @if (order.Status == "Đang chuẩn bị" && order.Status != "Hủy")
+                                {
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đã giao cho đơn vị vận chuyển" })">
+                                        <button type="submit" class="btn btn-ship" title="Giao vận chuyển">
+                                            <i class="fas fa-truck"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                @if (order.Status == "Đã giao cho đơn vị vận chuyển" && order.Status != "Hủy")
+                                {
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Đang giao đến bạn" })">
+                                        <button type="submit" class="btn btn-deliver" title="Đang giao hàng">
+                                            <i class="fas fa-shipping-fast"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                @if (order.Status == "Đang giao đến bạn" && order.Status != "Hủy")
+                                {
+                                    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = order.OrderId, status = "Hoàn thành" })">
+                                        <button type="submit" class="btn btn-complete" title="Hoàn thành">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                @if (order.Status != "Hủy" && order.Status != "Hoàn thành")
+                                {
+                                    <form method="post" action="@Url.Action("CancelOrder", new { id = order.OrderId })" class="cancel-form">
+                                        <button type="submit" class="btn btn-cancel" title="Hủy đơn hàng">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Hiển thị 1-10 của @Model.Count đơn hàng
+            </div>
+            <div class="pagination-controls">
+                <button class="btn btn-pagination"><i class="fas fa-chevron-left"></i></button>
+                <button class="btn btn-pagination active">1</button>
+                <button class="btn btn-pagination">2</button>
+                <button class="btn btn-pagination"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    }
+</div>
 
-        .table th, .table td {
-            padding: 10px;
+    <style>
+        .admin-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin: 20px;
+        }
+        
+        .admin-header {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
+        }
+        
+        .admin-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+        
+        .search-container {
+            display: flex;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        #searchInput {
+            border-radius: 5px 0 0 5px;
+            border-right: none;
+        }
+        
+        #searchBtn {
+            border-radius: 0 5px 5px 0;
+            padding: 0 15px;
+        }
+        
+        .filter-container {
+            width: 250px;
+        }
+        
+        .no-orders {
+            text-align: center;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #6c757d;
+        }
+        
+        .no-orders i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            color: #ced4da;
+        }
+        
+        .orders-table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        
+        .orders-table th {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #eaeaea;
         }
-
-    /* Tạo kiểu cho các nút */
-    .btn {
-        padding: 5px 10px;
-        font-size: 14px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .btn-sm {
-        font-size: 12px;
-    }
-
-    /* Màu sắc các nút */
-    .btn-info {
-        background-color: #17a2b8;
-        color: #fff;
-    }
-
-        .btn-info:hover {
-            background-color: #138496;
+        
+        .orders-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f1f1;
+            vertical-align: middle;
         }
-
-    .btn-success {
-        background-color: #28a745;
-        color: #fff;
-    }
-
-        .btn-success:hover {
-            background-color: #218838;
+        
+        .orders-table .status-col {
+            width: 180px;
         }
-
-    .btn-warning {
-        background-color: #ffc107;
-        color: #fff;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
+        
+        .order-row:hover {
+            background-color: #f8f9fa;
         }
+        
+        .customer-info {
+            line-height: 1.4;
+        }
+        
+        .customer-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .customer-phone {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .payment-method-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background-color: #e1f0ff;
+            color: #0d6efd;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .status-Chờ-xác-nhận {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-Xác-nhận {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-Đang-chuẩn-bị {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-Đã-giao-cho-đơn-vị-vận-chuyển,
+        .status-Đang-giao-đến-bạn {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-Hoàn-thành {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-Hủy {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .actions form {
+            margin: 0;
+        }
+        
+        .btn-view, .btn-confirm, .btn-prepare, 
+        .btn-ship, .btn-deliver, .btn-complete, 
+        .btn-cancel {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: none;
+        }
+        
+        .btn-view {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        
+        .btn-view:hover {
+            background-color: #dee2e6;
+        }
+        
+        .btn-confirm {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .btn-confirm:hover {
+            background-color: #badbcc;
+        }
+        
+        .btn-prepare {
+            background-color: #cfe2ff;
+            color: #052c65;
+        }
+        
+        .btn-prepare:hover {
+            background-color: #b6d4fe;
+        }
+        
+        .btn-ship {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        
+        .btn-ship:hover {
+            background-color: #ffe69c;
+        }
+        
+        .btn-deliver {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .btn-deliver:hover {
+            background-color: #bee5eb;
+        }
+        
+        .btn-complete {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .btn-complete:hover {
+            background-color: #badbcc;
+        }
+        
+        .btn-cancel {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #f5c2c7;
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding: 15px 0;
+        }
+        
+        .pagination-info {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-pagination {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+            color: #495057;
+        }
+        
+        .btn-pagination.active {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+        
+        .btn-pagination:hover:not(.active) {
+            background-color: #f8f9fa;
+        }
+        
+        /* Responsive design */
+        @@media (max-width: 992px) {
+            .admin-controls {
+                flex-direction: column;
+            }
+            
+            .search-container, .filter-container {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
 
-</style>
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Tìm kiếm đơn hàng
+            $('#searchBtn').click(function() {
+                filterOrders();
+            });
+            
+            $('#searchInput').keyup(function(e) {
+                if (e.key === 'Enter') {
+                    filterOrders();
+                }
+            });
+            
+            // Lọc theo trạng thái
+            $('#statusFilter').change(function() {
+                filterOrders();
+            });
+            
+            function filterOrders() {
+                const searchTerm = $('#searchInput').val().toLowerCase();
+                const statusFilter = $('#statusFilter').val();
+                
+                $('.order-row').each(function() {
+                    const $row = $(this);
+                    const orderId = $row.find('td:first-child').text().toLowerCase();
+                    const customerName = $row.find('.customer-name').text().toLowerCase();
+                    const status = $row.data('status');
+                    
+                    const matchesSearch = orderId.includes(searchTerm) || customerName.includes(searchTerm);
+                    const matchesStatus = statusFilter === 'all' || status === statusFilter;
+                    
+                    if (matchesSearch && matchesStatus) {
+                        $row.show();
+                    } else {
+                        $row.hide();
+                    }
+                });
+            }
+            
+            // Xác nhận trước khi hủy đơn hàng
+            $('.cancel-form').submit(function(e) {
+                if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

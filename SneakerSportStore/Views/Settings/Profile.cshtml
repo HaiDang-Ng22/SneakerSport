@@ -1,0 +1,67 @@
+﻿@model SneakerSportStore.Models.UserInfo
+
+<h4 class="mb-4">Thông tin cá nhân</h4>
+
+<div id="profileMessage" class="alert d-none"></div>
+
+<form id="profileForm">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" class="form-control" asp-for="hoTen">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" asp-for="email">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" asp-for="soDienThoai">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Địa chỉ</label>
+                <textarea class="form-control" asp-for="diaChi" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="updateProfile()">
+        <i class="fas fa-save me-1"></i>Cập nhật
+    </button>
+</form>
+
+<script>
+    //string userId = Session["CustomerID"] as string;
+
+    function updateProfile() {
+        const model = {
+            hoTen: $('#hoTen').val(),
+            email: $('#email').val(),
+            soDienThoai: $('#soDienThoai').val(),
+            diaChi: $('#diaChi').val()
+        };
+
+        $.ajax({
+            url: '@Url.Action("Profile", "Settings")?userId=@Context.Session["CustomerID"] as string;',
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(model),
+            success: function(response) {
+                const alert = $('#profileMessage');
+                alert.removeClass('d-none alert-danger alert-success');
+
+                if (response.Success) {
+                    alert.addClass('alert-success').text(response.Message);
+                } else {
+                    alert.addClass('alert-danger').text(response.Message);
+                }
+            }
+        });
+    }
+</script>

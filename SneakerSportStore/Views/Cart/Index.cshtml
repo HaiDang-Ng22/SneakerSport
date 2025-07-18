@@ -1,10 +1,199 @@
-﻿﻿@model List<SneakerSportStore.Models.CartItem>
+﻿@model List<SneakerSportStore.Models.CartItem>
 
 <h2>Giỏ Hàng</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@using (Html.BeginForm("ProceedToCheckout", "Cart", FormMethod.Post))
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Tổng</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="@(item.Quantity > item.SoluongTon ? "out-of-stock" : "")">
+                    <td>
+                        @{
+                            var isOutOfStock = item.SoluongTon <= 0 || item.Quantity > item.SoluongTon;
+                            var stockMessage = item.SoluongTon <= 0
+                                ? "Sản phẩm đã hết hàng"
+                                : $"Số lượng vượt quá tồn kho ({item.SoluongTon})";
+                        }
+
+                        @if (isOutOfStock)
+                        {
+                            <input type="checkbox" disabled title="@stockMessage" />
+                            <span class="stock-warning">(Hết hàng)</span>
+                        }
+                        else
+                        {
+                            <input type="checkbox"
+                                   name="selectedProductIds"
+                                   class="select-item"
+                                   value="@item.ProductId"
+                                   data-price="@item.Price"
+                                   data-qty="@item.Quantity" />
+                        }
+                    </td>
+                    <td><img src="@item.ProductImage" alt="@item.ProductName" class="product-image" /></td>
+                    <td>@item.ProductName</td>
+                    <td>@(item.Price.ToString("N0")) VNĐ</td>
+                    <td>
+                        <button type="button"class="quantity-btn decrease"data-id="@item.FirebaseKey">-</button>
+                        <span class="quantity-value">@item.Quantity</span>
+                        <button type="button"class="quantity-btn increase"data-id="@item.FirebaseKey">+</button>
+                    </td>
+                    <td class="item-total">@((item.Price * item.Quantity).ToString("N0")) VNĐ</td>
+                    <td>
+                        <button type="button" class="btn btn-danger remove-btn" data-firebasekey="@item.FirebaseKey">Xóa</button>
+                    </td>
+                </tr>
+            }
+            <tr class="summary-row">
+                <td colspan="5" class="text-right">Tổng giá trị đơn hàng:</td>
+                <td colspan="2" class="total-price">
+                    <div id="selectedTotal">0 VNĐ</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="checkout-actions">
+        <button type="submit" class="btn btn-success" id="checkout-btn" disabled>Thanh toán</button>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            function updateSelectedTotal() {
+                var total = 0;
+                var selectedCount = 0;
+
+                $('input.select-item:checked').each(function() {
+                    var price = parseFloat($(this).data('price')) || 0;
+                    var qty = parseInt($(this).data('qty')) || 0;
+                    total += price * qty;
+                    selectedCount++;
+                });
+
+                $('#selectedTotal').text(total.toLocaleString() + ' VNĐ');
+
+                $('#checkout-btn').prop('disabled', selectedCount === 0);
+            }
+
+            $('body').on('change', 'input.select-item', updateSelectedTotal);
+
+            updateSelectedTotal();
+
+            $('.increase').click(function() {
+                var firebaseKey = $(this).data('id');
+                updateQuantity(firebaseKey, 1);
+            });
+
+            $('.decrease').click(function() {
+                var firebaseKey = $(this).data('id');
+                updateQuantity(firebaseKey, -1);
+            });
+
+            $('.remove-btn').click(function() {
+                var firebaseKey = $(this).data('firebasekey');
+                removeItem(firebaseKey);
+            });
+
+            @*function updateQuantity(firebaseKey, delta) {
+                $.post('@Url.Action("UpdateQuantity", "Cart")', {
+                    firebaseKey: firebaseKey,
+                    delta: delta
+                }, function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Có lỗi xảy ra khi cập nhật số lượng');
+                    }
+                }).fail(function() {
+                    alert('Lỗi kết nối đến máy chủ');
+                });
+            }*@
+            function updateQuantity(firebaseKey, delta) {
+                var row = $('[data-id="' + firebaseKey + '"]').closest('tr');
+
+                var currentQty = parseInt(row.find('.quantity-value').text());
+                var newQty = currentQty + delta;
+
+                $.post('@Url.Action("UpdateQuantity", "Cart")', {
+                    firebaseKey: firebaseKey,
+                    newQuantity: newQty
+                }, function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Có lỗi xảy ra khi cập nhật số lượng');
+                    }
+                }).fail(function () {
+                    alert('Lỗi kết nối đến máy chủ');
+                });
+            }
+              $(document).on('click', '.quantity-btn', function() {
+                var firebaseKey = $(this).data('id');
+                var isIncrease = $(this).hasClass('increase');
+                var currentQty = parseInt($(this).siblings('.quantity-value').text());
+                var newQty = isIncrease ? currentQty + 1 : currentQty - 1;
+
+                $.post('@Url.Action("UpdateQuantity", "Cart")', {
+                    firebaseKey: firebaseKey,
+                    newQuantity: newQty
+                }, function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Có lỗi xảy ra khi cập nhật số lượng');
+                    }
+                }).fail(function() {
+                    alert('Lỗi kết nối đến máy chủ');
+                });
+            });
+            function removeItem(firebaseKey) {
+                if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                    $.post('@Url.Action("RemoveFromCart", "Cart")', {
+                        firebaseKey: firebaseKey
+                    }, function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message || 'Có lỗi xảy ra khi xóa sản phẩm');
+                        }
+                    }).fail(function() {
+                        alert('Lỗi kết nối đến máy chủ');
+                    });
+                }
+            }
+        });
+    </script>
+}
+
 <style>
     body {
         background: #f6f8fa;
         font-family: 'Segoe UI', Arial, sans-serif;
+        color: #333;
     }
 
     h2 {
@@ -17,30 +206,35 @@
     }
 
     .alert {
-        width: 70%;
+        width: 85%;
+        max-width: 800px;
         margin: 14px auto 0 auto;
         padding: 13px 25px;
         border-radius: 8px;
         font-size: 1.08rem;
-        box-shadow: 0 2px 10px #0001;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
 
     .alert-success {
         background: #e6f9e9;
         color: #219150;
+        border: 1px solid #a3e9b4;
     }
 
     .alert-danger {
         background: #f9e8e8;
         color: #c10015;
+        border: 1px solid #f5c6cb;
     }
 
     .table {
         width: 95%;
+        max-width: 1200px;
         margin: 30px auto 48px auto;
         background: #fff;
         border-radius: 16px;
-        box-shadow: 0 3px 24px #0001;
+        box-shadow: 0 3px 24px rgba(0, 0, 0, 0.1);
         border-collapse: separate;
         border-spacing: 0;
         overflow: hidden;
@@ -64,29 +258,30 @@
         }
 
         .table tbody tr:nth-child(even) {
-            background: #f1f5f9;
+            background: #f8fafc;
         }
 
         .table tbody tr:hover {
-            background: #e0ecfc;
+            background: #f1f7ff;
         }
 
-        .table img {
-            border-radius: 7px;
-            box-shadow: 0 1px 8px #0001;
-            max-width: 62px;
-            max-height: 62px;
-        }
+    .product-image {
+        border-radius: 7px;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+        max-width: 80px;
+        max-height: 80px;
+        object-fit: cover;
+    }
 
     .btn {
         border: none;
         border-radius: 7px;
-        padding: 7px 18px;
+        padding: 8px 16px;
         font-size: 1rem;
         font-weight: 500;
         cursor: pointer;
-        box-shadow: 0 1px 5px #0001;
-        transition: background .14s, color .14s;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
     }
 
     .btn-danger {
@@ -95,112 +290,111 @@
     }
 
         .btn-danger:hover {
-            background: #b91c1c;
-            color: #fff;
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(239, 68, 68, 0.3);
         }
 
     .btn-success {
         background: #3b82f6;
         color: #fff;
-        margin: 28px auto 0 auto;
-        display: block;
-        width: 180px;
-        font-size: 1.11rem;
-        padding: 11px 0;
+        font-size: 1.15rem;
+        padding: 12px 28px;
         border-radius: 9px;
         font-weight: 600;
         letter-spacing: 0.5px;
-        box-shadow: 0 2px 7px #0001;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
     }
 
         .btn-success:hover {
-            background: #1e40af;
-            color: #fff;
+            background: #2563eb;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
         }
+
+        .btn-success:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+        .quantity-btn:hover {
+            background: #cbd5e1;
+            transform: scale(1.1);
+        }
+
+    .quantity-value {
+        min-width: 30px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .stock-warning {
+        color: #ef4444;
+        font-size: 0.85rem;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .out-of-stock {
+        background: #fff5f5;
+    }
+
+    .summary-row {
+        background: #f1f5f9;
+        font-weight: 600;
+    }
+
+        .summary-row td {
+            border-top: 2px solid #cbd5e1;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+        }
+
+    .text-right {
+        text-align: right !important;
+        padding-right: 30px !important;
+    }
+
+    .total-price {
+        font-size: 1.25rem;
+        color: #1e40af;
+        text-align: right;
+        padding-right: 30px !important;
+    }
+
+    .checkout-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        margin-bottom: 50px;
+    }
+
+    .item-total {
+        font-weight: 500;
+        color: #1e40af;
+    }
 </style>
-
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
-<!-- Hiển thị tổng của các mục đã chọn -->
-<div id="selectedTotal"
-     style="text-align:right; margin-top:15px; font-size:1.1rem; font-weight:600;">
-    Tổng giá trị: 0 VNĐ
-</div>
-@using (Html.BeginForm("ProceedToCheckout", "Cart", FormMethod.Post))
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Giá</th>
-                <th>Số lượng</th>
-                <th>Tổng</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        <!-- Gắn data-price và data-qty để JS dễ tính tổng -->
-                        <input type="checkbox"
-                               name="selectedProductIds"
-                               class="select-item"
-                               value="@item.ProductId"
-                               data-price="@item.Price"
-                               data-qty="@item.Quantity" />
-                    </td>
-                    <td><img src="@item.ProductImage" alt="@item.ProductName" width="50" /></td>
-                    <td>@item.ProductName</td>
-                    <td>@(item.Price.ToString("N0")) VNĐ</td>
-                    <td>@item.Quantity</td>
-                    <td>@((item.Price * item.Quantity).ToString("N0")) VNĐ</td>
-                    <td>
-                        @using (Html.BeginForm("RemoveFromCart", "Cart", FormMethod.Post))
-                        {
-                            <input type="hidden" name="firebaseKey" value="@item.FirebaseKey" />
-                            <button type="submit" class="btn btn-danger">Xóa</button>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <button type="submit" class="btn btn-success">Thanh toán</button>
-
-
-}
-
-@section Scripts {
-    <script>
-        function updateSelectedTotal() {
-            var total = 0;
-            document
-                .querySelectorAll('input[name="selectedProductIds"]:checked')
-                .forEach(function (cb) {
-                    var price = parseFloat(cb.dataset.price) || 0;
-                    var qty = parseInt(cb.dataset.qty, 10) || 0;
-                    total += price * qty;
-                });
-            document.getElementById('selectedTotal').textContent =
-                'Tổng giá trị: ' + total.toLocaleString() + ' VNĐ';
-        }
-
-        document.querySelectorAll('input[name="selectedProductIds"]').forEach(function (cb) {
-            cb.addEventListener('change', updateSelectedTotal);
-        });
-
-        updateSelectedTotal();
-    </script>
-}

@@ -33,13 +33,13 @@ namespace SneakerSportStore.Controllers
 
         public async Task<ActionResult> Checkout()
         {
-            var userId = Session["CustomerID"]?.ToString();
+            var userId = Session["UserId"]?.ToString();
             if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            var cartItems = await GetCartItems(userId); // Now you can use GetCartItems here
+            var cartItems = await GetCartItems(userId); 
             return View(cartItems);
         }
     }

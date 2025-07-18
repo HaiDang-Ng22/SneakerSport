@@ -30,7 +30,6 @@ namespace SneakerSportStore.ApiControllers
             return Ok(result);
         }
 
-        // PUT: api/account-settings/{id}
         [HttpPut]
         [Route("{id:int}")]
         public IHttpActionResult UpdateAccountInfo(int id, KhachHang updated)

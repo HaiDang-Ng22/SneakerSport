@@ -1,48 +1,371 @@
-﻿@model SneakerSportStore.Models.KhachHang
+﻿@model SneakerSportStore.Models.RegisterModel
 @{
     ViewBag.Title = "Đăng ký";
+    Layout = null;
 }
-<link href="~/Content/Register.css" rel="stylesheet" />
 
-<div class="register-page">
-    <div class="register-container">
-        <h2 class="register-title">Đăng ký tài khoản</h2>
-
-        @if (ViewBag.ErrorMessage != null)
-        {
-            <p class="register-error">@ViewBag.ErrorMessage</p>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - SneakerSportStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #36b9cc;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
         }
 
-        @using (Html.BeginForm("Register", "Account", FormMethod.Post))
-        {
-            <div>
-                <label for="TenDangNhap">Tên đăng nhập:</label>
-                @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control", required = "required" })
-            </div>
-            <div>
-                <label for="MatKhau">Mật khẩu:</label>
-                @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control", required = "required" })
-            </div>
-            <div>
-                <label for="HoTen">Tên khách hàng:</label>
-                @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control" })
-            </div>
-            <div>
-                <label for="Email">Email:</label>
-                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", required = "required" })
-            </div>
-            <div>
-                <label for="SoDienThoai">Số điện thoại:</label>
-                @Html.TextBoxFor(m => m.SoDienThoai, new { @class = "form-control" })
-            </div>
-            <div>
-                <label for="DiaChi">Địa chỉ:</label>
-                @Html.TextBoxFor(m => m.DiaChi, new { @class = "form-control" })
-            </div>
-
-            <button type="submit" class="btn btn-primary">Đăng ký</button>
+        body {
+            background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        <p class="register-link">Đã có tài khoản? <a href="@Url.Action("Login", "Account")">Đăng nhập ngay</a></p>
+        .auth-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .auth-image {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--secondary-color) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-image::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+
+        .auth-content {
+            padding: 40px;
+        }
+
+        .auth-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: block;
+            color: var(--success-color);
+        }
+
+        .auth-logo span {
+            color: var(--secondary-color);
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+
+        .auth-subtitle {
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-color);
+            opacity: 0.5;
+        }
+
+        .form-control {
+            padding-left: 45px;
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid #d1d3e2;
+        }
+
+        .form-control:focus {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            height: 50px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            background-color: #17a673;
+            border-color: #169b6b;
+            transform: translateY(-2px);
+        }
+
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .auth-links a {
+            color: var(--success-color);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .auth-links a:hover {
+            color: #17a673;
+            text-decoration: underline;
+        }
+
+        .divider {
+            position: relative;
+            margin: 30px 0;
+            text-align: center;
+            color: var(--dark-color);
+            opacity: 0.7;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #d1d3e2;
+            z-index: 1;
+        }
+
+        .divider span {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 15px;
+        }
+
+        .auth-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--dark-color);
+            opacity: 0.7;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .sneaker-icon {
+            font-size: 6rem;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .image-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .image-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .password-rules {
+            font-size: 0.85rem;
+            color: var(--dark-color);
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        media (max-width: 991px) {
+            .auth-image {
+                padding: 20px;
+            }
+
+            .sneaker-icon {
+                font-size: 4rem;
+            }
+
+            .image-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        media (max-width: 767px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .auth-image {
+                padding: 40px 20px;
+            }
+
+            .auth-content {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container d-flex">
+        <!-- Left Side - Image/Graphics -->
+        <div class="auth-image d-none d-md-flex flex-column">
+            <i class="fas fa-shoe-prints sneaker-icon"></i>
+            <h2 class="image-title">Tham gia cùng chúng tôi!</h2>
+            <p class="image-subtitle">Đăng ký tài khoản để trải nghiệm mua sắm giày thể thao tốt nhất</p>
+        </div>
+
+        <!-- Right Side - Register Form -->
+        <div class="auth-content flex-grow-1">
+            <a href="@Url.Action("Index", "Home")" class="auth-logo">
+                <i class="fas fa-shoe-prints"></i> Sneaker<span>Sport</span>
+            </a>
+            <h1 class="auth-title">Tạo tài khoản mới</h1>
+            <p class="auth-subtitle">Vui lòng điền thông tin bên dưới</p>
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+
+            @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "auth-form" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <i class="fas fa-user form-icon"></i>
+                            @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control", placeholder = "Họ và tên", required = "required" })
+                            @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "error-message" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <i class="fas fa-at form-icon"></i>
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = "Email", required = "required" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error-message" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <i class="fas fa-lock form-icon"></i>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Mật khẩu", required = "required", id = "password" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error-message" })
+                            <div class="password-rules">
+                                Mật khẩu tối thiểu 8 ký tự, bao gồm chữ và số
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <i class="fas fa-lock form-icon"></i>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <i class="fas fa-phone form-icon"></i>
+                            @Html.TextBoxFor(m => m.SoDienThoai, new { @class = "form-control", placeholder = "Số điện thoại", required = "required" })
+                            @Html.ValidationMessageFor(m => m.SoDienThoai, "", new { @class = "error-message" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <i class="fas fa-user-tag form-icon"></i>
+                            @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control", placeholder = "Tên đăng nhập", required = "required" })
+                            @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "error-message" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-map-marker-alt form-icon"></i>
+                    @Html.TextAreaFor(m => m.DiaChi, new { @class = "form-control", placeholder = "Địa chỉ", rows = "3", required = "required" })
+                    @Html.ValidationMessageFor(m => m.DiaChi, "", new { @class = "error-message" })
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Đăng ký</button>
+            }
+
+            <div class="divider">
+                <span>Đã có tài khoản?</span>
+            </div>
+
+            <div class="auth-footer">
+                <a href="@Url.Action("Login", "Account")">Đăng nhập ngay</a>
+            </div>
+        </div>
     </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Kiểm tra mật khẩu trùng khớp
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+
+            if (password !== confirmPassword) {
+                this.setCustomValidity("Mật khẩu không khớp");
+            } else {
+                this.setCustomValidity("");
+            }
+        });
+    </script>
+</body>
+</html>

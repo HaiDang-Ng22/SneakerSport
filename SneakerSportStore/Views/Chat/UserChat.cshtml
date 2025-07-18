@@ -1,0 +1,269 @@
+﻿<!-- UserChat.cshtml -->
+@{
+    ViewBag.Title = "Hỗ trợ khách hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="user-chat-container">
+    <div class="chat-header">
+        <h3>Hỗ trợ trực tuyến</h3>
+        <div class="connection-status">
+            <span id="connectionStatus">Kết nối...</span>
+            <div class="status-indicator" id="statusIndicator"></div>
+        </div>
+    </div>
+    <div class="chat-messages" id="messageContainer"></div>
+    <div class="chat-input">
+        <textarea id="messageInput" placeholder="Nhập tin nhắn..."></textarea>
+        <button id="sendButton" class="btn btn-primary">Gửi</button>
+    </div>
+</div>
+
+<style>
+    .user-chat-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .chat-header {
+        padding: 18px 25px;
+        background: #3b82f6;
+        color: white;
+        font-size: 1.3em;
+    }
+
+    .chat-messages {
+        height: 500px;
+        padding: 20px;
+        overflow-y: auto;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-input {
+        display: flex;
+        padding: 20px;
+        border-top: 1px solid #eee;
+        background: white;
+    }
+
+    #messageInput {
+        flex: 1;
+        resize: none;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        height: 80px;
+        font-size: 1em;
+        transition: border 0.3s;
+    }
+
+        #messageInput:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+    #sendButton {
+        margin-left: 15px;
+        align-self: center;
+        padding: 12px 25px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1em;
+        transition: background 0.2s;
+    }
+
+        #sendButton:hover {
+            background: #2563eb;
+        }
+
+    .message {
+        max-width: 80%;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        border-radius: 18px;
+        position: relative;
+        animation: fadeIn 0.3s;
+    }
+
+        .message.sent {
+            align-self: flex-end;
+            background: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .message .sender {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .message .content {
+            word-wrap: break-word;
+        }
+
+        .message .time {
+            font-size: 0.75em;
+            text-align: right;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+@section Scripts {
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        const conversationId = '@ViewBag.ConversationId';
+        const userId = '@User.Identity.Name';
+
+        // Kết nối SignalR
+        const chatHub = $.connection.chatHub;
+
+        $.connection.hub.start()
+            .done(function() {
+                console.log("SignalR connected.");
+                chatHub.server.joinConversation(conversationId);
+                updateConnectionStatus(true);
+            })
+            .fail(function() {
+                console.error("SignalR connection failed.");
+                updateConnectionStatus(false);
+            });
+
+        // Cập nhật trạng thái kết nối
+        function updateConnectionStatus(isConnected) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('connectionStatus');
+
+            if (isConnected) {
+                statusIndicator.className = 'status-indicator status-connected';
+                statusText.textContent = 'Đã kết nối';
+            } else {
+                statusIndicator.className = 'status-indicator status-disconnected';
+                statusText.textContent = 'Mất kết nối';
+            }
+        }
+
+        // Xử lý nhận tin nhắn mới từ server
+        chatHub.client.receiveMessage = function(convId, senderId, content, timestamp) {
+            if (convId === conversationId) {
+                addMessageToUI({
+                    SenderId: senderId,
+                    Content: content,
+                    Timestamp: timestamp
+                });
+            }
+        };
+
+        // Tải tin nhắn khi khởi động
+        async function loadMessages() {
+            try {
+                const response = await fetch(`/Chat/GetMessages?conversationId=${conversationId}`);
+                if (!response.ok) return;
+
+                const messages = await response.json();
+                renderMessages(messages);
+            } catch (error) {
+                console.error('Lỗi tải tin nhắn:', error);
+            }
+        }
+
+        // Hiển thị tin nhắn
+        function renderMessages(messages) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = '';
+
+            messages.forEach(msg => {
+                addMessageToUI(msg);
+            });
+        }
+
+        // Thêm tin nhắn vào UI
+        function addMessageToUI(msg) {
+            const container = document.getElementById('messageContainer');
+            const msgDiv = document.createElement('div');
+
+            const isSent = msg.SenderId === userId;
+            msgDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+
+            const date = new Date(msg.Timestamp * 1000);
+            const timeString = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+
+            msgDiv.innerHTML = `
+                <div class="sender">${isSent ? 'Bạn' : 'Hỗ trợ'}</div>
+                <div class="content">${msg.Content}</div>
+                <div class="time">${timeString}</div>
+            `;
+
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Gửi tin nhắn
+        async function sendMessage() {
+            const content = document.getElementById('messageInput').value.trim();
+            if (!content) return;
+
+            try {
+                const response = await fetch('/Chat/SendMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conversationId, content })
+                });
+
+                if (response.ok) {
+                    document.getElementById('messageInput').value = '';
+                }
+            } catch (error) {
+                console.error('Lỗi gửi tin nhắn:', error);
+            }
+        }
+
+        // Khởi động
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMessages();
+
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+
+            document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+}

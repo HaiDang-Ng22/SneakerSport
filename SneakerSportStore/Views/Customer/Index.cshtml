@@ -76,11 +76,9 @@
         .table tbody tr:hover {
             background: #e0ecfc;
         }
-
         .table td:last-child {
             min-width: 150px;
         }
-
     .btn {
         border: none;
         border-radius: 6px;
@@ -91,7 +89,6 @@
         transition: background .15s, box-shadow .15s;
         box-shadow: 0 1px 5px #0001;
     }
-
     .btn-primary {
         background: #3b82f6;
         color: #fff;
@@ -100,7 +97,6 @@
         .btn-primary:hover {
             background: #1e40af;
         }
-
     .btn-danger {
         background: #ef4444;
         color: #fff;
@@ -109,8 +105,53 @@
         .btn-danger:hover {
             background: #991b1b;
         }
-</style>
 
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin: 25px auto;
+        width: 92%;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 250px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 1.05rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .search-select {
+        padding: 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 1.05rem;
+        background: white;
+        min-width: 180px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .search-button {
+        padding: 12px 28px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: background 0.2s;
+    }
+
+        .search-button:hover {
+            background: #2563eb;
+        }
+</style>
 <h2>Danh sách khách hàng</h2>
 
 @if (TempData["Message"] != null)
@@ -121,11 +162,35 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+@using (Html.BeginForm("Index", "Customer", FormMethod.Get))
+{
+    <div class="search-container">
+        <input type="text"
+               class="search-box"
+               name="searchString"
+               placeholder="Tìm theo tên, email hoặc tên đăng nhập..."
+               value="@ViewBag.CurrentSearch" />
+
+        <select class="search-select" name="roleFilter">
+            <option value="">Tất cả vai trò</option>
+            <option value="user" @(ViewBag.CurrentRole == "user" ? "selected" : "")>Khách hàng</option>
+            <option value="nhanvien" @(ViewBag.CurrentRole == "nhanvien" ? "selected" : "")>Nhân viên</option>
+            <option value="giaohang" @(ViewBag.CurrentRole == "giaohang" ? "selected" : "")>Giao hàng</option>
+            <option value="chamsockhachhang" @(ViewBag.CurrentRole == "chamsockhachhang" ? "selected" : "")>CSKH</option>
+            <option value="kho" @(ViewBag.CurrentRole == "kho" ? "selected" : "")>Kho</option>
+            <option value="ketoan" @(ViewBag.CurrentRole == "ketoan" ? "selected" : "")>Kế toán</option>
+        </select>
+
+        <button type="submit" class="search-button">
+            Tìm kiếm
+        </button>
+    </div>
+}
 
 @if (Model == null || !Model.Any())
 {
     <p style="text-align:center; margin-top:40px; color:#888; font-size:1.13em;">
-        Không có khách hàng nào.
+        @(ViewBag.HasSearch ? "Không tìm thấy kết quả phù hợp" : "Không có khách hàng nào.")
     </p>
 }
 else
@@ -136,7 +201,8 @@ else
                 <th>Họ tên</th>
                 <th>Email</th>
                 <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
+                <th>Tên đăng nhập</th>
+                <th>Vai trò</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -145,25 +211,29 @@ else
             {
                 var id = item.Key;
                 var kh = item.Value;
-                <tr>
-                    <td>@kh.HoTen</td>
-                    <td>@kh.Email</td>
-                    <td>@kh.SoDienThoai</td>
-                    <td>@kh.DiaChi</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="@Url.Action("Details", "Customer", new { id = id })">Chi tiết</a>
-                        @if (Session["UserRole"]?.ToString() == "Admin")
-                        {
-                            using (Html.BeginForm("Delete", "Customer", FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn xóa tài khoản này?');", style = "display:inline-block;" }))
+
+                if (kh.UserRole != "Admin")
+                {
+                    <tr>
+                        <td>@kh.HoTen</td>
+                        <td>@kh.Email</td>
+                        <td>@kh.SoDienThoai</td>
+                        <td>@kh.TenDangNhap</td>
+                        <td>@kh.UserRole</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="@Url.Action("Details", "Customer", new { id = id })">Chi tiết</a>
+                            @if (Session["UserRole"]?.ToString() == "Admin")
                             {
-                                @Html.Hidden("id", id)
-                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                                using (Html.BeginForm("Delete", "Customer", FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn xóa tài khoản này?');", style = "display:inline-block;" }))
+                                {
+                                    @Html.Hidden("id", id)
+                                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                                }
                             }
-                        }
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
-
 }

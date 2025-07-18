@@ -1,7 +1,7 @@
-﻿@model SneakerSportStore.Models.Giay
-@using SneakerSportStore.Models
+﻿@using SneakerSportStore.Models
 @{
-    var comments = ViewBag.Comments as List<Comment> ?? new List<Comment>();
+    // Sửa từ ViewBag.Comments thành ViewData["Comments"]
+    var comments = ViewData["Comments"] as List<Comment> ?? new List<Comment>();
     var currentUserId = Session["CustomerID"] as string;
     var userRole = Session["UserRole"] as string;
 }
@@ -9,344 +9,820 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <title>Chi Tiết Sản Phẩm - @Model.TenGiay</title>
+    <title>@Model.TenGiay - Sneaker Sport Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --gray-light: #f1f5f9;
+            --gray: #64748b;
+            --gray-dark: #334155;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f4f4f4;
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--gray-dark);
+            line-height: 1.6;
         }
 
-        .Detail {
-            max-width: 900px;
-            margin: 30px auto;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 30px #0001;
-            padding: 24px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .product-info {
+        .product-detail {
             display: flex;
-            gap: 30px;
-            margin-bottom: 35px;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin: 40px 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            padding: 30px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .product-image-wrapper {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
         .product-image {
-            width: 300px;
-            border-radius: 8px;
-            box-shadow: 0 2px 14px #0002;
+            /*max-width: 100%;*/
+            max-height: 500px;
+            width:500px;
+            border-radius: var(--border-radius);
+            object-fit: contain;
+            transition: transform 0.5s ease;
+            z-index: 2;
         }
 
-        .product-meta {
+            .product-image:hover {
+                transform: scale(1.05);
+            }
+
+        .product-info {
             flex: 1;
+            min-width: 300px;
+            position: relative;
         }
 
         .product-title {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #222;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #1e293b;
+            line-height: 1.2;
         }
 
         .product-price {
-            font-size: 1.4rem;
-            color: #c35600;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .product-description {
-            font-size: 1.07rem;
-            color: #444;
-            margin-bottom: 10px;
-        }
-
-        .product-others {
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .quantity-container {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
             gap: 10px;
         }
 
-            .quantity-container button {
+            .product-price::before {
+                content: '•';
+                color: var(--gray);
                 font-size: 1.2rem;
-                padding: 5px 14px;
-                border-radius: 6px;
-                border: none;
-                background: #e0e0e0;
             }
 
-            .quantity-container input {
-                width: 48px;
-                text-align: center;
-                font-size: 1.1rem;
-            }
-
-        .add-to-cart {
-            background: #007bff;
-            color: #fff;
-            border-radius: 7px;
-            padding: 9px 0;
-            width: 160px;
-            border: none;
-            font-size: 1.05rem;
-            cursor: pointer;
+        .product-description {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 25px;
+            line-height: 1.8;
+            padding-right: 20px;
         }
 
-        #notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 8px;
-            display: none;
-            z-index: 1000;
-        }
-        /* BÌNH LUẬN (cmtx-) */
-        .cmtx-block {
-            background: #ededed;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 700px;
-            margin: 45px auto 0 auto;
-        }
-
-        .cmtx-title {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .cmtx-main, .cmtx-reply {
-            margin-bottom: 20px;
-        }
-
-        .cmtx-main {
-            background: #fff;
-            border-radius: 7px;
-            padding: 12px 18px;
-        }
-
-        .cmtx-info {
-            color: #555;
-            font-size: 1rem;
-        }
-
-        .cmtx-content {
-            margin-top: 8px;
-            margin-bottom: 6px;
-        }
-
-        .cmtx-reply-btn {
-            background: #eee;
-            border: none;
-            border-radius: 15px;
-            padding: 3px 15px;
-            font-size: .97rem;
-            cursor: pointer;
-        }
-
-        .cmtx-reply-form {
+        .product-meta {
             display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.05rem;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            min-width: 140px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .meta-label i {
+                width: 20px;
+                text-align: center;
+                color: var(--primary);
+            }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            gap: 15px;
+        }
+
+        .qty-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--gray-light);
+            border: none;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray-dark);
+        }
+
+            .qty-btn:hover {
+                background: var(--primary);
+                color: white;
+                transform: scale(1.1);
+            }
+
+        .qty-input {
+            width: 75px;
+            height: 44px;
+            text-align: center;
+            font-size: 1.2rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--gray-dark);
+            transition: border 0.3s;
+        }
+
+            .qty-input:focus {
+                border-color: var(--primary);
+                outline: none;
+            }
+
+        .add-to-cart-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             gap: 10px;
-            margin-top: 5px;
-        }
-
-        .cmtx-reply-box {
-            margin-left: 40px;
-            margin-top: 7px;
-        }
-
-        .cmtx-reply {
-            background: #f9f9f9;
-            border-radius: 7px;
-            padding: 10px 16px;
-        }
-
-        .cmtx-send-btn {
-            background: #bc8787;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: white;
             border: none;
-            color: #fff;
-            border-radius: 18px;
-            padding: 6px 20px;
+            border-radius: var(--border-radius);
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+            width: 100%;
+            max-width: 300px;
         }
 
-        .cmtx-input {
-            width: 70%;
-            border-radius: 13px;
+            .add-to-cart-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            }
+
+            .add-to-cart-btn:disabled {
+                background: #94a3b8;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
+
+        .login-prompt {
+            font-size: 1.1rem;
+            margin-top: 20px;
+            padding: 15px;
+            background: #fffbeb;
+            border-radius: var(--border-radius);
+            border: 1px solid #fef3c7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+            .login-prompt i {
+                color: var(--warning);
+                font-size: 1.4rem;
+            }
+
+            .login-prompt a {
+                color: var(--primary);
+                font-weight: 600;
+                text-decoration: none;
+                transition: all 0.2s;
+                border-bottom: 1px dashed var(--primary);
+            }
+
+                .login-prompt a:hover {
+                    border-bottom: 1px solid var(--primary);
+                }
+
+        .out-of-stock {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef2f2;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+            .out-of-stock i {
+                font-size: 1.4rem;
+            }
+
+        .comments-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin: 40px 0;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 1.05rem;
+            transition: border 0.3s;
+            background: white;
+        }
+
+            .comment-input:focus {
+                border-color: var(--primary);
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            }
+
+        .comment-submit {
+            background: var(--primary);
+            color: white;
             border: none;
-            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            padding: 0 30px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 120px;
+        }
+
+            .comment-submit:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+            }
+
+            .comment-submit:active {
+                transform: translateY(0);
+            }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .comment {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            position: relative;
+            border: 1px solid #f1f5f9;
+            transition: var(--transition);
+            animation: slideIn 0.4s ease-out;
+        }
+
+            .comment:hover {
+                border-color: #e2e8f0;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            }
+
+        keyframes slideIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .comment-author::before {
+                content: '';
+                width: 8px;
+                height: 8px;
+                background: var(--primary);
+                border-radius: 50%;
+                display: inline-block;
+            }
+
+        .comment-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .comment-content {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--gray-dark);
+            padding: 10px 0;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .reply-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .reply-btn {
+            color: var(--primary);
+        }
+
+            .reply-btn:hover {
+                background: rgba(59, 130, 246, 0.1);
+            }
+
+        .delete-btn {
+            color: var(--danger);
+        }
+
+            .delete-btn:hover {
+                background: rgba(239, 68, 68, 0.1);
+            }
+
+        .reply-form {
+            margin-top: 20px;
+            padding-left: 40px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .replies {
+            margin-top: 25px;
+            padding-left: 40px;
+            border-left: 2px solid var(--primary);
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 18px 28px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.4s ease;
+        }
+
+            .notification.show {
+                transform: translateX(0);
+            }
+
+            .notification.success {
+                background: var(--success);
+            }
+
+            .notification.error {
+                background: var(--danger);
+            }
+
+        .no-comments {
+            text-align: center;
+            color: var(--gray);
+            font-style: italic;
+            padding: 40px 0;
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+        }
+
+        .admin-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+
+        .user-badge {
+            background: var(--success);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+
+        media (max-width: 768px) {
+            .product-detail
+
+        {
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .product-title {
+            font-size: 1.8rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+        }
+
+        .comment-form {
+            flex-direction: column;
+        }
+
+        .comment-submit {
+            padding: 16px;
+        }
+
+        .replies {
+            padding-left: 20px;
+        }
+
+        .reply-form {
+            padding-left: 20px;
+        }
         }
     </style>
 </head>
 <body>
-    <div class="Detail">
-        <!-- SẢN PHẨM -->
-        <div class="product-info">
-            <img src="@Model.HinhAnh" alt="@Model.TenGiay" class="product-image" />
-            <div class="product-meta">
-                <div class="product-title">@Model.TenGiay</div>
-                <div class="product-price">Giá: @String.Format("{0:N0}", Model.Gia) VND</div>
-                <div class="product-description">Mô tả: @Model.MoTa</div>
-                <div class="product-others">Còn lại: <b>@Model.SoLuongTon</b></div>
-                <div class="product-others">Loại Giày: @Model.LoaiGiay?.TenLoaiGiay ?? "Không có thông tin"</div>
-                <div class="product-others">Nhà Sản Xuất: @Model.NhaSanXuat?.TenNhaSanXuat ?? "Không có thông tin"</div>
-                <div class="quantity-container">
-                    <button onclick="updateQuantity(-1)">-</button>
-                    <input type="number" id="quantity" value="1" min="1" />
-                    <button onclick="updateQuantity(1)">+</button>
+    <div class="container">
+        <div class="product-detail">
+            <div class="product-image-wrapper">
+                <img src="@Model.HinhAnh" alt="@Model.TenGiay" class="product-image" />
+            </div>
+            <div class="product-info">
+                <h1 class="product-title">@Model.TenGiay</h1>
+                <div class="product-price">@String.Format("{0:N0}",Model.Gia) VNĐ</div>
+                <p class="product-description">@Model.MoTa</p>
+
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fas fa-box-open"></i>Tồn kho:</span>
+                        <span>@Model.SoLuongTon sản phẩm</span>
+                    </div> 
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fas fa-box-open"></i>Kích Thước:</span>
+                        <span>@Model.KichThuocBaoBi </span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fas fa-tag"></i>Loại giày:</span>
+                        <span>@Model.LoaiGiayID</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fas fa-industry"></i>Nhà sản xuất:</span>
+                        <span>@Model.NhaSanXuatID</span>
+                    </div>    
+                    @*<div class="meta-item">
+                        <span class="meta-label"><i class="fas fa-tag"></i> Loại giày:</span>
+                        <span>@(Model.LoaiGiay?.LoaiGiayID?? "Không có thông tin")</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fas fa-industry"></i> Nhà sản xuất:</span>
+                        <span>@(Model.NhaSanXuat?.NhaSanXuatID ?? "Không có thông tin")</span>
+                    </div>*@
                 </div>
-                <button class="add-to-cart" onclick="AddToCart()">Thêm vào Giỏ Hàng</button>
+
+                @if (Session["UserId"] != null)
+                {
+                    if (Model.SoLuongTon <= 0)
+                    {
+                        <div class="out-of-stock">
+                            <i class="fas fa-exclamation-circle"></i> Sản phẩm tạm thời hết hàng
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="quantity-control">
+                            <button class="qty-btn" onclick="updateQuantity(-1)">-</button>
+                            <input type="number" id="quantity" class="qty-input" value="1" min="1" max="@Model.SoLuongTon" />
+                            <button class="qty-btn" onclick="updateQuantity(1)">+</button>
+                        </div>
+                        <button id="add-to-cart" class="add-to-cart-btn" onclick="AddToCart()">
+                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                        </button>
+                    }
+                }
+                else
+                {
+                    <div class="login-prompt">
+                        <i class="fas fa-info-circle"></i>
+                        <a href="@Url.Action("Login","Account")">Đăng nhập</a> để thêm sản phẩm vào giỏ hàng
+                    </div>
+                }
             </div>
         </div>
-        <div id="notification"></div>
-        
-        <!-- BÌNH LUẬN -->
-        <div class="cmtx-block">
-            <div class="cmtx-title">Bình luận</div>
-            <!-- Form bình luận chính -->
-            @if (Session["CustomerID"] != null)
+
+        <div class="comments-section">
+            <h2 class="section-title"><i class="far fa-comments"></i> Bình luận</h2>
+
+            @if (Session["UserId"] != null)
             {
-                using (Html.BeginForm("AddComment", "Home", FormMethod.Post))
+                using (Html.BeginForm("AddComment", "Home", FormMethod.Post, new { @class = "comment-form" }))
                 {
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="productId" value="@Model.GiayId" />
-                    <input type="text" class="cmtx-input" name="content" placeholder="Bình luận....." required />
-                    <button class="cmtx-send-btn" type="submit">gửi</button>
+                    <input type="text" class="comment-input" name="content" placeholder="Viết bình luận của bạn..." required />
+                    <button type="submit" class="comment-submit">Gửi bình luận</button>
                 }
             }
             else
             {
-                <div>Hãy <a href="@Url.Action("Login","Account")">đăng nhập</a> để bình luận</div>
-            }
-            <br />
-            <!-- Hiển thị comment cha -->
-            @foreach (var cmt in comments.Where(c => string.IsNullOrEmpty(c.ParentCommentId)).OrderByDescending(x => x.CreatedAt))
-            {
-                <div class="cmtx-main">
-                    <span class="cmtx-info">
-                        <b>UserName:</b> @cmt.UserName (@cmt.CreatedAt.ToString("dd/MM/yyyy HH:mm")):
-                    </span>
-                    <div class="cmtx-content">@cmt.Content</div>
-                    <button type="button" class="cmtx-reply-btn" onclick="showReply('@cmt.CommentId')">trả lời</button>
-                    <!-- Reply form, ẩn/hiện theo js -->
-                    <div class="cmtx-reply-box" id="cmtx-reply-@cmt.CommentId" style="display:none;">
-                        @using (Html.BeginForm("AddComment", "Home", FormMethod.Post, new { @class = "cmtx-reply-form" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="productId" value="@Model.GiayId" />
-                            <input type="hidden" name="parentCommentId" value="@cmt.CommentId" />
-                            <input type="text" class="cmtx-input" name="content" placeholder="Trả lời..." required />
-                            <button class="cmtx-send-btn" type="submit">gửi</button>
-                        }
-                    </div>
-                    <!-- Danh sách trả lời -->
-                    @foreach (var rep in comments.Where(x => x.ParentCommentId == cmt.CommentId).OrderBy(x => x.CreatedAt))
-                    {
-                        <div class="cmtx-reply cmtx-reply-box">
-                            <span class="cmtx-info">@rep.UserName (@rep.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</span>
-                            <div class="cmtx-content">@rep.Content</div>
-                            @if (rep.UserId == currentUserId || userRole == "Admin")
-                            {
-                                using (Html.BeginForm("DeleteComment", "Home", FormMethod.Post, new { style = "display:inline" }))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="productId" value="@Model.GiayId" />
-                                    <input type="hidden" name="commentId" value="@rep.CommentId" />
-                                    <button type="submit" style="color:#c00; background:none; border:none; font-size:0.95em;" onclick="return confirm('Xác nhận xóa?')">Xóa</button>
-                                }
-                            }
-                        </div>
-                    }
+                <div class="login-prompt" style="margin-bottom: 30px;">
+                    <i class="fas fa-info-circle"></i>
+                    <a href="@Url.Action("Login","Account")">Đăng nhập</a> để bình luận
                 </div>
             }
-            @if (!comments.Any())
+
+        <div class="comment-list">
+            @if (comments.Count > 0)
             {
-                <div style="color: #aaa; padding: 14px 0 0 10px;">Chưa có bình luận nào cho sản phẩm này.</div>
+                foreach (var cmt in comments.Where(c => string.IsNullOrEmpty(c.ParentCommentId)).OrderByDescending(x => x.CreatedAt))
+                {
+                    @RenderComment(cmt, comments)
+                }
+            }
+            else
+            {
+                <div class="no-comments">Chưa có bình luận nào cho sản phẩm này. Hãy là người đầu tiên bình luận!</div>
             }
         </div>
+        </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message"></span>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Cập nhật số lượng khi nhấn +/-
         function updateQuantity(amount) {
-            let quantity = document.getElementById('quantity');
-            let currentQuantity = parseInt(quantity.value);
-            currentQuantity += amount;
-            if (currentQuantity > 0) quantity.value = currentQuantity;
+            let quantityInput = document.getElementById('quantity');
+            let current = parseInt(quantityInput.value) || 0;
+            let max = parseInt(quantityInput.max) || 100;
+            let newVal = current + amount;
+
+            if (newVal < 1) newVal = 1;
+            if (newVal > max) newVal = max;
+
+            quantityInput.value = newVal;
         }
-        // Thêm sản phẩm vào giỏ hàng
+
         function AddToCart() {
             const productId = '@Model.GiayId';
-            let quantity = document.getElementById('quantity').value;
+            let quantity = $('#quantity').val();
             quantity = parseInt(quantity);
+            const maxStock = @Model.SoLuongTon;
+
             if (isNaN(quantity) || quantity <= 0) {
-                alert("Vui lòng chọn số lượng hợp lệ.");
+                showNotification('Vui lòng chọn số lượng hợp lệ', 'error');
                 return;
             }
+
+            if (quantity > maxStock) {
+                showNotification('Số lượng vượt quá tồn kho', 'error');
+                return;
+            }
+
             $.ajax({
                 url: '@Url.Action("AddToCart", "Cart")',
                 type: 'POST',
-                data: { productId: productId, quantity: quantity },
-                success: function () { showNotification("Sản phẩm đã được thêm vào giỏ hàng!", "#28a745"); },
-                error: function (xhr, status, error) { showNotification("Có lỗi xảy ra: " + xhr.responseText, "#dc3545"); }
-            });
-        }
-        function showNotification(message, color) {
-            $("#notification").text(message).css("background-color", color).fadeIn().delay(3000).fadeOut();
-        }
-        function showReply(id) {
-            var box = document.getElementById('cmtx-reply-' + id);
-            if (box) box.style.display = 'block';
-        }
-
-           $(document).ready(function () {
-        // Handle comment submission
-        $("form#add-comment-form").submit(function (event) {
-            event.preventDefault(); // Prevent the form from submitting normally
-
-            var content = $("input[name='content']").val(); // Get the comment content
-            var productId = $("input[name='productId']").val(); // Get the product ID
-
-            if (!content.trim()) {
-                alert("Vui lòng nhập nội dung bình luận.");
-                return;
-            }
-
-            $.ajax({
-                url: '@Url.Action("AddComment", "Home")',
-                type: 'POST',
-                data: { productId: productId, content: content },
-                success: function (response) {
-                    if (response.success) {
-                        // Append the new comment to the comment list without reloading the page
-                        var newCommentHtml = `
-                            <div class="cmtx-main">
-                                <span class="cmtx-info"><b>${response.userName}</b> (${response.createdAt}):</span>
-                                <div class="cmtx-content">${response.content}</div>
-                                <button type="button" class="cmtx-reply-btn" onclick="showReply('${response.commentId}')">Trả lời</button>
-                            </div>
-                        `;
-                        $(".cmtx-block").append(newCommentHtml); // Append new comment
-                        $("input[name='content']").val(""); // Clear the input
-                    } else {
-                        alert("Có lỗi xảy ra khi thêm bình luận.");
-                    }
+                data: {
+                    productId: productId,
+                    quantity: quantity
                 },
-                error: function () {
-                    alert("Lỗi kết nối máy chủ!");
+                success: function () {
+                    showNotification('Đã thêm vào giỏ hàng!');
+                },
+                error: function (xhr) {
+                    showNotification('Lỗi: ' + (xhr.responseText || 'Vui lòng thử lại'), 'error');
                 }
             });
-        });
-    });
+        }
 
+        function showNotification(message, type = '') {
+            const notification = $('#notification');
+            const messageEl = $('#notification-message');
 
+            messageEl.text(message);
+            notification.removeClass('error success');
+
+            if (type === 'error') {
+                notification.addClass('error');
+                notification.html('<i class="fas fa-exclamation-circle"></i> ' + message);
+            } else {
+                notification.addClass('success');
+                notification.html('<i class="fas fa-check-circle"></i> ' + message);
+            }
+
+            notification.addClass('show');
+
+            setTimeout(() => {
+                notification.removeClass('show');
+            }, 3000);
+        }
+
+        function showReplyForm(commentId) {
+            $(`.reply-form`).hide();
+            $(`#reply-form-${commentId}`).show();
+            $(`#reply-form-${commentId} .comment-input`).focus();
+        }
     </script>
 </body>
 </html>
+
+@helper RenderComment(Comment cmt, List<Comment> allComments)
+{
+    var currentUserId = Session["UserId"] as string;
+    var userRole = Session["UserRole"] as string;
+    var replies = allComments.Where(c => c.ParentCommentId == cmt.CommentId).OrderBy(c => c.CreatedAt).ToList();
+
+    <div class="comment" id="comment-@cmt.CommentId">
+        <div class="comment-header">
+            <div class="comment-author">
+                @cmt.UserName
+                @if (userRole == "Admin" && cmt.UserId == currentUserId)
+                {
+                    <span class="admin-badge">Admin</span>
+                }
+                else if (cmt.UserId == currentUserId)
+                {
+                    <span class="user-badge">Bạn</span>
+                }
+            </div>
+            <div class="comment-date">@cmt.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+        <div class="comment-content">@cmt.Content</div>
+        <div class="comment-actions">
+            <button class="reply-btn" onclick="showReplyForm('@cmt.CommentId')">
+                <i class="fas fa-reply"></i> Trả lời
+            </button>
+            @if (cmt.UserId == currentUserId || userRole == "Admin")
+            {
+                using (Html.BeginForm("DeleteComment", "Home", FormMethod.Post, new { @class = "delete-form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.GiayId" />
+                    <input type="hidden" name="commentId" value="@cmt.CommentId" />
+                    <button type="submit" class="delete-btn" onclick="return confirm('Bạn có chắc muốn xóa bình luận này?')">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </button>
+                }
+            }
+        </div>
+
+        <div class="reply-form" id="reply-form-@cmt.CommentId">
+            @using (Html.BeginForm("AddComment", "Home", FormMethod.Post, new { @class = "comment-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.GiayId" />
+                <input type="hidden" name="parentCommentId" value="@cmt.CommentId" />
+                <input type="text" class="comment-input" name="content" placeholder="Viết phản hồi cho @cmt.UserName..." required />
+                <button type="submit" class="comment-submit">Gửi</button>
+            }
+        </div>
+
+        @if (replies.Any())
+        {
+            <div class="replies">
+                @foreach (var reply in replies)
+                {
+                    @RenderComment(reply, allComments)
+                }
+            </div>
+        }
+    </div>
+}

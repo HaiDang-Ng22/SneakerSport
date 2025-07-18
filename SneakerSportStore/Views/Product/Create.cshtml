@@ -1,149 +1,469 @@
-﻿@model SneakerSportStore.Models.Giay
+﻿@model SneakerSportStore.Models.ProductFireBaseKey
 
 @{
     ViewBag.Title = "Thêm Sản Phẩm";
 }
+
 <style>
-    body {
-        background: #f5f6fa;
-        font-family: 'Segoe UI', Arial, sans-serif;
+    .Create-Product {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 25px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
     }
 
-    h2 {
-        text-align: center;
-        color: #1e293b;
-        margin-top: 28px;
-        margin-bottom: 28px;
-        font-size: 2.1rem;
+    .create-product-header {
+        color: #2b2b2b;
+        font-size: 28px;
         font-weight: 700;
-        letter-spacing: 1px;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+        padding-bottom: 15px;
     }
 
-    form {
-        max-width: 540px;
-        margin: 38px auto 0 auto;
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 7px 24px #0002;
-        padding: 36px 40px 30px 40px;
+        .create-product-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #4a90e2, #5e60ce);
+            border-radius: 2px;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
 
     .form-group {
-        margin-bottom: 22px;
+        margin-bottom: 20px;
     }
 
-    label {
-        font-weight: 600;
-        color: #232f3e;
-        margin-bottom: 5px;
-        display: block;
-        font-size: 1.07em;
-    }
-
-    .form-control, select.form-control {
-        border: 1.5px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 1.1rem;
-        color: #222;
-        background: #f8fafc;
-        transition: border 0.18s, box-shadow 0.18s;
-        width: 100%;
-        margin-top: 2px;
-    }
-
-        .form-control:focus, select.form-control:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 2px 8px #60a5fa33;
-            background: #fff;
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 12px 15px;
+        font-size: 15px;
+        width: 100%;
+        box-sizing: border-box;
+        transition: all 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+            outline: none;
+        }
+
+    .form-group textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .input-group {
+        display: flex;
+        margin-bottom: 15px;
+    }
+
+        .input-group input {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .input-group button {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            background-color: #f1f1f1;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+            .input-group button:hover {
+                background-color: #e2e2e2;
+            }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+    }
 
     .btn {
-        border: none;
-        border-radius: 8px;
-        padding: 10px 32px;
-        font-size: 1.13rem;
-        margin-right: 16px;
-        box-shadow: 0 1px 5px #0001;
-        font-weight: 500;
+        padding: 12px 25px;
+        font-size: 16px;
+        border-radius: 6px;
         cursor: pointer;
-        transition: background .13s, color .13s;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .btn-primary {
-        background: #3b82f6;
-        color: #fff;
-    }
-
-        .btn-primary:hover {
-            background: #1e40af;
+        .btn i {
+            margin-right: 8px;
         }
 
-    .btn-secondary {
-        background: #cbd5e1;
-        color: #2b3342;
+    .btn-save {
+        background: linear-gradient(135deg, #4a90e2, #5e60ce);
+        color: white;
+        border: none;
+        flex: 1;
+        margin-right: 15px;
     }
 
-        .btn-secondary:hover {
-            background: #64748b;
-            color: #fff;
+        .btn-save:hover {
+            background: linear-gradient(135deg, #3a7bc8, #4d4fce);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
         }
 
-    .text-danger {
-        color: #c62828;
-        font-size: 1em;
-        font-style: italic;
+    .btn-back {
+        background-color: #f5f5f5;
+        color: #555;
+        border: 1px solid #ddd;
+        width: 150px;
     }
+
+        .btn-back:hover {
+            background-color: #e9e9e9;
+            transform: translateY(-2px);
+        }
+
+    .notification {
+        padding: 15px;
+        border-radius: 6px;
+        color: white;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+        .notification i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+    .notification-success {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+    }
+
+    .notification-error {
+        background: linear-gradient(135deg, #ff5858, #f09819);
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #444;
+        margin: 25px 0 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .feature-toggle {
+        display: flex;
+        align-items: center;
+    }
+
+        .feature-toggle label {
+            margin-left: 10px;
+            font-size: 15px;
+            color: #555;
+        }
+
+    .checkbox-custom {
+        position: relative;
+        width: 45px;
+        height: 24px;
+    }
+
+        .checkbox-custom input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background: linear-gradient(135deg, #4a90e2, #5e60ce);
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(21px);
+        }
 </style>
 
-<h2>Thêm Sản Phẩm Mới</h2>
+<div class="Create-Product">
+    <h2 class="create-product-header">Thêm Sản Phẩm Mới</h2>
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="notification notification-success">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="notification notification-error">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
 
-    <!-- GiayId chỉ cần hidden, controller sẽ tự sinh -->
-    @Html.HiddenFor(m => m.GiayId)
+    @using (Html.BeginForm("Create", "Product", FormMethod.Post, new { id = "createForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-    <div class="form-group">
-        <label for="TenGiay">Tên Giày</label>
-        @Html.TextBoxFor(m => m.TenGiay, new { @class = "form-control" })
-    </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Tên Giày</label>
+                @Html.TextBoxFor(m => m.TenGiay, new { @class = "form-control", placeholder = "Nhập tên sản phẩm" })
+                @Html.ValidationMessageFor(m => m.TenGiay, "", new { @class = "text-danger" })
+            </div>
 
-    <div class="form-group">
-        <label for="Gia">Giá</label>
-        @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
-    </div>
+            <div class="form-group">
+                <label>Giá (VNĐ)</label>
+                @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number", step = "0.01", placeholder = "Nhập giá sản phẩm" })
+                @Html.ValidationMessageFor(m => m.Gia, "", new { @class = "text-danger" })
+            </div>
 
-    <div class="form-group">
-        <label for="SoLuongTon">Số Lượng</label>
-        @Html.TextBoxFor(m => m.SoLuongTon, new { @class = "form-control" })
-    </div>
+            <div class="form-group">
+                <label>Số Lượng Tồn</label>
+                @Html.TextBoxFor(m => m.SoLuongTon, new { @class = "form-control", type = "number", placeholder = "Nhập số lượng" })
+                @Html.ValidationMessageFor(m => m.SoLuongTon, "", new { @class = "text-danger" })
+            </div>
 
-    <div class="form-group">
-        <label for="MoTa">Mô Tả</label>
-        @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control" })
-    </div>
+            <div class="form-group">
+                <label>Màu sắc</label>
+                @Html.TextBoxFor(m => m.Mau, new { @class = "form-control", placeholder = "Nhập màu sắc" })
+                @Html.ValidationMessageFor(m => m.Mau, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label for="HinhAnh">Hình Ảnh</label>
-        @Html.TextBoxFor(m => m.HinhAnh, new { @class = "form-control" })
-    </div>
+        <div class="section-title">Thông số kỹ thuật</div>
 
-    <!-- Nhà Sản Xuất: đổi sang nhập tự do -->
-    <div class="form-group">
-        <label for="NhaSanXuat">Nhà Sản Xuất</label>
-        @Html.TextBox("NhaSanXuatText", null, new { @class = "form-control", placeholder = "Nhập tên nhà sản xuất" })
-    </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Kích Thước (cách nhau bằng dấu phẩy)</label>
+                <input type="text" id="KichThuocInput" name="KichThuocInput" class="form-control" placeholder="Ví dụ: 39,40,41" />
+            </div>
 
-    <!-- Loại Giày: đổi sang nhập tự do -->
-    <div class="form-group">
-        <label for="LoaiGiay">Loại Giày</label>
-        @Html.TextBox("LoaiGiayText", null, new { @class = "form-control", placeholder = "Nhập loại giày" })
-    </div>
+            <div class="form-group">
+                <label>Chất Liệu</label>
+                @Html.TextBoxFor(m => m.ChatLieu, new { @class = "form-control", placeholder = "Nhập chất liệu" })
+                @Html.ValidationMessageFor(m => m.ChatLieu, "", new { @class = "text-danger" })
+            </div>
 
+            <div class="form-group">
+                <label>Trọng Lượng (kg)</label>
+                @Html.TextBoxFor(m => m.TrongLuong, new { @class = "form-control", type = "number", step = "0.01", placeholder = "Nhập trọng lượng" })
+                @Html.ValidationMessageFor(m => m.TrongLuong, "", new { @class = "text-danger" })
+            </div>
 
-    <button type="submit" class="btn btn-primary">Thêm Sản Phẩm</button>
-    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+            <div class="form-group">
+                <label>Kích Thước Bao Bì</label>
+                @Html.TextBoxFor(m => m.KichThuocBaoBi, new { @class = "form-control", placeholder = "Dài x Rộng x Cao" })
+                @Html.ValidationMessageFor(m => m.KichThuocBaoBi, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="section-title">Thông tin bổ sung</div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Ngày Sản Xuất</label>
+                @Html.TextBoxFor(m => m.NgaySanXuat, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                @Html.ValidationMessageFor(m => m.NgaySanXuat, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                <label class="feature-toggle">
+                    <div class="checkbox-custom">
+                        @Html.CheckBoxFor(m => m.SanPhamNoiBat, new { id = "SanPhamNoiBat" })
+                        <span class="slider"></span>
+                    </div>
+                    <span>Sản phẩm nổi bật</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>Hình Ảnh Chính (URL)</label>
+                @Html.TextBoxFor(m => m.HinhAnh, new { @class = "form-control", placeholder = "URL hình ảnh chính" })
+                @Html.ValidationMessageFor(m => m.HinhAnh, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                <label>Ảnh Bổ Sung (mỗi URL một dòng)</label>
+                <textarea id="AdditionalImagesInput" name="AdditionalImagesInput" class="form-control" rows="3" placeholder="Mỗi URL trên một dòng"></textarea>
+            </div>
+        </div>
+
+        <div class="section-title">Danh mục sản phẩm</div>
+
+        <div class="input-group">
+            <input type="text" id="newManufacturer" class="form-control" placeholder="Nhập nhà sản xuất mới" />
+            <button type="button" id="btnAddManufacturer" class="btn btn-secondary">Thêm NSX</button>
+        </div>
+
+        <div class="form-group">
+            <label>Nhà Sản Xuất</label>
+            @Html.DropDownListFor(m => m.NhaSanXuatID, (SelectList)ViewBag.NhaSanXuatList, "-- Chọn nhà sản xuất --", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.NhaSanXuatID, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="newLoaiGiay" class="form-control" placeholder="Nhập loại giày mới" />
+            <button type="button" id="btnAddLoaiGiay" class="btn btn-secondary">Thêm Loại</button>
+        </div>
+
+        <div class="form-group">
+            <label>Loại Giày</label>
+            @Html.DropDownListFor(m => m.LoaiGiayID, (SelectList)ViewBag.LoaiGiayList, "-- Chọn loại giày --", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.LoaiGiayID, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            <label>Mô Tả Chi Tiết</label>
+            @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = "5", placeholder = "Mô tả chi tiết sản phẩm..." })
+            @Html.ValidationMessageFor(m => m.MoTa, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="btn-container">
+            <button type="submit" class="btn btn-save">
+                <i class="fas fa-save"></i> Thêm sản phẩm
+            </button>
+            <a href="@Url.Action("Index")" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        $(function() {
+            // AJAX code for adding manufacturers and types
+            $('#btnAddManufacturer').click(function() {
+                var ten = $('#newManufacturer').val().trim();
+                if (!ten) return alert('Vui lòng nhập tên nhà sản xuất');
+
+                $.post('@Url.Action("AddManufacturer", "Product")', { ten: ten })
+                    .done(function(res) {
+                        if (res.success) {
+                            var newOption = $('<option>', {
+                                value: res.id,
+                                text: res.name,
+                                selected: true
+                            });
+                            $('#NhaSanXuatID').append(newOption);
+                            $('#newManufacturer').val('');
+                            showNotification('Thêm nhà sản xuất thành công!', 'success');
+                        } else {
+                            showNotification('Thêm nhà sản xuất thất bại!', 'error');
+                        }
+                    })
+                    .fail(function() {
+                        showNotification('Có lỗi xảy ra khi kết nối đến máy chủ!', 'error');
+                    });
+            });
+
+            $('#btnAddLoaiGiay').click(function() {
+                var ten = $('#newLoaiGiay').val().trim();
+                if (!ten) return alert('Vui lòng nhập loại giày');
+
+                $.post('@Url.Action("AddLoaiGiay", "Product")', { ten: ten })
+                    .done(function(res) {
+                        if (res.success) {
+                            var newOption = $('<option>', {
+                                value: res.id,
+                                text: res.name,
+                                selected: true
+                            });
+                            $('#LoaiGiayID').append(newOption);
+                            $('#newLoaiGiay').val('');
+                            showNotification('Thêm loại giày thành công!', 'success');
+                        } else {
+                            showNotification('Thêm loại giày thất bại!', 'error');
+                        }
+                    })
+                    .fail(function() {
+                        showNotification('Có lỗi xảy ra khi kết nối đến máy chủ!', 'error');
+                    });
+            });
+
+            function showNotification(message, type) {
+                var notification = $('<div class="notification"></div>');
+                notification.addClass(type === 'success' ? 'notification-success' : 'notification-error');
+                notification.html('<i class="fas ' + (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle') + '"></i> ' + message);
+
+                $('.Create-Product').prepend(notification);
+                notification.fadeIn().delay(3000).fadeOut(function() {
+                    $(this).remove();
+                });
+            }
+
+            // Xử lý khi form submit
+            $('#createForm').submit(function(e) {
+                // Xử lý kích thước
+                var kichThuocInput = $('#KichThuocInput').val();
+                if (kichThuocInput) {
+                    $('#KichThuocInput').val(kichThuocInput.replace(/\s/g, ''));
+                }
+
+                // Xử lý ảnh bổ sung
+                var additionalImages = $('#AdditionalImagesInput').val();
+                if (additionalImages) {
+                    $('#AdditionalImagesInput').val(additionalImages.split('\n').map(function(url) {
+                        return url.trim();
+                    }).join('\n'));
+                }
+
+                return true;
+            });
+        });
+    </script>
 }

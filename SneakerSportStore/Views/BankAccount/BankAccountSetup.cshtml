@@ -1,0 +1,47 @@
+﻿@model SneakerSportStore.Models.BankAccountViewModel
+
+@{
+    ViewBag.Title = "Cập nhật thông tin tài khoản ngân hàng";
+}
+
+<h2>Cập nhật thông tin tài khoản ngân hàng</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@using (Html.BeginForm("BankAccountSetup", "BankAccount", FormMethod.Post))
+{
+    <div class="form-group">
+        <label for="BankName">Tên ngân hàng</label>
+        @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @placeholder = "Nhập tên ngân hàng" })
+        @Html.ValidationMessageFor(m => m.BankName, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="AccountNumber">Số tài khoản</label>
+        @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control", @placeholder = "Nhập số tài khoản" })
+        @Html.ValidationMessageFor(m => m.AccountNumber, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="AccountHolder">Chủ tài khoản</label>
+        @Html.TextBoxFor(m => m.AccountHolder, new { @class = "form-control", @placeholder = "Nhập tên chủ tài khoản" })
+        @Html.ValidationMessageFor(m => m.AccountHolder, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+    </div>
+}
+

@@ -16,16 +16,20 @@ namespace SneakerSportStore.Controllers
     {
         private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
+        // SneakerSportStore/Controllers/NotificationController.cs
+
         public async Task<ActionResult> Index()
         {
-            string userId = Session["CustomerID"] as string;
+            string userId = Session["UserId"] as string;
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Account");
 
             List<Notification> notifications = new List<Notification>();
             using (var client = new HttpClient())
             {
+                // Sửa URL để lấy thông báo cho user cụ thể
                 var response = await client.GetAsync(FirebaseDbUrl + $"/notifications/{userId}.json");
+
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
@@ -33,20 +37,14 @@ namespace SneakerSportStore.Controllers
                     {
                         try
                         {
-                            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                            if (dict != null)
+                            // Đọc dưới dạng dictionary các thông báo
+                            var notificationsDict = JsonConvert.DeserializeObject<Dictionary<string, Notification>>(json);
+
+                            if (notificationsDict != null)
                             {
-                                foreach (var item in dict)
-                                {
-                                    if (item.Value is JObject notificationObj)
-                                    {
-                                        var notification = notificationObj.ToObject<Notification>();
-                                        if (notification != null)
-                                        {
-                                            notifications.Add(notification);
-                                        }
-                                    }
-                                }
+                                notifications = notificationsDict.Values
+                                    .OrderByDescending(n => n.CreatedAt)
+                                    .ToList();
                             }
                         }
                         catch (JsonSerializationException ex)
@@ -55,19 +53,14 @@ namespace SneakerSportStore.Controllers
                         }
                     }
                 }
-                else
-                {
-                    ViewBag.Error = "Không thể kết nối tới máy chủ thông báo!";
-                }
             }
 
             return View(notifications);
         }
-
         [HttpPost]
         public async Task<ActionResult> MarkAsRead(string notificationId)
         {
-            string userId = Session["CustomerID"] as string;
+            string userId = Session["UserId"] as string;
             if (string.IsNullOrEmpty(userId))
                 return Json(new { success = false });
 
@@ -82,7 +75,7 @@ namespace SneakerSportStore.Controllers
         }
         public async Task<int> GetUnreadCount()
         {
-            string userId = Session["CustomerID"] as string;
+            string userId = Session["UserId"] as string;
             if (string.IsNullOrEmpty(userId)) return 0;
             using (var client = new HttpClient())
             {
@@ -101,7 +94,7 @@ namespace SneakerSportStore.Controllers
         public ActionResult UnreadBadge()
         {
             int count = 0;
-            string userId = Session["CustomerID"] as string;
+            string userId = Session["UserId"] as string;
             if (!string.IsNullOrEmpty(userId))
             {
                 using (var client = new HttpClient())
@@ -122,7 +115,7 @@ namespace SneakerSportStore.Controllers
         [HttpPost]
         public async Task<ActionResult> Delete(string firebaseKey)
         {
-            var userId = Session["CustomerID"]?.ToString();
+            var userId = Session["UserId"]?.ToString();
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Account");
 

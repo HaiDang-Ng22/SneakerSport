@@ -9,6 +9,8 @@ namespace SneakerSportStore.Models
         public string UserId { get; set; }
         public string UserName { get; set; }
         public string Content { get; set; }
+        //public string highlightId { get; set; }
+        //public string highlightCommentId { get; set; }
         public string ParentCommentId { get; set; }
         public DateTime CreatedAt { get; set; }
     }

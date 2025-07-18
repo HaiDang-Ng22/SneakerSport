@@ -1,211 +1,196 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using QRCoder;
 using SneakerSportStore.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
+using Firebase.Storage; // Thêm dòng này
+using System.Net.Http.Headers;
+using System.Threading;
 
 namespace SneakerSportStore.Controllers
 {
     public class PaymentController : Controller
     {
-        private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        private const string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        private const string AppliedVoucherSessionKey = "AppliedVoucher";
+        private const string FirebaseStorageBucket = "sneakersportstore.appspot.com"; 
 
-        // Lấy danh sách voucher mà user đã lưu trên Firebase
-        private async Task<List<DiscountCode>> GetSavedVouchersOfUser(string userId)
-        {
-            var vouchers = new List<DiscountCode>();
-            using (var client = new HttpClient())
-            {
-                // Lấy list voucherId từ node userVouchers
-                var response = await client.GetAsync($"{FirebaseDbUrl}/userVouchers/{userId}.json");
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var idList = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
-                    foreach (var voucherId in idList)
-                    {
-                        var voucherRes = await client.GetAsync($"{FirebaseDbUrl}/discountCodes/{voucherId}.json");
-                        if (voucherRes.IsSuccessStatusCode)
-                        {
-                            var voucherJson = await voucherRes.Content.ReadAsStringAsync();
-                            var voucher = JsonConvert.DeserializeObject<DiscountCode>(voucherJson);
-                            if (voucher != null && voucher.Active)
-                                vouchers.Add(voucher);
-                        }
-                    }
-                }
-            }
-            return vouchers;
-        }
+        // Static HttpClient for efficient connection reuse
+        private static readonly HttpClient httpClient = new HttpClient();
 
+        // GET: Checkout
         public async Task<ActionResult> Checkout()
         {
-            var selectedCartItems = Session["SelectedCartItems"] as List<CartItem> ?? new List<CartItem>();  // Nếu null thì khởi tạo danh sách rỗng
+            var selectedCartItems = Session["SelectedCartItems"] as List<CartItem> ?? new List<CartItem>();
             if (!selectedCartItems.Any())
             {
                 TempData["ErrorMessage"] = "Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm để tiếp tục.";
                 return RedirectToAction("Index", "Cart");
             }
 
-            var userId = Session["CustomerID"]?.ToString();
+            var userId = Session["UserId"]?.ToString();
             if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            // Lấy voucher đã lưu
-            var savedVouchers = await GetSavedVouchersOfUser(userId);
-            if (savedVouchers == null)
+            var savedVouchers = await GetSavedVouchersOfUser(userId) ?? new List<DiscountCode>();
+            var total = selectedCartItems.Sum(x => (double)x.Price * x.Quantity);
+
+            var appliedVoucher = Session[AppliedVoucherSessionKey] as DiscountCode;
+            double discount = 0;
+
+            if (appliedVoucher != null)
             {
-                savedVouchers = new List<DiscountCode>(); // Nếu không có voucher, khởi tạo danh sách trống.
+                discount = CalculateDiscount(total, appliedVoucher);
             }
 
-            // Chuẩn bị ViewModel
             var vm = new CheckoutViewModel
             {
                 SelectedCartItems = selectedCartItems,
                 SavedVouchers = savedVouchers,
-                TotalBeforeDiscount = selectedCartItems.Sum(x => (double)x.Price * x.Quantity),
-                DiscountAmount = 0,
-                TotalAfterDiscount = selectedCartItems.Sum(x => (double)x.Price * x.Quantity)
+                TotalBeforeDiscount = total,
+                TotalAfterDiscount = total - discount,
+                AppliedVoucher = appliedVoucher,
+                DiscountAmount = discount
             };
 
             return View(vm);
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult> Checkout(CheckoutViewModel model)
-        //{
-        //    var userId = Session["CustomerID"]?.ToString();
-        //    var selectedCartItems = Session["SelectedCartItems"] as List<CartItem> ?? new List<CartItem>();
 
-        //    // Tính tổng tiền trước khi áp dụng giảm giá
-        //    var total = selectedCartItems.Sum(x => (double)x.Price * x.Quantity);
-        //    model.TotalBeforeDiscount = total;
+        private async Task<List<DiscountCode>> GetSavedVouchersOfUser(string userId)
+        {
+            try
+            {
+                var response = await httpClient.GetAsync($"{FirebaseDbUrl}/userVouchers/{userId}.json");
+                if (!response.IsSuccessStatusCode) return new List<DiscountCode>();
 
-        //    // Đảm bảo SavedVouchers không null
-        //    model.SavedVouchers = model.SavedVouchers ?? new List<DiscountCode>();
+                var json = await response.Content.ReadAsStringAsync();
+                var idList = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
 
-        //    // Lấy voucher đã chọn
-        //    var voucher = model.SavedVouchers.FirstOrDefault(v => v.CodeName == model.SelectedVoucherId);
+                var tasks = idList.Select(GetVoucherDetails);
+                var results = await Task.WhenAll(tasks);
 
-        //    // Kiểm tra điều kiện voucher: Tổng đơn hàng phải >= MinimumOrderValue của voucher
-        //    if (!string.IsNullOrEmpty(model.SelectedVoucherId) && (voucher == null || total < voucher.MinimumOrderValue))
-        //    {
-        //        // Thêm thông báo lỗi nếu không đủ điều kiện
-        //        ModelState.AddModelError(nameof(model.SelectedVoucherId),
-        //            $"Voucher không đủ điều kiện (Đơn hàng phải lớn hơn hoặc bằng {voucher?.MinimumOrderValue.ToString("N0")} VNĐ).");
-        //        model.TotalAfterDiscount = total;
-        //        return View(model); // Trả về View với thông báo lỗi
-        //    }
+                return results.Where(v => v != null && v.Active).ToList();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting vouchers: {ex.Message}");
+                return new List<DiscountCode>();
+            }
+        }
 
-        //    // Xử lý giảm giá nếu voucher hợp lệ
-        //    model.DiscountAmount = 0;
-        //    if (voucher != null)
-        //    {
-        //        if (voucher.DiscountType == "Percentage") // Giảm giá theo phần trăm
-        //        {
-        //            model.DiscountAmount = total * voucher.DiscountValue / 100.0;
-        //        }
-        //        else if (voucher.DiscountType == "Fixed") // Giảm giá cố định
-        //        {
-        //            model.DiscountAmount = voucher.DiscountValue;
-        //        }
-        //    }
 
-        //    // Tính tổng tiền sau khi áp dụng giảm giá
-        //    model.TotalAfterDiscount = total - model.DiscountAmount;
+        private async Task<DiscountCode> GetVoucherDetails(string voucherId)
+        {
+            try
+            {
+                var response = await httpClient.GetAsync($"{FirebaseDbUrl}/discountCodes/{voucherId}.json");
+                if (!response.IsSuccessStatusCode) return null;
 
-        //    // Tạo đơn hàng và lưu lên Firebase
-        //    var order = new Order
-        //    {
-        //        OrderId = Guid.NewGuid().ToString(),
-        //        UserId = userId,
-        //        CustomerName = model.Name,
-        //        PhoneNumber = model.Phone,
-        //        Address = model.Address,
-        //        OrderDate = DateTime.Now,
-        //        Items = selectedCartItems.Select(x => new OrderItem
-        //        {
-        //            ProductId = x.ProductId,
-        //            ProductName = x.ProductName,
-        //            Quantity = x.Quantity,
-        //            Price = x.Price
-        //        }).ToList(),
-        //        Total = total,
-        //        DiscountCode = voucher?.CodeName ?? "",
-        //        DiscountAmount = model.DiscountAmount,
-        //        FinalTotal = model.TotalAfterDiscount,
-        //        PaymentMethod = model.PaymentMethod
-        //    };
+                var voucherJson = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DiscountCode>(voucherJson);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-        //    // Lưu đơn hàng vào Firebase và trừ kho
-        //    using (var client = new HttpClient())
-        //    {
-        //        var json = JsonConvert.SerializeObject(order);
-        //        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        //        await client.PutAsync($"{FirebaseDbUrl}/orders/{order.OrderId}.json", content);
+        private double CalculateDiscount(double total, DiscountCode voucher)
+        {
+            if (voucher == null) return 0;
+            if ((double)voucher.MinimumOrderValue > total) return 0;
 
-        //        // Trừ kho
-        //        foreach (var it in order.Items)
-        //            await ReduceProductStock(it.ProductId, it.Quantity);
-        //    }
+            return voucher.DiscountType == DiscountType.Percentage
+                ? total * (double)voucher.DiscountValue / 100
+                : (double)voucher.DiscountValue;
+        }
 
-        //    // Xóa giỏ hàng và thông báo thành công
-        //    Session["SelectedCartItems"] = null;
-        //    TempData["SuccessMessage"] = "Đặt hàng thành công!";
-        //    return RedirectToAction("OrderResult", new { id = order.OrderId });
-        //}
+        [HttpPost]
+        public async Task<ActionResult> ApplyVoucher(string voucherCode)
+        {
+            var userId = Session["UserId"]?.ToString();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Vui lòng đăng nhập" });
+            }
 
-        // Phương thức checkout để xử lý đơn hàng
+            var savedVouchers = await GetSavedVouchersOfUser(userId);
+            var voucher = savedVouchers.FirstOrDefault(v => v.CodeName == voucherCode);
+
+            if (voucher == null)
+            {
+                return Json(new { success = false, message = "Mã voucher không hợp lệ" });
+            }
+
+            Session[AppliedVoucherSessionKey] = voucher;
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public ActionResult RemoveVoucher()
+        {
+            Session.Remove(AppliedVoucherSessionKey);
+            return Json(new { success = true });
+        }
+
         [HttpPost]
         public async Task<ActionResult> Checkout(CheckoutViewModel model)
         {
+            System.Diagnostics.Debug.WriteLine($"File uploaded: {model.BankTransferImage?.FileName}");
+            string screenshotUrl = null; 
+
             var selectedCartItems = Session["SelectedCartItems"] as List<CartItem> ?? new List<CartItem>();
-            var total = selectedCartItems.Sum(x => (double)x.Price * x.Quantity);
+            if (!selectedCartItems.Any())
+            {
+                TempData["ErrorMessage"] = "Giỏ hàng của bạn đang trống.";
+                return RedirectToAction("Index", "Cart");
+            }
+            if (model.BankTransferImage != null && model.BankTransferImage.ContentLength > 0)
+            {
+                screenshotUrl = await UploadImageToFirebaseStorage(model.BankTransferImage);
+            }
+            double total = selectedCartItems.Sum(x => (double)x.Price * x.Quantity);
             model.TotalBeforeDiscount = total;
 
-            // Đảm bảo SavedVouchers không null
-            model.SavedVouchers = model.SavedVouchers ?? new List<DiscountCode>();
+            var appliedVoucher = Session[AppliedVoucherSessionKey] as DiscountCode;
+            double discount = 0;
 
-            // Lấy voucher đã chọn
-            var voucher = model.SavedVouchers.FirstOrDefault(v => v.CodeName == model.SelectedVoucherId);
-
-            // Kiểm tra điều kiện voucher: Tổng đơn hàng phải >= MinimumOrderValue của voucher
-            if (!string.IsNullOrEmpty(model.SelectedVoucherId) && (voucher == null || total < voucher.MinimumOrderValue))
+            if (appliedVoucher != null)
             {
-                ModelState.AddModelError(nameof(model.SelectedVoucherId),
-                    $"Voucher không đủ điều kiện (Đơn hàng phải lớn hơn hoặc bằng {voucher?.MinimumOrderValue.ToString("N0")} VNĐ).");
+                discount = CalculateDiscount(total, appliedVoucher);
+                model.DiscountAmount = discount;
+                model.TotalAfterDiscount = total - discount;
+            }
+            else
+            {
                 model.TotalAfterDiscount = total;
-                return View(model); // Trả về View với thông báo lỗi
             }
-
-            // Xử lý giảm giá nếu voucher hợp lệ
-            model.DiscountAmount = 0;
-            if (voucher != null)
+            if (model.BankTransferImage != null && model.BankTransferImage.ContentLength > 0)
             {
-                if (voucher.DiscountType == "Percentage") // Giảm giá theo phần trăm
+                using (var ms = new MemoryStream())
                 {
-                    model.DiscountAmount = total * voucher.DiscountValue / 100.0;
-                }
-                else if (voucher.DiscountType == "Fixed") // Giảm giá cố định
-                {
-                    model.DiscountAmount = voucher.DiscountValue;
+                    model.BankTransferImage.InputStream.CopyTo(ms);
+                    var imageBytes = ms.ToArray();
+                    model.BankTransferScreenshot = $"data:{model.BankTransferImage.ContentType};base64," + Convert.ToBase64String(imageBytes);
                 }
             }
-
-            model.TotalAfterDiscount = total - model.DiscountAmount;
-
-            // Tạo đơn hàng và lưu lên Firebase
             var order = new Order
             {
                 OrderId = Guid.NewGuid().ToString(),
-                UserId = Session["CustomerID"].ToString(),
+                UserId = Session["UserId"]?.ToString(),
                 CustomerName = model.Name,
                 PhoneNumber = model.Phone,
                 Address = model.Address,
@@ -217,44 +202,185 @@ namespace SneakerSportStore.Controllers
                     Quantity = x.Quantity,
                     Price = x.Price
                 }).ToList(),
-                Total = total,
-                DiscountCode = voucher?.CodeName ?? "",
-                DiscountAmount = model.DiscountAmount,
-                FinalTotal = model.TotalAfterDiscount,
-                PaymentMethod = model.PaymentMethod
+                Total = total,// tổng tiền
+                DiscountCode = appliedVoucher?.CodeName ?? "",// vô chờ
+                DiscountAmount = discount,// số tiền giảm giá
+                FinalTotal = model.TotalAfterDiscount,// Tổng Tiền cuối c
+                PaymentMethod = model.PaymentMethod,
+                BankTransferScreenshot = screenshotUrl
             };
 
-            // Lưu đơn hàng vào Firebase
-            using (var client = new HttpClient())
+            try
             {
-                var json = JsonConvert.SerializeObject(order);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await client.PutAsync($"{FirebaseDbUrl}/orders/{order.OrderId}.json", content);
+                var content = new StringContent(JsonConvert.SerializeObject(order), Encoding.UTF8, "application/json");
+                var response = await httpClient.PutAsync($"{FirebaseDbUrl}/orders/{order.OrderId}.json", content);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Trừ kho sản phẩm sau khi đơn hàng được tạo thành công
-                    foreach (var it in order.Items)
-                        await ReduceProductStock(it.ProductId, it.Quantity);
+                    await ReduceProductStock(selectedCartItems);
 
-                    // Gửi thông báo cho admin sau khi đơn hàng được lưu
+                    if (model.PaymentMethod == "bank")
+                    {
+                        var bankDetails = new BankTransferDetails
+                        {
+                            BankName = "Techcombank",
+                            AccountNumber = "0799192226",
+                            AccountHolder = "Công ty SneakerSportStore",
+                            Amount = model.TotalAfterDiscount,
+                            OrderId = order.OrderId
+                        };
+                        model.QRCodeBase64 = GenerateQRCode(bankDetails);
+                    }
+
+                    Session["SelectedCartItems"] = null;
+                    Session.Remove(AppliedVoucherSessionKey);
+
                     await SendOrderNotification(order.OrderId, order.UserId);
-                }
-                else
-                {
-                    // Nếu lưu đơn hàng không thành công, log thông báo lỗi
-                    Console.WriteLine("Lỗi khi lưu đơn hàng vào Firebase: " + response.StatusCode);
+
+                    TempData["SuccessMessage"] = "Đặt hàng thành công!";
+                    return RedirectToAction("OrderResult", new { id = order.OrderId });
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Checkout error: {ex.Message}");
+            }
 
-            // Xóa giỏ hàng và thông báo thành công
-            Session["SelectedCartItems"] = null;
-            TempData["SuccessMessage"] = "Đặt hàng thành công!";
-            return RedirectToAction("OrderResult", new { id = order.OrderId });
+            TempData["ErrorMessage"] = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
+            return View(model);
         }
+        private async Task<string> UploadImageToFirebaseStorage(HttpPostedFileBase file)
+        {
+            try
+            {
+                var stream = file.InputStream;
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+
+                var task = new FirebaseStorage(
+                    FirebaseStorageBucket,
+                    new FirebaseStorageOptions
+                    {
+                        AuthTokenAsyncFactory = () => Task.FromResult("") // Bỏ trống nếu không dùng xác thực
+                    })
+                    .Child("payment-proofs")
+                    .Child(fileName)
+                    .PutAsync(stream, new CancellationToken(), file.ContentType);
+
+                return await task;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Image upload failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task ReduceProductStock(List<CartItem> cartItems)
+        {
+            try
+            {
+                var tasks = cartItems.Select(async item =>
+                {
+                    var response = await httpClient.GetAsync($"{FirebaseDbUrl}/products/{item.ProductId}.json");
+                    if (!response.IsSuccessStatusCode) return;
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(json);
+                    if (product == null) return;
+
+                    product.SoLuongTon = Math.Max(0, product.SoLuongTon - item.Quantity);
+
+                    var content = new StringContent(JsonConvert.SerializeObject(product), Encoding.UTF8, "application/json");
+                    await httpClient.PutAsync($"{FirebaseDbUrl}/products/{item.ProductId}.json", content);
+                });
+
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Reduce stock error: {ex.Message}");
+            }
+        }
+
+        private string GenerateQRCode(BankTransferDetails bankDetails)
+        {
+            string paymentDetails = $"Bank: {bankDetails.BankName}\n" +
+                                    $"Account Number: {bankDetails.AccountNumber}\n" +
+                                    $"Account Holder: {bankDetails.AccountHolder}\n" +
+                                    $"Amount: {bankDetails.Amount} VND\n" +
+                                    $"Order ID: {bankDetails.OrderId}";
+
+            using (var qrGenerator = new QRCodeGenerator())
+            {
+                var qrCodeData = qrGenerator.CreateQrCode(paymentDetails, QRCodeGenerator.ECCLevel.Q);
+                using (var qrCode = new QRCode(qrCodeData))
+                using (var stream = new MemoryStream())
+                {
+                    qrCode.GetGraphic(20).Save(stream, ImageFormat.Png);
+                    return Convert.ToBase64String(stream.ToArray());
+                }
+            }
+        }
+
+        //private async Task SendOrderNotification(string orderId, string userId)
+        //{
+        //    try
+        //    {
+        //        var adminUserIds = await GetAdminUserIds();
+        //        if (!adminUserIds.Any()) return;
+
+        //        var notification = new Notification
+        //        {
+        //            Message = $"Đơn hàng mới #{orderId} đang chờ xử lý",
+        //            IsRead = false,
+        //            CreatedAt = DateTime.Now,
+        //            RelatedOrderId = orderId,
+        //            RedirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, Request.Url?.Scheme)
+        //        };
+
+        //        var tasks = adminUserIds.Select(async adminId =>
+        //        {
+        //            var content = new StringContent(JsonConvert.SerializeObject(notification), Encoding.UTF8, "application/json");
+        //            await httpClient.PostAsync($"{FirebaseDbUrl}/notifications/{adminId}.json", content);
+        //        });
+
+        //        await Task.WhenAll(tasks);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Notification error: {ex.Message}");
+        //    }
+        //}
+
+        //private async Task<List<string>> GetAdminUserIds()
+        //{
+        //    var adminIds = new List<string>();
+        //    try
+        //    {
+        //        var response = await httpClient.GetAsync($"{FirebaseDbUrl}/users.json");
+        //        if (!response.IsSuccessStatusCode) return adminIds;
+
+        //        var json = await response.Content.ReadAsStringAsync();
+        //        var users = JsonConvert.DeserializeObject<Dictionary<string, JObject>>(json);
+
+        //        if (users != null)
+        //        {
+        //            adminIds = users
+        //                .Where(u => u.Value["UserRole"]?.ToString() == "Admin")
+        //                .Select(u => u.Key)
+        //                .ToList();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log error
+        //        System.Diagnostics.Debug.WriteLine($"Get admin IDs error: {ex.Message}");
+        //    }
+        //    return adminIds;
+        //}
+
         private async Task SendOrderNotification(string orderId, string userId)
         {
-            // Create the admin notification
             var adminNotification = new Notification
             {
                 Message = $"Đơn hàng mới {orderId} của người dùng {userId} đang chờ xác nhận.",
@@ -265,7 +391,6 @@ namespace SneakerSportStore.Controllers
                 RedirectUrl = Url.Action("Details", "AdminOrder", new { id = orderId }, protocol: Request.Url.Scheme)
             };
 
-            // Get all admin user IDs
             var adminUserIds = await GetAdminUserIds();
 
             using (var client = new HttpClient())
@@ -275,7 +400,6 @@ namespace SneakerSportStore.Controllers
                     var jsonAdmin = JsonConvert.SerializeObject(adminNotification);
                     var contentAdmin = new StringContent(jsonAdmin, Encoding.UTF8, "application/json");
 
-                    // Save the notification under the admin's notification node
                     await client.PostAsync(FirebaseDbUrl + $"/notifications/{adminId}.json", contentAdmin);
                 }
             }
@@ -291,21 +415,18 @@ namespace SneakerSportStore.Controllers
                 {
                     var json = await response.Content.ReadAsStringAsync();
 
-                    // Kiểm tra dữ liệu JSON nhận được
                     Console.WriteLine("Received JSON: " + json);
 
-                    // Deserialize thành Dictionary<string, dynamic> để dễ dàng xử lý
                     var dict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
 
                     if (dict != null)
                     {
                         foreach (var pair in dict)
                         {
-                            // Kiểm tra xem đối tượng có phải là dynamic không và có trường "userRole"
-                            var user = pair.Value as JObject; // Chuyển về JObject
+                            var user = pair.Value as JObject; 
                             if (user != null && user["userRole"]?.ToString() == "Admin")
                             {
-                                adminUserIds.Add(pair.Key); // Lưu key là userId
+                                adminUserIds.Add(pair.Key); 
                             }
                         }
                     }
@@ -314,95 +435,10 @@ namespace SneakerSportStore.Controllers
 
             return adminUserIds;
         }
-
-
         public ActionResult OrderResult(string id)
         {
             ViewBag.OrderId = id;
             return View();
         }
-
-        // LẤY TỒN KHO SẢN PHẨM
-        private async Task<int> GetProductStock(string productId)
-        {
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(FirebaseDbUrl + $"/products/{productId}.json");
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var product = JsonConvert.DeserializeObject<Giay>(json);
-                    return product?.SoLuongTon ?? 0;
-                }
-            }
-            return 0;
-        }
-
-        // TRỪ KHO
-        private async Task ReduceProductStock(string productId, int quantity)
-        {
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(FirebaseDbUrl + $"/products/{productId}.json");
-                if (!response.IsSuccessStatusCode) return;
-                var json = await response.Content.ReadAsStringAsync();
-                var product = JsonConvert.DeserializeObject<Giay>(json);
-                if (product == null) return;
-
-                product.SoLuongTon = Math.Max(0, product.SoLuongTon - quantity);
-
-                var content = new StringContent(JsonConvert.SerializeObject(product), System.Text.Encoding.UTF8, "application/json");
-                await client.PutAsync(FirebaseDbUrl + $"/products/{productId}.json", content);
-            }
-        }
-        //private async Task SendOrderNotification(string orderId, string userId)
-        //{
-        //    // Tạo thông báo cho Admin
-        //    var adminNotification = new Notification
-        //    {
-        //        Message = $"Đơn hàng mới {orderId} của người dùng {userId} đang chờ xác nhận.",
-        //        IsRead = false,
-        //        CreatedAt = DateTime.Now,
-        //        Type = "OrderUpdate", // Type of notification
-        //        RelatedOrderId = orderId,
-        //        RedirectUrl = Url.Action("Details", "AdminOrder", new { id = userId }, protocol: Request.Url.Scheme) // URL to view the order details for admin
-        //    };
-
-        //    // Tạo thông báo cho User
-        //    var userNotification = new Notification
-        //    {
-        //        Message = $"Đơn hàng của bạn ({orderId}) đã được đặt thành công!",
-        //        IsRead = false,
-        //        CreatedAt = DateTime.Now,
-        //        Type = "OrderSuccess",
-        //        RelatedOrderId = orderId,
-        //        RedirectUrl = Url.Action("OrderDetails", "UserOrder", new { orderId }, protocol: Request.Url.Scheme) // URL to view the order details for user
-        //    };
-
-        //    using (var client = new HttpClient())
-        //    {
-        //        // Lưu thông báo cho Admin
-        //        var jsonAdmin = JsonConvert.SerializeObject(adminNotification);
-        //        var contentAdmin = new StringContent(jsonAdmin, Encoding.UTF8, "application/json");
-        //        await client.PostAsync(FirebaseDbUrl + "/notifications/admin.json", contentAdmin);
-
-        //        // Lưu thông báo cho User
-        //        var jsonUser = JsonConvert.SerializeObject(userNotification);
-        //        var contentUser = new StringContent(jsonUser, Encoding.UTF8, "application/json");
-        //        await client.PostAsync(FirebaseDbUrl + $"/notifications/{userId}.json", contentUser);
-        //    }
-        //}
-
-
-
-    }
-
-
-    public class OrderItem
-    {
-        public string ProductId { get; set; }
-        public string ProductName { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
     }
 }

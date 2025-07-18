@@ -1,9 +1,32 @@
 ﻿@model SneakerSportStore.Models.KhachHang
-<link href="~/Views/Customer/Detail.css" rel="stylesheet" />
 @{
     ViewBag.Title = "Thông tin khách hàng";
     var orders = ViewBag.Orders as List<dynamic>;
     var userId = ViewBag.UserId as string;
+    var isAdmin = Session["UserRole"]?.ToString() == "Admin";
+
+    var roleName = "Khách hàng";
+    switch (Model.UserRole?.ToLower())
+    {
+        case "nhanvien":
+            roleName = "Nhân viên kinh doanh";
+            break;
+        case "ketoan":
+            roleName = "Nhân viên kế toán";
+            break;
+        case "kho":
+            roleName = "Nhân viên kho";
+            break;
+        case "chamsockhachhang":
+            roleName = "Chăm sóc khách hàng";
+            break;
+        case "giaohang":
+            roleName = "Nhân viên giao hàng";
+            break;
+        case "admin":
+            roleName = "Quản trị viên";
+            break;
+    }
 }
 <style>
     body {
@@ -76,52 +99,264 @@
         }
 
             .table tr:hover {
-                background-color: #b7caed;
+                background-color: #e2e8f0;
             }
 
     .table-striped tbody tr:nth-child(odd) {
         background: #f5f7fb;
     }
 
+    .role-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-left: 8px;
+    }
+
+    .role-user {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .role-nhanvien {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .role-ketoan {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .role-kho {
+        background: #e9d5ff;
+        color: #6b21a8;
+    }
+
+    .role-chamsockhachhang {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    .role-giaohang {
+        background: #ccfbf1;
+        color: #0d9488;
+    }
+
+    .role-admin {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+    .btn-info {
+        background: #06b6d4;
+        color: white;
+    }
+
+        .btn-info:hover {
+            background: #0891b2;
+        }
+
+    .action-buttons {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .modal-footer {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
 </style>
-<div class="container">
+
+<div class="Container">
     <div class="content">
+        <h2 class="Head">Thông tin khách hàng</h2>
+        <p><strong>Họ tên:</strong> @Model.HoTen</p>
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p><strong>Số điện thoại:</strong> @Model.SoDienThoai</p>
+        <p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+        <p>
+            <strong>Vai trò:</strong> @roleName
+            <span class="role-badge role-@(Model.UserRole?.ToLower() ?? "Userr")">@Model.UserRole</span>
+        </p>
 
-<h2 class="Head">Thông tin khách hàng</h2>
-<p><strong>Họ tên:</strong> @Model.HoTen</p>
-<p><strong>Email:</strong> @Model.Email</p>
-<p><strong>Số điện thoại:</strong> @Model.SoDienThoai</p>
-<p><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+        @*<h3>Đơn hàng đã đặt</h3>*@
 
-<h3>Đơn hàng đã đặt</h3>
+        @*@if (orders == null || !orders.Any())
+        {
+            <p>Khách hàng chưa có đơn hàng nào.</p>
+        }
+        else
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in orders)
+                    {
+                        <tr>
+                            <td>@order.maDon</td>
+                            <td>@order.ngayDat</td>
+                            <td>@string.Format("{0:N0} VNĐ", order.tongTien)</td>
+                            <td>@order.trangThai</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }*@
 
-@if (orders == null || !orders.Any())
-{
-    <p>Khách hàng chưa có đơn hàng nào.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Ngày đặt</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in orders)
-            {
-                <tr>
-                    <td>@order.maDon</td>
-                    <td>@order.ngayDat</td>
-                    <td>@order.tongTien</td>
-                    <td>@order.trangThai</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        @if (isAdmin)
+        {
+            <div class="action-buttons">
+                <button onclick="openRoleModal()" class="btn btn-info">Phân quyền</button>
+                @using (Html.BeginForm("Delete", "Customer", new { id = userId }, FormMethod.Post, new { onsubmit = "return confirm('Bạn có chắc muốn xóa tài khoản này?');" }))
+                {
+                    <button type="submit" class="btn btn-danger">Xóa tài khoản</button>
+                }
+                <a href="@Url.Action("Index", "Customer")" class="btn btn-primary">Quay lại danh sách</a>
+            </div>
+
+
+            <div id="roleModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeRoleModal()">&times;</span>
+                    <h3>Phân quyền cho @Model.HoTen</h3>
+                    @using (Html.BeginForm("UpdateRole", "Customer", FormMethod.Post))
+                    {
+                        @Html.Hidden("id", userId)
+                        <div class="form-group">
+                            <label for="newRole">Vai trò hiện tại: <strong>@roleName</strong></label>
+                            <select name="newRole" id="newRole" class="form-control">
+                                <option value="user" @(Model.UserRole == "User" ? "selected" : "")>Khách hàng</option>
+                                <option value="nhanvien" @(Model.UserRole == "nhanvien" ? "selected" : "")>Nhân viên kinh doanh</option>
+                                <option value="ketoan" @(Model.UserRole == "ketoan" ? "selected" : "")>Nhân viên kế toán</option>
+                                <option value="kho" @(Model.UserRole == "kho" ? "selected" : "")>Nhân viên kho</option>
+                                <option value="chamsockhachhang" @(Model.UserRole == "chamsockhachhang" ? "selected" : "")>Chăm sóc khách hàng</option>
+                                <option value="giaohang" @(Model.UserRole == "giaohang" ? "selected" : "")>Nhân viên giao hàng</option>
+                                <option value="admin" @(Model.UserRole == "Admin" ? "selected" : "")>Quản trị viên</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="closeRoleModal()">Hủy</button>
+                            <button type="submit" class="btn btn-info">Cập nhật vai trò</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <script>
+                function openRoleModal() {
+                    document.getElementById('roleModal').style.display = 'block';
+                }
+
+                function closeRoleModal() {
+                    document.getElementById('roleModal').style.display = 'none';
+                }
+
+               
+                window.onclick = function (event) {
+                    var modal = document.getElementById('roleModal');
+                    if (event.target == modal) {
+                        closeRoleModal();
+                    }
+                }
+            </script>
+        }
+        else
+        {
+            <div class="action-buttons">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Quay lại</a>
+            </div>
+        }
     </div>
 </div>

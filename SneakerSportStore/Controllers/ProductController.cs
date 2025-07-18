@@ -1,160 +1,149 @@
 ﻿using SneakerSportStore.Models;
+using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Newtonsoft.Json;
-using System.Linq;
-using System;
+using System.Net.Http;
+using System.Text;
+using System.Web;
+using System.Web.Caching;
 
 namespace SneakerSportStore.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
+        private const string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-        // GET: Product
+        private HttpClient GetFirebaseClient()
+        {
+            return new HttpClient { BaseAddress = new Uri(FirebaseDbUrl) };
+        }
+
         public async Task<ActionResult> Index()
         {
-            using (var client = new HttpClient())
+            using (var client = GetFirebaseClient())
             {
-                var response = await client.GetAsync(FirebaseDbUrl + "/products.json");
+                var response = await client.GetAsync("/products.json");
                 if (!response.IsSuccessStatusCode)
-                {
-                    ViewBag.Error = "Không thể tải dữ liệu sản phẩm.";
-                    return View(new List<Giay>());
-                }
+                    return View(new List<ProductFireBaseKey>());
 
                 var json = await response.Content.ReadAsStringAsync();
-                var dict = JsonConvert.DeserializeObject<Dictionary<string, Giay>>(json);
+                var productsDict = JsonConvert.DeserializeObject<Dictionary<string, ProductFireBaseKey>>(json) ??
+                                  new Dictionary<string, ProductFireBaseKey>();
 
-                var products = new List<Giay>();
-                if (dict != null)
+                var products = productsDict.Select(kvp =>
                 {
-                    foreach (var item in dict)
-                    {
-                        item.Value.GiayId = item.Key; // Assign FirebaseKey as the unique ID
-                        products.Add(item.Value);
-                    }
-                }
+                    kvp.Value.GiayId = kvp.Key;
+                    return kvp.Value;
+                }).ToList();
 
                 return View(products);
             }
         }
 
-        // GET: Product/Create
+        [HttpGet]
         public async Task<ActionResult> Create()
         {
-            // Lấy danh sách nhà sản xuất và loại giày từ Firebase (hoặc từ cơ sở dữ liệu)
-            using (var client = new HttpClient())
+            await LoadSelectListsAsync();
+            return View(new ProductFireBaseKey
             {
-                var nhaSanXuatResponse = await client.GetAsync(FirebaseDbUrl + "/nhasanxuat.json");
-                var loaiGiayResponse = await client.GetAsync(FirebaseDbUrl + "/loaigiay.json");
-
-                if (nhaSanXuatResponse.IsSuccessStatusCode && loaiGiayResponse.IsSuccessStatusCode)
-                {
-                    var nhaSanXuatJson = await nhaSanXuatResponse.Content.ReadAsStringAsync();
-                    var loaiGiayJson = await loaiGiayResponse.Content.ReadAsStringAsync();
-
-                    var nhaSanXuatList = JsonConvert.DeserializeObject<Dictionary<string, NhaSanXuat>>(nhaSanXuatJson);
-                    var loaiGiayList = JsonConvert.DeserializeObject<Dictionary<string, LoaiGiay>>(loaiGiayJson);
-
-                    // Kiểm tra nếu các danh sách không null
-                    if (nhaSanXuatList != null && loaiGiayList != null)
-                    {
-                        ViewBag.NhaSanXuatList = new SelectList(nhaSanXuatList.Values.ToList(), "NhaSanXuatID", "TenNhaSanXuat");
-                        ViewBag.LoaiGiayList = new SelectList(loaiGiayList.Values.ToList(), "LoaiGiayID", "TenLoaiGiay");
-                    }
-                    else
-                    {
-                        ViewBag.Error = "Không thể tải danh sách nhà sản xuất hoặc loại giày.";
-                    }
-                }
-                else
-                {
-                    ViewBag.Error = "Không thể tải danh sách nhà sản xuất hoặc loại giày.";
-                }
-            }
-
-            return View();
+                NgaySanXuat = DateTime.Today,
+                KichThuoc = new List<string>()
+            });
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(Giay model)
+        public async Task<ActionResult> Create(ProductFireBaseKey model)
         {
-            if (ModelState.IsValid)
+            model.UpdateSizesFromString(Request.Form["KichThuocInput"]);
+            model.UpdateAdditionalImagesFromString(Request.Form["AdditionalImagesInput"]);
+
+            if (!model.IsValid(out var errorMessage))
             {
-                using (var client = new HttpClient())
-                {
-                    // Tạo ID mới
-                    model.GiayId = Guid.NewGuid().ToString();
-
-                    // Gửi lên Firebase: dùng chính GiayId làm node
-                    var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-                    var response = await client.PutAsync(FirebaseDbUrl + $"/products/{model.GiayId}.json", content);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        TempData["Message"] = "Sản phẩm đã được thêm thành công!";
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        string errorMessage = await response.Content.ReadAsStringAsync();
-                        ViewBag.Error = $"Không thể thêm sản phẩm. Lỗi: {errorMessage}";
-                    }
-                }
+                ModelState.AddModelError("", errorMessage);
+                await LoadSelectListsAsync();
+                return View(model);
             }
+
+            using (var client = GetFirebaseClient())
+            {
+                model.GiayId = Guid.NewGuid().ToString();
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var response = await client.PutAsync($"/products/{model.GiayId}.json", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    HttpRuntime.Cache.Remove("NhaSanXuatList");
+                    HttpRuntime.Cache.Remove("LoaiGiayList");
+
+                    TempData["SuccessMessage"] = "Thêm sản phẩm thành công!";
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError("", "Lỗi khi lưu sản phẩm vào Firebase");
+            }
+
+            await LoadSelectListsAsync();
             return View(model);
         }
 
-
-        // GET: Product/Edit/5
-        // GET: Product/Edit/5
+        [HttpGet]
         public async Task<ActionResult> Edit(string id)
         {
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(FirebaseDbUrl + "/products/" + id + ".json");
-                if (!response.IsSuccessStatusCode)
-                    return HttpNotFound("Không tìm thấy sản phẩm.");
+            if (string.IsNullOrEmpty(id))
+                return HttpNotFound();
 
-                var json = await response.Content.ReadAsStringAsync();
-                var product = JsonConvert.DeserializeObject<Giay>(json);
-                ViewBag.ProductId = id;
+            using (var client = GetFirebaseClient())
+            {
+                var response = await client.GetAsync($"/products/{id}.json");
+                if (!response.IsSuccessStatusCode)
+                    return HttpNotFound();
+
+                var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(await response.Content.ReadAsStringAsync());
+                if (product == null)
+                    return HttpNotFound();
+
+                product.GiayId = id;
+                await LoadSelectListsAsync();
                 return View(product);
             }
         }
 
-
-        // POST: Product/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(string id, Giay model)
+        public async Task<ActionResult> Edit(string id, ProductFireBaseKey model)
         {
-            if (ModelState.IsValid)
+            if (id != model.GiayId)
+                return HttpNotFound();
+
+            model.UpdateSizesFromString(Request.Form["KichThuocInput"]);
+            model.UpdateAdditionalImagesFromString(Request.Form["AdditionalImagesInput"]);
+
+            if (!model.IsValid(out var errorMessage))
             {
-                using (var client = new HttpClient())
-                {
-                    var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-
-                    var response = await client.PutAsync(FirebaseDbUrl + "/products/" + id + ".json", content);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        TempData["Message"] = "Sản phẩm đã được cập nhật thành công!";
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        ViewBag.Error = "Không thể cập nhật sản phẩm.";
-                    }
-                }
+                ModelState.AddModelError("", errorMessage);
+                await LoadSelectListsAsync();
+                return View(model);
             }
 
+            using (var client = GetFirebaseClient())
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var response = await client.PutAsync($"/products/{id}.json", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Cập nhật sản phẩm thành công!";
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError("", "Lỗi khi cập nhật Firebase");
+            }
+
+            await LoadSelectListsAsync();
             return View(model);
         }
 
@@ -169,7 +158,7 @@ namespace SneakerSportStore.Controllers
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
-                var product = JsonConvert.DeserializeObject<Giay>(json);
+                var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(json);
 
                 if (product == null)
                 {
@@ -206,109 +195,117 @@ namespace SneakerSportStore.Controllers
         }
 
 
-        // Method to get cart items from Firebase
-        private async Task<List<CartItem>> GetCartItems(string userId)
+        [HttpPost]
+        public async Task<JsonResult> AddManufacturer(string ten)
         {
-            using (var client = new HttpClient())
+            if (string.IsNullOrWhiteSpace(ten))
+                return Json(new { success = false, message = "Tên không được trống" });
+
+            using (var client = GetFirebaseClient())
             {
-                var response = await client.GetAsync(FirebaseDbUrl + "/carts/" + userId + ".json");
+                var newId = $"NSX_{Guid.NewGuid().ToString("N")}";
+                var nhaSanXuat = new NhaSanXuat
+                {
+                    NhaSanXuatID = newId,
+                    TenNhaSanXuat = ten
+                };
+
+                var response = await client.PutAsync(
+                    $"/nhasanxuat/{newId}.json",
+                    new StringContent(JsonConvert.SerializeObject(nhaSanXuat), Encoding.UTF8, "application/json"));
+
                 if (response.IsSuccessStatusCode)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var cartItems = JsonConvert.DeserializeObject<Dictionary<string, CartItem>>(json);
-                    return cartItems?.Values.ToList() ?? new List<CartItem>();
+                    HttpRuntime.Cache.Remove("NhaSanXuatList");
+                    return Json(new { success = true, id = newId, name = ten });
                 }
-                return new List<CartItem>();
+
+                return Json(new { success = false, message = "Lỗi Firebase" });
             }
         }
 
-        // Method to save cart items to Firebase
-        private async Task SaveCartToFirebase(string userId, List<CartItem> cart)
+        [HttpPost]
+        public async Task<JsonResult> AddLoaiGiay(string ten)
         {
-            using (var client = new HttpClient())
-            {
-                var jsonContent = JsonConvert.SerializeObject(cart.ToDictionary(c => c.FirebaseKey));
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            if (string.IsNullOrWhiteSpace(ten))
+                return Json(new { success = false, message = "Tên không được trống" });
 
-                var response = await client.PutAsync(FirebaseDbUrl + "/carts/" + userId + ".json", content);
-                if (!response.IsSuccessStatusCode)
+            using (var client = GetFirebaseClient())
+            {
+                var newId = $"LG_{Guid.NewGuid().ToString("N")}";
+                var loaiGiay = new LoaiGiay
                 {
-                    Console.WriteLine("Không thể lưu giỏ hàng vào Firebase");
-                }
-            }
-        }
-        // Lấy danh sách bình luận cho sản phẩm
-        private async Task<List<Comment>> GetComments(string productId)
-        {
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(FirebaseDbUrl + $"/comments/{productId}.json");
-                if (!response.IsSuccessStatusCode) return new List<Comment>();
-                var json = await response.Content.ReadAsStringAsync();
-                var dict = JsonConvert.DeserializeObject<Dictionary<string, Comment>>(json);
-                return dict?.Values.OrderByDescending(x => x.CreatedAt).ToList() ?? new List<Comment>();
-            }
-        }
+                    LoaiGiayID = newId,
+                    TenLoaiGiay = ten
+                };
 
-        // Thêm bình luận mới (hoặc trả lời)
-        [HttpPost]
-        public async Task<ActionResult> AddComment(string productId, string content, string parentCommentId = null)
-        {
-            var userId = Session["CustomerID"]?.ToString();
-            var userName = Session["Username"]?.ToString();
+                var response = await client.PutAsync(
+                    $"/loaigiay/{newId}.json",
+                    new StringContent(JsonConvert.SerializeObject(loaiGiay), Encoding.UTF8, "application/json"));
 
-            if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account");
-
-            var comment = new Comment
-            {
-                CommentId = Guid.NewGuid().ToString(),
-                ProductId = productId,
-                UserId = userId,
-                UserName = userName,
-                Content = content,
-                ParentCommentId = parentCommentId,
-                CreatedAt = DateTime.Now
-            };
-
-            using (var client = new HttpClient())
-            {
-                var contentJson = new StringContent(JsonConvert.SerializeObject(comment), Encoding.UTF8, "application/json");
-                await client.PutAsync(FirebaseDbUrl + $"/comments/{productId}/{comment.CommentId}.json", contentJson);
-            }
-
-            return RedirectToAction("Details", new { id = productId });
-        }
-
-        // Xóa bình luận (chỉ admin hoặc chủ bình luận)
-        [HttpPost]
-        public async Task<ActionResult> DeleteComment(string productId, string commentId)
-        {
-            var userId = Session["CustomerID"]?.ToString();
-            var userRole = Session["UserRole"]?.ToString();
-
-            // Lấy bình luận
-            Comment comment = null;
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(FirebaseDbUrl + $"/comments/{productId}/{commentId}.json");
                 if (response.IsSuccessStatusCode)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    comment = JsonConvert.DeserializeObject<Comment>(json);
+                    HttpRuntime.Cache.Remove("LoaiGiayList");
+                    return Json(new { success = true, id = newId, name = ten });
                 }
+
+                return Json(new { success = false, message = "Lỗi Firebase" });
             }
-
-            if (comment == null || (comment.UserId != userId && userRole != "Admin"))
-                return new HttpStatusCodeResult(403, "Không có quyền xóa!");
-
-            using (var client = new HttpClient())
-            {
-                await client.DeleteAsync(FirebaseDbUrl + $"/comments/{productId}/{commentId}.json");
-            }
-
-            return RedirectToAction("Details", new { id = productId });
         }
 
+        private async Task LoadSelectListsAsync()
+        {
+            var cache = HttpRuntime.Cache;
+            List<NhaSanXuat> nhaSXList = null;
+            List<LoaiGiay> loaiGiayList = null;
+
+            if (cache["NhaSanXuatList"] == null)
+            {
+                using (var client = GetFirebaseClient())
+                {
+                    var response = await client.GetAsync("/nhasanxuat.json");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var data = JsonConvert.DeserializeObject<Dictionary<string, NhaSanXuat>>(json);
+                        nhaSXList = data?.Values.ToList() ?? new List<NhaSanXuat>();
+                        cache.Insert("NhaSanXuatList", nhaSXList, null, DateTime.Now.AddMinutes(30), Cache.NoSlidingExpiration);
+                    }
+                }
+            }
+            else
+            {
+                nhaSXList = (List<NhaSanXuat>)cache["NhaSanXuatList"];
+            }
+
+            if (cache["LoaiGiayList"] == null)
+            {
+                using (var client = GetFirebaseClient())
+                {
+                    var response = await client.GetAsync("/loaigiay.json");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var data = JsonConvert.DeserializeObject<Dictionary<string, LoaiGiay>>(json);
+                        loaiGiayList = data?.Values.ToList() ?? new List<LoaiGiay>();
+                        cache.Insert("LoaiGiayList", loaiGiayList, null, DateTime.Now.AddMinutes(30), Cache.NoSlidingExpiration);
+                    }
+                }
+            }
+            else
+            {
+                loaiGiayList = (List<LoaiGiay>)cache["LoaiGiayList"];
+            }
+
+            ViewBag.NhaSanXuatList = new SelectList(
+                nhaSXList ?? new List<NhaSanXuat>(),
+                "NhaSanXuatID",
+                "TenNhaSanXuat");
+
+            ViewBag.LoaiGiayList = new SelectList(
+                loaiGiayList ?? new List<LoaiGiay>(),
+                "LoaiGiayID",
+                "TenLoaiGiay");
+        }
     }
 }

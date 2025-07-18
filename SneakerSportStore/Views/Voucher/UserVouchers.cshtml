@@ -1,32 +1,296 @@
-﻿    @model List<SneakerSportStore.Models.DiscountCode>
-    <h2>Danh Sách Mã Giảm Giá Của Bạn</h2>
+﻿@model List<SneakerSportStore.Models.DiscountCode>
+
+@{
+    ViewBag.Title = "Voucher Của Tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .user-vouchers-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .user-vouchers-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+
+    .voucher-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .voucher-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        border: 1px solid #eaeaea;
+    }
+
+        .voucher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+    .voucher-header {
+        background: linear-gradient(90deg, #9b59b6, #8e44ad);
+        color: white;
+        padding: 15px 20px;
+        text-align: center;
+    }
+
+    .voucher-code {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+
+    .voucher-body {
+        padding: 20px;
+    }
+
+    .voucher-condition {
+        font-size: 1rem;
+        color: #555;
+        min-height: 60px;
+        margin-bottom: 15px;
+    }
+
+    .voucher-details {
+        background-color: #f5eef8;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .voucher-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .voucher-label {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .voucher-value {
+        color: #9b59b6;
+        font-weight: 600;
+    }
+
+    .voucher-dates {
+        display: flex;
+        justify-content: space-between;
+        background-color: #f4ecf7;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .voucher-footer {
+        padding: 15px 20px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+
+    .delete-btn {
+        background: linear-gradient(90deg, #e74c3c, #c0392b);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .delete-btn:hover {
+            background: linear-gradient(90deg, #c0392b, #a93226);
+            transform: scale(1.05);
+        }
+
+    .voucher-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: #9b59b6;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .expired-badge {
+        background-color: #95a5a6;
+    }
+
+    .no-vouchers {
+        text-align: center;
+        padding: 40px;
+        grid-column: 1 / -1;
+    }
+
+        .no-vouchers i {
+            font-size: 4rem;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .no-vouchers h3 {
+            color: #7f8c8d;
+        }
+</style>
+
+<div class="user-vouchers-container">
+    <h1 class="user-vouchers-title">Voucher Của Tôi</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     @if (Model == null || !Model.Any())
     {
-        <div>Bạn chưa lưu mã giảm giá nào.</div>
+        <div class="no-vouchers">
+            <i class="bi bi-wallet2"></i>
+            <h3>Bạn chưa lưu voucher nào</h3>
+            <p>Hãy ghé thăm mục Tin Khuyến Mãi để lưu các voucher hấp dẫn!</p>
+            <a href="@Url.Action("PromotionNews")" class="btn btn-primary mt-3">
+                <i class="bi bi-tag"></i> Xem voucher khuyến mãi
+            </a>
+        </div>
     }
     else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Tên Mã Giảm Giá</th>
-                    <th>Điều Kiện</th>
-                    <th>Giảm Giá</th>
-                    <th>Thời Gian Áp Dụng</th>
-                    <th>Trạng Thái</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var v in Model)
-                {
-                    <tr>
-                        <td>@v.CodeName</td>
-                        <td>@v.Condition</td>
-                        <td>@(v.DiscountType == "percent" ? $"{v.DiscountValue}%" : $"{v.DiscountValue:N0} VNĐ")</td>
-                        <td>@v.StartDate - @v.EndDate</td>
-                        <td>@(v.Active ? "Hiện Thị" : "Đã Ẩn")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="voucher-grid">
+            @foreach (var voucher in Model)
+            {
+                bool isExpired = voucher.EndDate < DateTime.Now;
+
+                <div class="voucher-card">
+                    @if (isExpired)
+                    {
+                        <div class="voucher-badge expired-badge">ĐÃ HẾT HẠN</div>
+                    }
+                    else
+                    {
+                        <div class="voucher-badge">CỦA BẠN</div>
+                    }
+
+                    <div class="voucher-header">
+                        <h3 class="voucher-code">@voucher.CodeName</h3>
+                    </div>
+
+                    <div class="voucher-body">
+                        <p class="voucher-condition">@voucher.Condition</p>
+
+                        <div class="voucher-details">
+                            <div class="voucher-detail">
+                                <span class="voucher-label">Giảm:</span>
+                                <span class="voucher-value">
+                                    @if (voucher.DiscountType == SneakerSportStore.Models.DiscountType.Percentage)
+                                    {
+                                        @($"{voucher.DiscountValue}%")
+                                    }
+                                    else
+                                    {
+                                        @($"{voucher.DiscountValue:N0} VNĐ")
+                                    }
+                                </span>
+                            </div>
+
+                            <div class="voucher-detail">
+                                <span class="voucher-label">Đơn tối thiểu:</span>
+                                <span class="voucher-value">@voucher.MinimumOrderValue.ToString("N0") VNĐ</span>
+                            </div>
+                        </div>
+
+                        <div class="voucher-dates">
+                            <div>
+                                <span class="voucher-label">Ngày bắt đầu:</span>
+                                <span>@voucher.StartDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div>
+                                <span class="voucher-label">Ngày kết thúc:</span>
+                                <span>@voucher.EndDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="voucher-footer">
+                        @if (isExpired)
+                        {
+                            <button class="delete-btn" onclick="removeVoucher('@voucher.IdVoucher')">
+                                <i class="bi bi-trash"></i> XÓA VOUCHER
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="delete-btn" onclick="removeVoucher('@voucher.IdVoucher')">
+                                <i class="bi bi-trash"></i> XÓA VOUCHER
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
     }
+</div>
+
+<script>
+    function removeVoucher(voucherId) {
+        if (confirm('Bạn có chắc chắn muốn xóa voucher này khỏi tài khoản?')) {
+            // Tạo form ẩn để gửi request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '@Url.Action("RemoveVoucher", "Voucher")';
+
+            // Thêm token chống CSRF
+            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '__RequestVerificationToken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            // Thêm input voucherId
+            const voucherInput = document.createElement('input');
+            voucherInput.type = 'hidden';
+            voucherInput.name = 'idVoucher';
+            voucherInput.value = voucherId;
+            form.appendChild(voucherInput);
+
+            // Gửi form
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>

@@ -1,107 +1,663 @@
 ﻿@model SneakerSportStore.Models.Order
 
-<div class="order-details-container">
-    <h2>Chi tiết đơn hàng @Model.OrderId</h2>
+<div class="container admin-order-detail">
+    <h2>Chi tiết đơn hàng <span class="order-id">@Model.OrderId</span></h2>
 
-    <div class="order-details">
-        <div><strong>Trạng thái:</strong> @Model.Status</div>
-        <div><strong>Tên khách hàng:</strong> @Model.CustomerName</div>
-        <div><strong>Địa chỉ:</strong> @Model.Address</div>
-        <div><strong>Số điện thoại:</strong> @Model.PhoneNumber</div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card customer-info">
+                <div class="card-header">
+                    <h3><i class="fas fa-user"></i> Thông tin khách hàng</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>Họ tên:</label>
+                        <span>@Model.CustomerName</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Số điện thoại:</label>
+                        <span>@Model.PhoneNumber</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Địa chỉ:</label>
+                        <span>@Model.Address</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày đặt:</label>
+                        <span>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card payment-info">
+                <div class="card-header">
+                    <h3><i class="fas fa-credit-card"></i> Thông tin thanh toán</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>Phương thức:</label>
+                        @if (Model.PaymentMethod == "cod")
+                        {
+                            <span class="badge payment-cod">Thanh toán khi nhận hàng</span>
+                        }
+                        else if (Model.PaymentMethod == "bank")
+                        {
+                            <span class="badge payment-bank">Chuyển khoản ngân hàng</span>
+                        }
+                    </div>
+
+                    @if (Model.PaymentMethod == "bank" && !string.IsNullOrEmpty(Model.BankTransferScreenshot))
+                    {
+                        <div class="info-item">
+                            <label>Ảnh xác nhận:</label>
+                            <img src="@Model.BankTransferScreenshot" alt="Xác nhận chuyển khoản" class="screenshot-img" />
+                        </div>
+                    }
+
+                    <div class="info-item">
+                        <label>Trạng thái:</label>
+                        <span class="status-badge status-@Model.Status.Replace(" ", "-")">@Model.Status</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h4>Sản phẩm đã đặt:</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng</th>
-                <th>Giá</th>
-                <th>Tổng</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3><i class="fas fa-shopping-basket"></i> Sản phẩm đã đặt</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover order-items">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    @if (!string.IsNullOrEmpty(item.ProductImage))
+                                    {
+                                        <img src="@item.ProductImage" alt="@item.ProductName" class="product-img" />
+                                    }
+                                    <div class="product-details">
+                                        <div class="product-name">@item.ProductName</div>
+                                        <div class="product-desc">@(item.ProductDescription?.Length > 100 ? item.ProductDescription.Substring(0, 100) + "..." : item.ProductDescription)</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.Price.ToString("N0") đ</td>
+                            <td>@item.Quantity</td>
+                            <td>@((item.Price * item.Quantity).ToString("N0")) đ</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <!-- THÊM PHẦN HIỂN THỊ NGÀY GIAO HÀNG -->
+            <div class="info-item mt-3">
+                <label><i class="fas fa-truck"></i> Ngày giao hàng:</label>
+                <span>
+                    @if (Model.DeliveryDate.HasValue)
+                    {
+                        @Model.DeliveryDate.Value.ToString("dd/MM/yyyy HH:mm")
+                    }
+                    else
+                    {
+                        <text>Chưa cập nhật</text>
+                    }
+                </span>
+
+                <!-- Nút cập nhật ngày giao hàng -->
+                @if (Model.Status != "Hoàn thành" && Model.Status != "Hủy")
+                {
+                    <button type="button" class="btn btn-sm btn-outline-primary ml-2"
+                            data-toggle="modal" data-target="#deliveryDateModal">
+                        <i class="fas fa-edit"></i> Cập nhật
+                    </button>
+                }
+            </div>
+        </div>
+        <div class="modal fade" id="deliveryDateModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    @using (Html.BeginForm("UpdateDeliveryDate", "AdminOrder", new { id = Model.OrderId }, FormMethod.Post))
+                    {
+                        <div class="modal-header">
+                            <h5 class="modal-title">Cập nhật ngày giao hàng</h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Ngày giao hàng:</label>
+                                <input type="datetime-local" name="deliveryDate" class="form-control"
+                                       value="@(Model.DeliveryDate.HasValue ? Model.DeliveryDate.Value.ToString("yyyy-MM-ddTHH:mm") : DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6 offset-md-6">
+                <div class="order-summary">
+                    <div class="summary-item">
+                        <span>Tạm tính:</span>
+                        <span>@Model.Total.ToString("N0") đ</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Giảm giá:</span>
+                        <span class="text-danger">-@Model.DiscountAmount.ToString("N0") đ</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Phí vận chuyển:</span>
+                        <span>0 đ</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Tổng cộng:</span>
+                        <span>@Model.FinalTotal.ToString("N0") đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons mt-4">
+
+
+            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Chờ xác nhận" })">
+                <button type="submit" class="btn btn-primary ml-2" title="Xác nhận đơn hàng">
+                    <i class="fas fa-calendar-check"></i>
+                </button>
+            </form>
+
+
+            @if (Model.Status == "Chờ xác nhận" && Model.Status != "Hủy")
             {
-                <tr>
-                    <td>@item.ProductName</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.Price.ToString("N0") VNĐ</td>
-                    <td>@(item.Price * item.Quantity).ToString("N0") VNĐ</td>
-                </tr>
+                <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Xác nhận" })">
+                    <button type="submit" class="btn btn-primary ml-2" title="Xác nhận đơn hàng">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                </form>
             }
-        </tbody>
-    </table>
 
-    <hr />
+            @if (Model.Status == "Xác nhận")
+            {
+                <form met   hod="post" action="@Url.Action("UpdateOrderStatus", "AdminOrder",new { id = Model.OrderId, status = "Đang chuẩn bị" })">
+                    <button type="submit" class="btn btn-primary ml-2" title="Chuẩn bị hàng">
+                        <i class="fas fa-box"></i>
+                    </button>
+                </form>
 
-    <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Xác nhận" })">
-        <button type="submit" class="btn btn-success">Xác nhận</button>
-    </form>
-</div>
-<style>
-    /* Định dạng chung cho container chi tiết đơn hàng */
-    .order-details-container {
-        max-width: 800px;
-        margin: 30px auto;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            @if (Model.Status == "Xác nhận" && Model.Status != "Hủy")
+            {
+                <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Đang chuẩn bị" })">
+                    <button type="submit" class="btn btn-prepare" title="Chuẩn bị hàng">
+                        <i class="fas fa-box"></i>
+                    </button>
+                </form>
+            }
+
+            @if (Model.Status == "Đang chuẩn bị" && Model.Status != "Hủy")
+            {
+                <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Đã giao cho đơn vị vận chuyển" })">
+                    <button type="submit" class="btn btn-ship" title="Giao vận chuyển">
+                        <i class="fas fa-truck"></i>
+                    </button>
+                </form>
+            }
+
+            @if (Model.Status == "Đã giao cho đơn vị vận chuyển" && Model.Status != "Hủy")
+            {
+                <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Đang giao đến bạn" })">
+                    <button type="submit" class="btn btn-deliver" title="Đang giao hàng">
+                        <i class="fas fa-shipping-fast"></i>
+                    </button>
+                </form>
+            }
+
+            @if (Model.Status == "Đang giao đến bạn" && Model.Status != "Hủy")
+            {
+                <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Hoàn thành" })">
+                    <button type="submit" class="btn btn-complete" title="Hoàn thành">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </form>
+            }
+
+            @*@if (Model.Status != "Hủy" && Model.Status != "Hoàn thành")
+        {
+            <form method="post" action="@Url.Action("CancelOrder", new { id = Model.OrderId })" class="cancel-form">
+                <button type="submit" class="btn btn-cancel" title="Hủy đơn hàng">
+                    <i class="fas fa-times"></i>
+                </button>
+            </form>
+        }*@
+
+            <a href="@Url.Action("Index", "AdminOrder")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.ReturnStatus))
+    {
+        <div class="card mt-4 border-warning">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-undo"></i> Yêu cầu hoàn hàng</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+
+                            <div class="info-item">
+                                <label>Tên Người Hoàng Hàng :</label>
+                                <span>@Model.CustomerName</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Số điện thoại:</label>
+                                <span>@Model.PhoneNumber</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Địa chỉ:</label>
+                                <span>@Model.Address</span>
+                            </div>
+                            <div class="info-item">
+                                <lable>Trạng thái </lable>
+                                <span class="badge badge-@(Model.ReturnStatus == "Pending" ? "warning" : Model.ReturnStatus == "Approved" ? "success" : "danger")">@Model.ReturnStatus</span>
+                            </div>
+                            <div class="info-item">
+                                <lable>Lý do hoàng hàng:</lable>
+                                <p>@Model.ReturnReason</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Ngày Yêu Cầu:@Model.DeliveryDate.Value.ToString("dd-MM-yyyy HH:mm:ss")</label>
+                            </div>
+                            </div>
+                            
+                        </div>
+
+                    <div class="col-md-6">
+                        @if (Model.ReturnImages != null && Model.ReturnImages.Count > 0)
+                        {
+                            <label>Hình ảnh:</label>
+                            <div class="d-flex flex-wrap">
+                                @foreach (var image in Model.ReturnImages)
+                                {
+                                    <a href="@image" target="_blank" class="m-2">
+                                        <img src="@image" class="img-thumbnail" style="max-width: 100px;" />
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (Model.ReturnStatus == "Pending")
+                {
+                    <hr />
+                    using (Html.BeginForm("ProcessReturn", "AdminOrder", new { id = Model.OrderId }, FormMethod.Post))
+                    {
+                        <div class="form-group">
+                            <label for="adminComment">Bình luận của Admin:</label>
+                            <textarea class="form-control" id="adminComment" name="adminComment" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Thay đổi trạng thái:</label>
+                            <div class="btn-group">
+                                <button type="submit" name="returnStatus" value="Approved" class="btn btn-success">
+                                    <i class="fas fa-check"></i> Chấp nhận
+                                </button>
+                                <button type="submit" name="returnStatus" value="Rejected" class="btn btn-danger ml-2">
+                                    <i class="fas fa-times"></i> Từ chối
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
     }
-
-        /* Tiêu đề chi tiết đơn hàng */
-        .order-details-container h2 {
-            font-size: 24px;
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
+    <style>
+        .status-Chờ-xác-nhận {
+            background-color: #fff3cd;
+            color: #856404;
         }
 
-    /* Định dạng cho thông tin đơn hàng */
-    .order-details div {
-        font-size: 14px;
-        margin: 8px 0;
-    }
-
-    /* Thông tin sản phẩm */
-    h4 {
-        font-size: 18px;
-        margin-top: 20px;
-    }
-
-    /* Bảng sản phẩm */
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-        .table th, .table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        .status-Xác-nhận {
+            background-color: #cce5ff;
+            color: #004085;
         }
 
-        .table th {
+        .status-Đang-chuẩn-bị {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-Đã-giao-cho-đơn-vị-vận-chuyển,
+        .status-Đang-giao-đến-bạn {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-Hoàn-thành {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-Hủy {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .btn-confirm {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+            .btn-confirm:hover {
+                background-color: #badbcc;
+            }
+        .btn-view, .btn-confirm, .btn-prepare,
+        .btn-ship, .btn-deliver, .btn-complete,
+        .btn-cancel {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: none;
+        }
+            .btn-view:hover {
+                background-color: #dee2e6;
+            }
+
+        .btn-confirm {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+            .btn-confirm:hover {
+                background-color: #badbcc;
+            }
+
+        .btn-prepare {
+            background-color: #cfe2ff;
+            color: #052c65;
+        }
+
+            .btn-prepare:hover {
+                background-color: #b6d4fe;
+            }
+
+        .btn-ship {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+
+            .btn-ship:hover {
+                background-color: #ffe69c;
+            }
+
+        .btn-deliver {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+            .btn-deliver:hover {
+                background-color: #bee5eb;
+            }
+
+        .btn-complete {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+            .btn-complete:hover {
+                background-color: #badbcc;
+            }
+
+        .btn-cancel {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+            .btn-cancel:hover {
+                background-color: #f5c2c7;
+            }
+
+
+        /* Phần ngày giao hàng */
+        .delivery-info {
+            padding: 15px;
             background-color: #f8f9fa;
-            font-weight: bold;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
         }
 
-    /* Nút xác nhận */
-    form button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        font-size: 14px;
-        border: none;
-        background-color: #28a745;
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+            .delivery-info .info-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 0;
+            }
 
-        form button:hover {
-            background-color: #218838;
+            .delivery-info label {
+                font-weight: 600;
+                min-width: 150px;
+                margin-bottom: 0;
+            }
+
+            .delivery-info i {
+                margin-right: 8px;
+                color: #3498db;
+            }
+
+        /* Modal */
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-</style>
+        .admin-order-detail {
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            background: linear-gradient(120deg, #3498db, #2c3e50);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+        }
+
+            .card-header h3 {
+                margin: 0;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+            }
+
+            .card-header i {
+                margin-right: 10px;
+            }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+        }
+
+            .info-item:last-child {
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .info-item label {
+                font-weight: 600;
+                min-width: 150px;
+                color: #555;
+            }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .payment-cod {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .payment-bank {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .screenshot-img {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .status-Chờ-xác-nhận {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-Xác-nhận {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-Đang-chuẩn-bị {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-Đã-giao-cho-đơn-vị-vận-chuyển,
+        .status-Đang-giao-đến-bạn {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-Hoàn-thành {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-Hủy {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-items th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+            border: 1px solid #eee;
+        }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .product-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+            .summary-item.total {
+                font-size: 18px;
+                font-weight: 600;
+                border-bottom: none;
+                padding-top: 15px;
+                margin-top: 5px;
+                border-top: 2px solid #ddd;
+            }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-select {
+            width: 300px;
+        }
+    </style>

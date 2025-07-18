@@ -1,0 +1,67 @@
+﻿<h4 class="mb-4">Lịch sử hoạt động</h4>
+
+<div class="table-responsive">
+    <table class="table table-hover" id="activityTable">
+        <thead class="table-light">
+            <tr>
+                <th>Thời gian</th>
+                <th>Hoạt động</th>
+                <th>Địa chỉ IP</th>
+                <th>Thiết bị</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dữ liệu sẽ được tải bằng AJAX -->
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="spinner-border" role="status" id="loadingSpinner">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        loadActivityLog();
+    });
+
+    function loadActivityLog() {
+        $.ajax({
+            url: '@Url.Action("ActivityLog", "Settings")',
+            type: 'GET',
+            beforeSend: function() {
+                $('#loadingSpinner').show();
+            },
+            complete: function() {
+                $('#loadingSpinner').hide();
+            },
+            success: function(response) {
+                if (response.Success && response.Data.length > 0) {
+                    renderActivityTable(response.Data);
+                } else {
+                    $('#activityTable tbody').html(
+                        '<tr><td colspan="4" class="text-center">Không có hoạt động nào</td></tr>'
+                    );
+                }
+            }
+        });
+    }
+
+    function renderActivityTable(activities) {
+        const tbody = $('#activityTable tbody');
+        tbody.empty();
+
+        activities.forEach(activity => {
+            const row = `
+            <tr>
+                <td>${new Date(activity.Timestamp).toLocaleString()}</td>
+                <td>${activity.Action}</td>
+                <td>${activity.IpAddress || 'N/A'}</td>
+                <td>${activity.Device || 'N/A'}</td>
+            </tr>`;
+            tbody.append(row);
+        });
+    }
+</script>

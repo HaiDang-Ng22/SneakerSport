@@ -86,16 +86,16 @@ namespace SneakerSportStore.Services
             );
         }
 
-        public async Task<KhachHang> GetUserData(string userId)
+        public async Task<UserInfo> GetUserData(string userId)
         {
             var response = await _httpClient.GetAsync($"{_dbUrl}/users/{userId}.json");
             if (!response.IsSuccessStatusCode) return null;
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<KhachHang>(json);
+            return JsonConvert.DeserializeObject<UserInfo>(json);
         }
 
-        public async Task SaveUserData(string userId, KhachHang userData)
+        public async Task SaveUserData(string userId, UserInfo userData)
         {
             var content = new StringContent(JsonConvert.SerializeObject(userData), Encoding.UTF8, "application/json");
             await _httpClient.PutAsync($"{_dbUrl}/users/{userId}.json", content);

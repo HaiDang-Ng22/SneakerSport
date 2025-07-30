@@ -357,8 +357,6 @@
             font-size: 14px;
             color: rgba(255, 255, 255, 0.7);
         }
-
-        /* Chat Icon */
         .sneaker-chat-icon {
             position: fixed;
             bottom: 30px;
@@ -471,30 +469,35 @@
                     <li>@Html.ActionLink("Thông Tin KH", "Index", "Customer", null, new { @class = "sneaker-nav-link" })</li>
                     <li>@Html.ActionLink("Khuyến Mãi", "ManageDiscountCodes", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
                     <li>@Html.ActionLink("Thông báo", "Index", "Notification", null, new { @class = "sneaker-nav-link" })</li>
-                    if (Session["UserRole"]?.ToString() == "Admin")
+                    <li>@Html.ActionLink("Thống kê", "RevenueStatistics", "Statistics", null, new { @class = "sneaker-nav-link" })</li>
+
+
+                }@if (Session["UserRole"] != null && Session["UserRole"].ToString() == "kho")
+            {
+                    <li>@Html.ActionLink("Cập nhật số lượng ", "WarehouseIndex", "Product", null, new { @class = "sneaker-nav-link" })</li>
+
+            }
+
+                    @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
                     {
-                        <li>@Html.ActionLink("Quản lý chat", "AdminChat", "Chat", null, new { @class = "sneaker-nav-link" })</li>
+                        <li>@Html.ActionLink("Tin Tức KM", "PromotionNews", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
+                        <li>@Html.ActionLink("Khuyến Mãi", "UserVouchers", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
+                        <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "sneaker-nav-link" })</li>
+
                     }
-                }
 
-                @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "User")
-                {
-                    <li>@Html.ActionLink("Tin Tức KM", "PromotionNews", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
-                    <li>@Html.ActionLink("Khuyến Mãi", "UserVouchers", "Voucher", null, new { @class = "sneaker-nav-link" })</li>
-                  
-                }
-
-                <li>@Html.ActionLink("Giỏ Hàng", "Index", "Cart", null, new { @class = "sneaker-nav-link" })</li>
-                <li>@Html.ActionLink("Giới Thiệu", "About", "Home", null, new { @class = "sneaker-nav-link" })</li>
-                <li>@Html.ActionLink("Cài đặt", "Dashboard", "Settings", null, new { @class = "sneaker-nav-link" })</li>
-            </ul>
+                    <li>@Html.ActionLink("Giới Thiệu", "About", "Home", null, new { @class = "sneaker-nav-link" })</li>
+                    <li>@Html.ActionLink("Cài đặt", "Dashboard", "Settings", null, new { @class = "sneaker-nav-link" })</li>
+                </ul>
 
             <div class="sneaker-auth">
                 @if (Session["UserId"] != null)
                 {
                     if (Session["UserRole"] != "Admin")
                     {
-                    <div class="sneaker-chat-icon" id="sneakerChatIcon">
+
+                
+                            <div class="sneaker-chat-icon" id="sneakerChatIcon">
                         <i class="fas fa-comments"></i>
                         <span class="sneaker-chat-badge" id="sneakerUnreadCount" style="display: none">0</span>
                     </div>
@@ -503,11 +506,11 @@
                 }
                 else
                 {
-                    @Html.ActionLink("Đăng Nhập", "Login", "Account", null, new { @class = "sneaker-nav-link" })
-                    <span class="sneaker-divider">/</span>
-                    @Html.ActionLink("Đăng Ký", "Register", "Account", null, new { @class = "sneaker-nav-link" })
+                        @Html.ActionLink("Đăng Nhập", "Login", "Account", null, new { @class = "sneaker-nav-link" })
+                        <span class="sneaker-divider">/</span>
+                        @Html.ActionLink("Đăng Ký", "Register", "Account", null, new { @class = "sneaker-nav-link" })
                 }
-            </div>
+                </div>
         </nav>
 
         <!-- Search Bar with Toggle -->

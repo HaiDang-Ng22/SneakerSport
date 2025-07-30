@@ -13,7 +13,7 @@ namespace SneakerSportStore.Controllers
 {
     public class CartController : Controller
     {
-        private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
+        private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
         [HttpPost]
         public async Task<ActionResult> ProceedToCheckout(List<string> selectedProductIds)
@@ -151,7 +151,7 @@ namespace SneakerSportStore.Controllers
         {
             var userId = Session["UserId"]?.ToString();
             if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Account");
+                return Json(new { success = false, redirect = Url.Action("Login", "Account") });
 
             using (var client = new HttpClient())
             {

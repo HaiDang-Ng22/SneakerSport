@@ -12,22 +12,22 @@ namespace SneakerSportStore.Controllers
 {
     public class SettingsController : Controller
     {
-        private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
+        private readonly string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
         private readonly string FirebaseApiKey = "AIzaSyCETbgg3mnPMIMha_KYFmFauleZwV6CSo4";
         private readonly string TwilioAccountSid = "your_account_sid";
-        private readonly string TwilioAuthToken = "your_auth_token"; 
+        private readonly string TwilioAuthToken = "your_auth_token";
         private readonly string TwilioPhoneNumber = "0799192226";
 
 
-        
 
-//        public class DashboardViewModel
-//{
-//    public UserInfo UserInfo { get; set; }
-//    public List<UserActivity> RecentActivities { get; set; }
-//    public int OrderCount { get; set; }
-//    public int UnreadNotifications { get; set; }
-//}
+
+        //        public class DashboardViewModel
+        //{
+        //    public UserInfo UserInfo { get; set; }
+        //    public List<UserActivity> RecentActivities { get; set; }
+        //    public int OrderCount { get; set; }
+        //    public int UnreadNotifications { get; set; }
+        //}
         public ActionResult Index()
         {
             if (Session["UserId"] == null)
@@ -127,50 +127,50 @@ namespace SneakerSportStore.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> ForgotPassword(string soDienThoai)
-        {
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync($"{FirebaseDbUrl}/users.json");
-                if (!response.IsSuccessStatusCode)
-                {
-                    ViewBag.Message = "Lỗi máy chủ!";
-                    return View();
-                }
+        //[HttpPost]
+        //public async Task<ActionResult> ForgotPassword(string soDienThoai)
+        //{
+        //    using (var client = new HttpClient())
+        //    {
+        //        var response = await client.GetAsync($"{FirebaseDbUrl}/users.json");
+        //        if (!response.IsSuccessStatusCode)
+        //        {
+        //            ViewBag.Message = "Lỗi máy chủ!";
+        //            return View();
+        //        }
 
-                var json = await response.Content.ReadAsStringAsync();
-                var users = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+        //        var json = await response.Content.ReadAsStringAsync();
+        //        var users = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
 
-                string userId = null;
-                foreach (var u in users)
-                {
-                    if ((string)u.Value.soDienThoai == soDienThoai)
-                    {
-                        userId = u.Key;
-                        break;
-                    }
-                }
+        //        string userId = null;
+        //        foreach (var u in users)
+        //        {
+        //            if ((string)u.Value.soDienThoai == soDienThoai)
+        //            {
+        //                userId = u.Key;
+        //                break;
+        //            }
+        //        }
 
-                if (userId == null)
-                {
-                    ViewBag.Message = "Không tìm thấy tài khoản với số điện thoại này.";
-                    return View();
-                }
+        //        if (userId == null)
+        //        {
+        //            ViewBag.Message = "Không tìm thấy tài khoản với số điện thoại này.";
+        //            return View();
+        //        }
 
-                string otp = new Random().Next(100000, 999999).ToString();
-                Session["ResetUserId"] = userId;
-                Session["ResetOtp"] = otp;
-                Session["OtpTimeout"] = DateTime.Now.AddMinutes(5);
+        //        string otp = new Random().Next(100000, 999999).ToString();
+        //        Session["ResetUserId"] = userId;
+        //        Session["ResetOtp"] = otp;
+        //        Session["OtpTimeout"] = DateTime.Now.AddMinutes(5);
 
-                SendOtpViaSms(soDienThoai, otp);
+        //        SendOtpViaSms(soDienThoai, otp);
 
-                ViewBag.OtpSent = true;
-                ViewBag.SoDienThoai = soDienThoai;
-                ViewBag.Message = "Đã gửi mã OTP, vui lòng kiểm tra điện thoại!";
-                return View();
-            }
-        }
+        //        ViewBag.OtpSent = true;
+        //        ViewBag.SoDienThoai = soDienThoai;
+        //        ViewBag.Message = "Đã gửi mã OTP, vui lòng kiểm tra điện thoại!";
+        //        return View();
+        //    }
+        //}
 
         private void SendOtpViaSms(string phoneNumber, string otp)
         {
@@ -281,108 +281,14 @@ namespace SneakerSportStore.Controllers
                     Email = email,
                     SoDienThoai = soDienThoai,
                     DiaChi = diaChi,
-                    TenDangNhap=tenDangNhap
+                    TenDangNhap = tenDangNhap
                 };
 
-                ViewBag.User = userInfo; 
+                ViewBag.User = userInfo;
 
                 return View();
             }
         }
-        // POST: Settings/ChangePassword
-        [HttpPost]
-        public async Task<JsonResult> ChangePassword(ChangePasswordModel model)
-        {
-            var responseObj = new ApiResponse();
-            var userId = Session["UserId"]?.ToString();
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                responseObj.Success = false;
-                responseObj.Message = "Phiên đăng nhập hết hạn";
-                return Json(responseObj);
-            }
-
-            if (model.NewPassword != model.ConfirmPassword)
-            {
-                responseObj.Success = false;
-                responseObj.Message = "Mật khẩu mới không khớp";
-                return Json(responseObj);
-            }
-
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    // Verify current password
-                    var response = await client.GetAsync($"{FirebaseDbUrl}/users/{userId}.json");
-                    response.EnsureSuccessStatusCode();
-
-                    var json = await response.Content.ReadAsStringAsync();
-                    var user = JsonConvert.DeserializeObject<dynamic>(json);
-
-                    if (model.CurrentPassword != (string)user.matKhau)
-                    {
-                        responseObj.Success = false;
-                        responseObj.Message = "Mật khẩu hiện tại không đúng";
-                        return Json(responseObj);
-                    }
-
-                    // Update password
-                    var updateData = new { matKhau = model.NewPassword };
-                    var content = new StringContent(
-                        JsonConvert.SerializeObject(updateData),
-                        Encoding.UTF8,
-                        "application/json"
-                    );
-
-                    var updateResponse = await client.PatchAsync($"{FirebaseDbUrl}/users/{userId}.json", content);
-                    updateResponse.EnsureSuccessStatusCode();
-
-                    responseObj.Success = true;
-                    responseObj.Message = "Đổi mật khẩu thành công";
-                }
-                catch (Exception ex)
-                {
-                    responseObj.Success = false;
-                    responseObj.Message = $"Lỗi khi đổi mật khẩu: {ex.Message}";
-                }
-            }
-
-            return Json(responseObj);
-        }
-        //public class ChangePasswordModel
-        //{
-        //    public string CurrentPassword { get; set; }
-        //    public string NewPassword { get; set; }
-        //    public string ConfirmPassword { get; set; }
-        //}
-
-        [HttpPost]
-        public async Task<ActionResult> DeleteAccount(string userId)
-        {
-            if (string.IsNullOrEmpty(userId))
-            {
-                TempData["Error"] = "Không tìm thấy tài khoản!";
-                return RedirectToAction("Index");
-            }
-
-            using (var client = new HttpClient())
-            {
-                var response = await client.DeleteAsync($"{FirebaseDbUrl}/users/{userId}.json");
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Message"] = "Tài khoản đã bị xóa thành công!";
-                    // Xóa session nếu có
-                    Session.Clear();
-                }
-                else
-                {
-                    TempData["Error"] = "Lỗi khi xóa tài khoản!";
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
+     
     }
 }

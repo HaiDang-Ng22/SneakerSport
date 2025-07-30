@@ -1,0 +1,23 @@
+﻿@model SneakerSportStore.Models.SecurityVerificationModel
+
+@{
+    ViewBag.Title = "Xác thực Bảo mật";
+}
+
+<h2>@ViewBag.Title</h2>
+<p>Vui lòng trả lời câu hỏi bảo mật để tiếp tục</p>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.Email)
+
+    <div class="form-group">
+        <label>Câu hỏi bảo mật: <strong>@ViewBag.SecurityQuestion</strong></label>
+        @Html.TextBoxFor(m => m.SecurityAnswer, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.SecurityAnswer)
+    </div>
+
+    <button type="submit" class="btn btn-primary">Xác thực</button>
+}

@@ -109,7 +109,6 @@ namespace SneakerSportStore.Controllers
                     return RedirectToAction("MyOrders");
                 }
 
-                // Kiểm tra điều kiện hủy đơn
                 if (!CanCancelOrder(order))
                 {
                     TempData["ErrorMessage"] = "Không thể hủy đơn hàng ở trạng thái hiện tại!";
@@ -170,7 +169,6 @@ namespace SneakerSportStore.Controllers
                     return RedirectToAction("OrderDetails", new { orderId });
                 }
 
-                // ✅ CẬP NHẬT ĐÚNG TRẠNG THÁI
                 order.Status = "Yêu cầu hoàn trả";
                 order.ReturnStatus = "Chờ xử lý";
                 order.ReturnRequestDate = DateTime.Now;
@@ -181,7 +179,6 @@ namespace SneakerSportStore.Controllers
 
                 if (updateResponse.IsSuccessStatusCode)
                 {
-                    // ✅ Gửi thông báo cho admin
                     await SendReturnNotificationToAdmin(orderId);
                     TempData["SuccessMessage"] = "Yêu cầu hoàn trả đã được gửi thành công!";
                 }

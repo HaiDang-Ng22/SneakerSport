@@ -14,7 +14,7 @@ namespace SneakerSportStore.Controllers
 {
     public class ProductController : Controller
     {
-        private const string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app";
+        private const string FirebaseDbUrl = "https://sneakersportstore-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
         private HttpClient GetFirebaseClient()
         {
@@ -233,7 +233,7 @@ namespace SneakerSportStore.Controllers
             using (var client = GetFirebaseClient())
             {
                 var newId = $"LG_{Guid.NewGuid().ToString("N")}";
-                var loaiGiay = new LoaiGiay
+                var loaiGiay = new LoaiGiayInfo
                 {
                     LoaiGiayID = newId,
                     TenLoaiGiay = ten
@@ -257,7 +257,7 @@ namespace SneakerSportStore.Controllers
         {
             var cache = HttpRuntime.Cache;
             List<NhaSanXuat> nhaSXList = null;
-            List<LoaiGiay> loaiGiayList = null;
+            List<LoaiGiayInfo> loaiGiayList = null;
 
             if (cache["NhaSanXuatList"] == null)
             {
@@ -286,15 +286,15 @@ namespace SneakerSportStore.Controllers
                     if (response.IsSuccessStatusCode)
                     {
                         var json = await response.Content.ReadAsStringAsync();
-                        var data = JsonConvert.DeserializeObject<Dictionary<string, LoaiGiay>>(json);
-                        loaiGiayList = data?.Values.ToList() ?? new List<LoaiGiay>();
+                        var data = JsonConvert.DeserializeObject<Dictionary<string, LoaiGiayInfo>>(json);
+                        loaiGiayList = data?.Values.ToList() ?? new List<LoaiGiayInfo>();
                         cache.Insert("LoaiGiayList", loaiGiayList, null, DateTime.Now.AddMinutes(30), Cache.NoSlidingExpiration);
                     }
                 }
             }
             else
             {
-                loaiGiayList = (List<LoaiGiay>)cache["LoaiGiayList"];
+                loaiGiayList = (List<LoaiGiayInfo>)cache["LoaiGiayList"];
             }
 
             ViewBag.NhaSanXuatList = new SelectList(
@@ -303,9 +303,206 @@ namespace SneakerSportStore.Controllers
                 "TenNhaSanXuat");
 
             ViewBag.LoaiGiayList = new SelectList(
-                loaiGiayList ?? new List<LoaiGiay>(),
+                loaiGiayList ?? new List<LoaiGiayInfo>(),
                 "LoaiGiayID",
                 "TenLoaiGiay");
         }
+        [Authorize(Roles = "kho")]
+        public async Task<ActionResult> WarehouseIndex()
+        {
+            using (var client = GetFirebaseClient())
+            {
+                var response = await client.GetAsync("/products.json");
+                if (!response.IsSuccessStatusCode)
+                    return View(new List<ProductFireBaseKey>());
+
+                var json = await response.Content.ReadAsStringAsync();
+                var productsDict = JsonConvert.DeserializeObject<Dictionary<string, ProductFireBaseKey>>(json) ??
+                                  new Dictionary<string, ProductFireBaseKey>();
+
+                var products = productsDict.Select(kvp =>
+                {
+                    kvp.Value.GiayId = kvp.Key;
+                    return kvp.Value;
+                }).ToList();
+
+                return View(products);
+            }
+        }
+
+        // Update Quantity - GET
+        [Authorize(Roles = "kho")]
+        [HttpGet]
+        public async Task<ActionResult> UpdateQuantity(List<string> productIds)
+        {
+            
+
+            if (productIds == null || !productIds.Any())
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn ít nhất một sản phẩm.";
+                return RedirectToAction("WarehouseIndex");
+            }
+
+            var model = new ExportSlipViewModel
+            {
+                NgayNhapKho = DateTime.Now,
+                TenNhanVien = Session["FullName"]?.ToString() ?? string.Empty,
+                Items = new List<ExportSlipItem>()
+            };
+
+            using (var client = GetFirebaseClient())
+            {
+                foreach (var id in productIds)
+                {
+                    var response = await client.GetAsync($"/products/{id}.json");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(
+                            await response.Content.ReadAsStringAsync());
+
+                        if (product != null)
+                        {
+                            model.Items.Add(new ExportSlipItem
+                            {
+                                GiayId = id,
+                                MaSanPham = product.GiayId,
+                                TenSanPham = product.TenGiay,
+                                LoaiSanPham = product.LoaiGiayID,
+                                SoLuong = product.SoLuongTon,
+                                SoLuongHienTai = product.SoLuongTon
+                            });
+                        }
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
+        // Update Quantity - POST
+        [Authorize(Roles = "kho")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> UpdateQuantity(ExportSlipViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var historyRecord = new ProductUpdateHistory
+            {
+                Id = Guid.NewGuid().ToString(),
+                NgayCapNhat = DateTime.Now,
+                UserId = User.Identity.Name,
+                UserName = model.TenNhanVien,
+                CapNhats = new List<ProductUpdateItem>()
+            };
+
+            using (var client = GetFirebaseClient())
+            {
+                // Update products and prepare history
+                foreach (var item in model.Items)
+                {
+                    var response = await client.GetAsync($"/products/{item.GiayId}.json");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var product = JsonConvert.DeserializeObject<ProductFireBaseKey>(
+                            await response.Content.ReadAsStringAsync());
+
+                        if (product != null)
+                        {
+                            // Record history before updating
+                            historyRecord.CapNhats.Add(new ProductUpdateItem
+                            {
+                                GiayId = item.GiayId,
+                                TenSanPham = item.TenSanPham,
+                                SoLuongCu = product.SoLuongTon,
+                                SoLuongThayDoi = item.SoLuong - item.SoLuongHienTai,
+                                SoLuongMoi = item.SoLuong,
+                                GhiChu = item.GhiChu
+                            });
+
+                            product.SoLuongTon = item.SoLuong;
+                            await client.PutAsync(
+                                $"/products/{item.GiayId}.json",
+                                new StringContent(JsonConvert.SerializeObject(product),
+                                Encoding.UTF8, "application/json"));
+                        }
+                    }
+                }
+
+                // Save history
+                await client.PostAsync(
+                    "/updateHistory.json",
+                    new StringContent(JsonConvert.SerializeObject(historyRecord),
+                    Encoding.UTF8, "application/json"));
+            }
+
+            TempData["SuccessMessage"] = "Cập nhật số lượng thành công!";
+            return RedirectToAction("WarehouseIndex");
+        }
+
+        // Update History - For admins
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> UpdateHistory()
+        {
+            using (var client = GetFirebaseClient())
+            {
+                var response = await client.GetAsync("/updateHistory.json");
+                if (!response.IsSuccessStatusCode)
+                    return View(new List<ProductUpdateHistory>());
+
+                var json = await response.Content.ReadAsStringAsync();
+                var historyDict = JsonConvert.DeserializeObject<Dictionary<string, ProductUpdateHistory>>(json) ??
+                                  new Dictionary<string, ProductUpdateHistory>();
+
+                var historyList = historyDict.Select(kvp =>
+                {
+                    var history = kvp.Value;
+                    history.FirebaseKey = kvp.Key;
+                    return history;
+                }).OrderByDescending(h => h.NgayCapNhat).ToList();
+
+                return View(historyList);
+            }
+        }
+    }
+    public class ExportSlipViewModel
+    {
+        public DateTime NgayNhapKho { get; set; }
+        public string TenNhanVien { get; set; }
+        public List<ExportSlipItem> Items { get; set; }
+    }
+
+    public class ExportSlipItem
+    {
+        public string GiayId { get; set; }
+        public string MaSanPham { get; set; }
+        public string TenSanPham { get; set; }
+        public string LoaiSanPham { get; set; }
+        public int SoLuong { get; set; }
+        public int SoLuongHienTai { get; set; }
+        public string GhiChu { get; set; }
+    }
+
+    public class ProductUpdateHistory
+    {
+        public string Id { get; set; }
+        public string FirebaseKey { get; set; }
+        public DateTime NgayCapNhat { get; set; }
+        public string UserId { get; set; }
+        public string UserName { get; set; }
+        public List<ProductUpdateItem> CapNhats { get; set; }
+    }
+
+    public class ProductUpdateItem
+    {
+        public string GiayId { get; set; }
+        public string TenSanPham { get; set; }
+        public int SoLuongCu { get; set; }
+        public int SoLuongThayDoi { get; set; }
+        public int SoLuongMoi { get; set; }
+        public string GhiChu { get; set; }
     }
 }

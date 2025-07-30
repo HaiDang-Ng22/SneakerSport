@@ -8,22 +8,27 @@ namespace SneakerSportStore.Models
 {
     public class RegisterModel
     {
-        [Required(ErrorMessage = "Họ tên không được để trống")]
-        [Display(Name = "Họ và tên")]
-        public string HoTen { get; set; }
+        public string Step { get; set; } = "EMAIL";
 
         [Required(ErrorMessage = "Email không được để trống")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
         public string Email { get; set; }
 
+        [StringLength(6, MinimumLength = 6, ErrorMessage = "OTP phải gồm 6 số")]
+        public string Otp { get; set; }
+
+        [Required(ErrorMessage = "Họ tên không được để trống")]
+        [Display(Name = "Họ và tên")]
+        public string HoTen { get; set; }
+
         [Required(ErrorMessage = "Mật khẩu không được để trống")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Mật khẩu phải ≥ 8 ký tự")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
         [DataType(DataType.Password)]
         [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
-        //public string ConfirmPassword { get; set; }
-
+        public string ConfirmPassword { get; set; }
 
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
         [Display(Name = "Số điện thoại")]
@@ -35,5 +40,7 @@ namespace SneakerSportStore.Models
         [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
         [Display(Name = "Tên đăng nhập")]
         public string TenDangNhap { get; set; }
+
+        public int SecondsToResend { get; set; }
     }
 }

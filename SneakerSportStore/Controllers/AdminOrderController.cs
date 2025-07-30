@@ -17,9 +17,7 @@ namespace SneakerSportStore.Controllers
         
         public async Task<ActionResult> Index()
         {
-
             List<Order> orders = new List<Order>();
-
             try
             {
                 using (var client = new HttpClient())

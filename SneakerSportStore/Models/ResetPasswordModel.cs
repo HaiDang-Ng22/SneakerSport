@@ -8,15 +8,18 @@ namespace SneakerSportStore.Models
 {
     public class ResetPasswordModel
     {
-        public string OobCode { get; set; }
-
-        [Required(ErrorMessage = "Mật khẩu mới là bắt buộc")]
+        [Required]
         [DataType(DataType.Password)]
-        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự.", MinimumLength = 6)]
+        [Display(Name = "Mật khẩu mới")]
         public string NewPassword { get; set; }
 
+        [Required]
         [DataType(DataType.Password)]
+        [Display(Name = "Xác nhận mật khẩu")]
         [Compare("NewPassword", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
         public string ConfirmPassword { get; set; }
+
+        public string Email { get; set; }
+        public string OobCode { get; set; }
     }
 }

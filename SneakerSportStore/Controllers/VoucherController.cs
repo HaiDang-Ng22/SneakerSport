@@ -75,7 +75,7 @@ namespace SneakerSportStore.Controllers
                                 {
                                     var code = jobj.ToObject<DiscountCode>();
 
-                                    // CHỈ LẤY VOUCHER PUBLIC VÀ ACTIVE
+                                  
                                     if (code != null && code.IsPublic && code.Active && code.IsValid(DateTime.Now))
                                     {
                                         result.Add(code);
@@ -276,7 +276,7 @@ namespace SneakerSportStore.Controllers
         {
             if (Session["UserRole"]?.ToString() != "Admin" && Session["UserId"] == null)
             {
-                TempData["message"] = "Đi đâu vậy em !!! Không phải Admin mà đi vô đây chi ";
+                //TempData["message"] = "Đi đâu vậy em !!! Không phải Admin mà đi vô đây chi ";
 
                 return RedirectToAction("Login", "Account");
             }
@@ -364,12 +364,11 @@ namespace SneakerSportStore.Controllers
             {
                 var discountCodes = await GetDiscountCodes();
 
-                // Kiểm tra và gán ID cho các voucher
+                // Gán ID nếu thiếu
                 foreach (var voucher in discountCodes)
                 {
                     if (string.IsNullOrEmpty(voucher.IdVoucher))
                     {
-                        // Tạo ID tạm thời nếu cần
                         voucher.IdVoucher = Guid.NewGuid().ToString();
                         System.Diagnostics.Debug.WriteLine($"Voucher without ID: {voucher.CodeName}");
                     }
@@ -380,6 +379,36 @@ namespace SneakerSportStore.Controllers
                     TempData["InfoMessage"] = "Hiện chưa có mã giảm giá nào";
                 }
 
+                // --- Thêm phần đếm số lượt lưu ---
+                var savedCountPerVoucher = new Dictionary<string, int>();
+
+                using (var client = new HttpClient())
+                {
+                    var res = await client.GetAsync($"{FirebaseDbUrl}/userVouchers.json");
+                    if (res.IsSuccessStatusCode)
+                    {
+                        var json = await res.Content.ReadAsStringAsync();
+                        var userVoucherMap = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json);
+                        if (userVoucherMap != null)
+                        {
+                            foreach (var voucherList in userVoucherMap.Values)
+                            {
+                                if (voucherList != null)
+                                {
+                                    foreach (var vid in voucherList)
+                                    {
+                                        if (savedCountPerVoucher.ContainsKey(vid))
+                                            savedCountPerVoucher[vid]++;
+                                        else
+                                            savedCountPerVoucher[vid] = 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ViewBag.SavedCount = savedCountPerVoucher;
                 return View(discountCodes);
             }
             catch (Exception ex)
@@ -388,7 +417,8 @@ namespace SneakerSportStore.Controllers
                 System.Diagnostics.Debug.WriteLine($"ManageDiscountCodes error: {ex}");
                 return View(new List<DiscountCode>());
             }
-        }   
+        }
+
         private async Task<List<DiscountCode>> GetDiscountCodes()
         {
             try
@@ -544,6 +574,69 @@ namespace SneakerSportStore.Controllers
                 var response = await client.GetAsync($"{FirebaseDbUrl}/discountCodes/{idVoucher}.json");
                 return response.IsSuccessStatusCode;
             }
+        }
+        public async Task<ActionResult> EditDiscountCode(string idVoucher)
+        {
+            if (Session["UserRole"]?.ToString() != "Admin") return RedirectToAction("Login", "Account");
+            var voucher = await GetVoucherById(idVoucher);
+            return View("CreateDiscountCode", voucher);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditDiscountCode(DiscountCode model)
+        {
+            if (Session["UserRole"]?.ToString() != "Admin") return RedirectToAction("Login", "Account");
+
+            if (model.StartDate >= model.EndDate)
+                ModelState.AddModelError("EndDate", "Ngày kết thúc phải sau ngày bắt đầu");
+
+            if (!ModelState.IsValid) return View("CreateDiscountCode", model);
+
+            var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PutAsync($"{FirebaseDbUrl}/discountCodes/{model.IdVoucher}.json", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    _publicVouchersCache = null;
+                    TempData["SuccessMessage"] = "Cập nhật mã giảm giá thành công!";
+                    return RedirectToAction("ManageDiscountCodes");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Lỗi khi cập nhật mã giảm giá.");
+                }
+            }
+
+            return View("CreateDiscountCode", model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ReportVoucher(string idVoucher, string reason)
+        {
+            if (Session["UserRole"]?.ToString() != "ketoan"&& Session["UserRole"]?.ToString()!= "Admin")
+                return new HttpUnauthorizedResult("Không có quyền báo cáo");
+
+            var report = new
+            {
+                Reason = reason,
+                ReportedBy = Session["UserId"],
+                Timestamp = DateTime.UtcNow.ToString("o")
+            };
+
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(report), Encoding.UTF8, "application/json");
+                var response = await client.PutAsync($"{FirebaseDbUrl}/voucherReports/{idVoucher}.json", content);
+                if (response.IsSuccessStatusCode)
+                    TempData["SuccessMessage"] = "Đã báo cáo mã giảm giá!";
+                else
+                    TempData["ErrorMessage"] = "Không thể gửi báo cáo!";
+            }
+
+            return RedirectToAction("ManageDiscountCodes");
         }
 
         [HttpPost]

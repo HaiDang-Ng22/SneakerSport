@@ -1,0 +1,98 @@
+﻿@using SneakerSportStore.Models;
+@using System.Collections.Generic;
+@using System.Web.Mvc;
+@model List<KeyValuePair<string, UserInfo>>
+
+@{
+    // Lấy danh sách bộ phận từ ViewBag
+    var categories = ViewBag.Categories as List<SelectListItem>;
+    var selectedRole = ViewBag.SelectedRole as string;
+}
+
+<h2>Quản lý nhân viên theo bộ phận</h2>
+
+<ul class="nav nav-pills mb-3">
+    @foreach (var cat in categories)
+    {
+        <li class="nav-item">
+            @Html.ActionLink(cat.Text, "Staff", new { roleFilter = cat.Value },
+                new { @class = "nav-link" + (cat.Value == selectedRole ? " active" : "") })
+        </li>
+    }
+</ul>
+
+@using (Html.BeginForm("Staff", "Customer", FormMethod.Get))
+{
+    <div class="search-container">
+        <input type="text"
+               class="search-box"
+               name="searchString"
+               placeholder="Tìm theo tên, email hoặc tên đăng nhập..."
+               value="@ViewBag.CurrentSearch" />
+
+        <select class="search-select" name="roleFilter">
+            <option value="">Tất cả vai trò</option>
+            <option value="nhanvien" @(ViewBag.CurrentRole == "nhanvien" ? "selected" : "")>Nhân viên</option>
+            <option value="giaohang" @(ViewBag.CurrentRole == "giaohang" ? "selected" : "")>Giao hàng</option>
+            <option value="chamsockhachhang" @(ViewBag.CurrentRole == "chamsockhachhang" ? "selected" : "")>CSKH</option>
+            <option value="kho" @(ViewBag.CurrentRole == "kho" ? "selected" : "")>Kho</option>
+            <option value="ketoan" @(ViewBag.CurrentRole == "ketoan" ? "selected" : "")>Kế toán</option>
+        </select>
+
+        <button type="submit" class="search-button">
+            Tìm kiếm
+        </button>
+    </div>
+}
+
+
+@if (!string.IsNullOrEmpty(selectedRole))
+{
+    var catName = categories.FirstOrDefault(c => c.Value == selectedRole)?.Text;
+    <h3>Danh sách @catName</h3>
+    <table class="table table-striped" id="staffTable">
+        <thead>
+            <tr>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Vai trò</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="name">@item.Value.HoTen</td>
+                    <td class="email">@item.Value.Email</td>
+                    <td class="username">@item.Value.TenDangNhap</td>
+                    <td class="role">@item.Value.UserRole</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('searchName').addEventListener('keyup', filterTable);
+        document.getElementById('searchRole').addEventListener('keyup', filterTable);
+
+        function filterTable() {
+            var nameFilter = document.getElementById('searchName').value.toLowerCase();
+            var roleFilterInput = document.getElementById('searchRole').value.toLowerCase();
+            var rows = document.querySelectorAll('#staffTable tbody tr');
+            rows.forEach(function (row) {
+                var name = row.querySelector('.name').textContent.toLowerCase();
+                var email = row.querySelector('.email').textContent.toLowerCase();
+                var username = row.querySelector('.username').textContent.toLowerCase();
+                var role = row.querySelector('.role').textContent.toLowerCase();
+                var matchName = !nameFilter || name.indexOf(nameFilter) >= 0 || email.indexOf(nameFilter) >= 0 || username.indexOf(nameFilter) >= 0;
+                var matchRole = !roleFilterInput || role.indexOf(roleFilterInput) >= 0;
+                row.style.display = (matchName && matchRole) ? '' : 'none';
+            });
+        }
+    </script>
+}
+else
+{
+    <p>Vui lòng chọn một bộ phận để xem danh sách nhân viên.</p>
+}

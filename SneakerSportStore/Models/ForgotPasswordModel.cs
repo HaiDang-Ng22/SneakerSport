@@ -8,8 +8,9 @@ namespace SneakerSportStore.Models
 {
     public class ForgotPasswordModel
     {
-        [Required(ErrorMessage = "Email không được để trống")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Required(ErrorMessage = "Email không được để trống.")]
+        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ.")]
         public string Email { get; set; }
     }
+
 }

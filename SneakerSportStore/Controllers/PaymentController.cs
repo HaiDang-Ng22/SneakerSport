@@ -27,7 +27,8 @@ namespace SneakerSportStore.Controllers
         // Static HttpClient for efficient connection reuse
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // GET: Checkout
+        // chính Thanh toán 
+
         public async Task<ActionResult> Checkout()
         {
             var selectedCartItems = Session["SelectedCartItems"] as List<CartItem> ?? new List<CartItem>();
@@ -39,29 +40,21 @@ namespace SneakerSportStore.Controllers
 
             var userId = Session["UserId"]?.ToString();
             if (string.IsNullOrEmpty(userId))
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var savedVouchers = await GetSavedVouchersOfUser(userId) ?? new List<DiscountCode>();
             var total = selectedCartItems.Sum(x => (double)x.Price * x.Quantity);
-
             var appliedVoucher = Session[AppliedVoucherSessionKey] as DiscountCode;
-            double discount = 0;
-
-            if (appliedVoucher != null)
-            {
-                discount = CalculateDiscount(total, appliedVoucher);
-            }
+            double discount = appliedVoucher != null ? CalculateDiscount(total, appliedVoucher) : 0;
 
             var vm = new CheckoutViewModel
             {
                 SelectedCartItems = selectedCartItems,
                 SavedVouchers = savedVouchers,
                 TotalBeforeDiscount = total,
+                DiscountAmount = discount,
                 TotalAfterDiscount = total - discount,
-                AppliedVoucher = appliedVoucher,
-                DiscountAmount = discount
+                AppliedVoucher = appliedVoucher
             };
 
             return View(vm);
@@ -149,44 +142,37 @@ namespace SneakerSportStore.Controllers
         [HttpPost]
         public async Task<ActionResult> Checkout(CheckoutViewModel model)
         {
-            System.Diagnostics.Debug.WriteLine($"File uploaded: {model.BankTransferImage?.FileName}");
-            string screenshotUrl = null; 
-
             var selectedCartItems = Session["SelectedCartItems"] as List<CartItem> ?? new List<CartItem>();
             if (!selectedCartItems.Any())
             {
                 TempData["ErrorMessage"] = "Giỏ hàng của bạn đang trống.";
                 return RedirectToAction("Index", "Cart");
             }
+
+            // Upload ảnh chuyển khoản nếu có
+            string screenshotUrl = null;
             if (model.BankTransferImage != null && model.BankTransferImage.ContentLength > 0)
             {
                 screenshotUrl = await UploadImageToFirebaseStorage(model.BankTransferImage);
             }
+
             double total = selectedCartItems.Sum(x => (double)x.Price * x.Quantity);
             model.TotalBeforeDiscount = total;
 
             var appliedVoucher = Session[AppliedVoucherSessionKey] as DiscountCode;
-            double discount = 0;
+            double discount = appliedVoucher != null ? CalculateDiscount(total, appliedVoucher) : 0;
+            model.DiscountAmount = discount;
+            model.TotalAfterDiscount = total - discount;
 
-            if (appliedVoucher != null)
-            {
-                discount = CalculateDiscount(total, appliedVoucher);
-                model.DiscountAmount = discount;
-                model.TotalAfterDiscount = total - discount;
-            }
-            else
-            {
-                model.TotalAfterDiscount = total;
-            }
             if (model.BankTransferImage != null && model.BankTransferImage.ContentLength > 0)
             {
                 using (var ms = new MemoryStream())
                 {
                     model.BankTransferImage.InputStream.CopyTo(ms);
-                    var imageBytes = ms.ToArray();
-                    model.BankTransferScreenshot = $"data:{model.BankTransferImage.ContentType};base64," + Convert.ToBase64String(imageBytes);
+                    model.BankTransferScreenshot = $"data:{model.BankTransferImage.ContentType};base64," + Convert.ToBase64String(ms.ToArray());
                 }
             }
+
             var order = new Order
             {
                 OrderId = Guid.NewGuid().ToString(),
@@ -202,10 +188,10 @@ namespace SneakerSportStore.Controllers
                     Quantity = x.Quantity,
                     Price = x.Price
                 }).ToList(),
-                Total = total,// tổng tiền
-                DiscountCode = appliedVoucher?.CodeName ?? "",// vô chờ
-                DiscountAmount = discount,// số tiền giảm giá
-                FinalTotal = model.TotalAfterDiscount,// Tổng Tiền cuối c
+                Total = total,
+                DiscountCode = appliedVoucher?.CodeName ?? string.Empty,
+                DiscountAmount = discount,
+                FinalTotal = model.TotalAfterDiscount,
                 PaymentMethod = model.PaymentMethod,
                 BankTransferScreenshot = screenshotUrl
             };
@@ -217,26 +203,31 @@ namespace SneakerSportStore.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    // Giảm tồn kho sản phẩm
                     await ReduceProductStock(selectedCartItems);
 
-                    if (model.PaymentMethod == "bank")
-                    {
-                        var bankDetails = new BankTransferDetails
-                        {
-                            BankName = "Techcombank",
-                            AccountNumber = "0799192226",
-                            AccountHolder = "Công ty SneakerSportStore",
-                            Amount = model.TotalAfterDiscount,
-                            OrderId = order.OrderId
-                        };
-                        model.QRCodeBase64 = GenerateQRCode(bankDetails);
-                    }
+                    // Xóa những sản phẩm đã thanh toán khỏi giỏ hàng chung (Session["CartItems"])
+                    var cart = Session["CartItems"] as List<CartItem> ?? new List<CartItem>();
+                    cart.RemoveAll(ci => selectedCartItems.Any(si => si.ProductId == ci.ProductId));
+                    Session["CartItems"] = cart;
 
+                    // Xóa lựa chọn thanh toán
                     Session["SelectedCartItems"] = null;
                     Session.Remove(AppliedVoucherSessionKey);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Giảm tồn kho…
+                        await ReduceProductStock(selectedCartItems);
 
-                    await SendOrderNotification(order.OrderId, order.UserId);
+                        // XÓA khỏi giỏ hàng trên Firebase
+                        await RemovePurchasedItemsFromCart(order.UserId, selectedCartItems);
 
+                        // XÓA session tạm
+                        Session["SelectedCartItems"] = null;
+                        Session.Remove(AppliedVoucherSessionKey);
+                        // Gửi thông báo
+                        await SendOrderNotification(order.OrderId, order.UserId);
+                    }
                     TempData["SuccessMessage"] = "Đặt hàng thành công!";
                     return RedirectToAction("OrderResult", new { id = order.OrderId });
                 }
@@ -249,6 +240,16 @@ namespace SneakerSportStore.Controllers
             TempData["ErrorMessage"] = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
             return View(model);
         }
+        private async Task RemovePurchasedItemsFromCart(string userId, List<CartItem> purchasedItems)
+        {
+            foreach (var item in purchasedItems)
+            {
+                // item.FirebaseKey là key của từng CartItem trong Firebase
+                await httpClient.DeleteAsync($"{FirebaseDbUrl}/carts/{userId}/{item.FirebaseKey}.json");
+            }
+        }
+
+
         private async Task<string> UploadImageToFirebaseStorage(HttpPostedFileBase file)
         {
             try

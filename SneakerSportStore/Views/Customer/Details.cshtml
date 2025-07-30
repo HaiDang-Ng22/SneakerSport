@@ -1,4 +1,4 @@
-﻿@model SneakerSportStore.Models.KhachHang
+﻿@model SneakerSportStore.Models.UserInfo
 @{
     ViewBag.Title = "Thông tin khách hàng";
     var orders = ViewBag.Orders as List<dynamic>;
@@ -23,7 +23,7 @@
         case "giaohang":
             roleName = "Nhân viên giao hàng";
             break;
-        case "admin":
+        case "Admin":
             roleName = "Quản trị viên";
             break;
     }
@@ -317,13 +317,12 @@
                         <div class="form-group">
                             <label for="newRole">Vai trò hiện tại: <strong>@roleName</strong></label>
                             <select name="newRole" id="newRole" class="form-control">
-                                <option value="user" @(Model.UserRole == "User" ? "selected" : "")>Khách hàng</option>
+                                <option value="User" @(Model.UserRole == "User" ? "selected" : "")>Khách hàng</option>
                                 <option value="nhanvien" @(Model.UserRole == "nhanvien" ? "selected" : "")>Nhân viên kinh doanh</option>
                                 <option value="ketoan" @(Model.UserRole == "ketoan" ? "selected" : "")>Nhân viên kế toán</option>
                                 <option value="kho" @(Model.UserRole == "kho" ? "selected" : "")>Nhân viên kho</option>
                                 <option value="chamsockhachhang" @(Model.UserRole == "chamsockhachhang" ? "selected" : "")>Chăm sóc khách hàng</option>
                                 <option value="giaohang" @(Model.UserRole == "giaohang" ? "selected" : "")>Nhân viên giao hàng</option>
-                                <option value="admin" @(Model.UserRole == "Admin" ? "selected" : "")>Quản trị viên</option>
                             </select>
                         </div>
                         <div class="modal-footer">

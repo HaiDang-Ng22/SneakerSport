@@ -1,0 +1,38 @@
+﻿@model List<SneakerSportStore.Models.ProductFireBaseKey>
+
+@{
+    ViewBag.Title = "Quản Lý Kho";
+}
+
+<h2>Danh sách sản phẩm trong kho</h2>
+
+@using (Html.BeginForm("UpdateQuantity", "Product", FormMethod.Get))
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Mã SP</th>
+                <th>Tên sản phẩm</th>
+                <th>Số lượng hiện tại</th>
+                <th>Loại sản phẩm</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="productIds" value="@item.GiayId" />
+                    </td>
+                    <td>@item.GiayId</td>
+                    <td>@item.TenGiay</td>
+                    <td>@item.SoLuongTon</td>
+                    <td>@item.LoaiGiayID</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Cập nhật số lượng</button>
+}

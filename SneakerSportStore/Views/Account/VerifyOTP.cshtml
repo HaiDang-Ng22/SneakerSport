@@ -1,0 +1,30 @@
+﻿@model SneakerSportStore.Models.VerifyOtpModel
+@{
+    ViewBag.Title = "Xác thực OTP";
+}
+<h2>Xác thực OTP</h2>
+
+@if (TempData["Error"] != null)
+{<div class="alert alert-danger">@TempData["Error"]</div>}
+@if (TempData["Success"] != null)
+{<div class="alert alert-success">@TempData["Success"]</div>}
+@if (TempData["Info"] != null)
+{<div class="alert alert-info">@TempData["Info"]</div>}
+
+@using (Html.BeginForm("VerifyOtp", "Account", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Email)
+    <div class="form-group">
+        @Html.LabelFor(m => m.Otp)
+        @Html.TextBoxFor(m => m.Otp, new { @class = "form-control", maxlength = "6", autocomplete = "one-time-code" })
+        @Html.ValidationMessageFor(m => m.Otp)
+    </div>
+    <button class="btn btn-primary" type="submit">Xác nhận</button>
+}
+
+<form method="post" action="@Url.Action("ResendOtp","Account")" style="margin-top:15px">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="email" value="@Model.Email" />
+    <button type="submit" class="btn btn-link">Gửi lại OTP</button>
+</form>

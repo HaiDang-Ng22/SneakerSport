@@ -1,102 +1,389 @@
-﻿/* Tổng thể trang đăng ký */
-.register-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f4f7fb;
+﻿:root {
+    --primary: #4361ee;
+    --primary-dark: #3a56d4;
+    --secondary: #06d6a0;
+    --dark: #212529;
+    --light: #f8f9fa;
+    --danger: #ef476f;
+    --success: #1cc88a;
+    --warning: #ffd166;
+    --gray: #6c757d;
+    --light-gray: #e9ecef;
 }
 
-/* Container đăng ký */
-.register-container {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 450px;
-    text-align: center;
-}
-
-/* Tiêu đề đăng ký */
-.register-title {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    font-family: Arial, sans-serif;
-}
-
-/* Thông báo lỗi */
-.register-error {
-    color: #e74c3c;
-    background-color: #f9d6d5;
-    font-size: 16px;
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 10px 15px;
-    font-weight: bold;
-    border: 1px solid #e74c3c;
-    border-radius: 5px;
-}
-
-/* Form nhóm */
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-/* Label */
-.form-label {
-    font-size: 14px;
-    color: #555555;
-    margin-bottom: 5px;
-    display: block;
-}
-
-/* Input fields */
-.form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+* {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
-    transition: border-color 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+    transition: all 0.4s ease;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, var(--primary), #3a0ca3);
+    color: white;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+    .auth-header::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        left: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .auth-header::after {
+        content: "";
+        position: absolute;
+        bottom: -70px;
+        right: -70px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+.auth-content {
+    padding: 40px;
+}
+
+.auth-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: block;
+    color: white;
+    position: relative;
+    z-index: 2;
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+    opacity: 0.6;
+    z-index: 3;
+}
+
+.form-control {
+    padding-left: 45px;
+    height: 50px;
+    border-radius: 12px;
+    border: 2px solid var(--light-gray);
+    transition: all 0.3s;
+    font-size: 1rem;
+    position: relative;
+    z-index: 2;
 }
 
     .form-control:focus {
-        border-color: #007bff;
-        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
     }
 
-/* Nút đăng ký */
 .btn-primary {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: #ffffff;
+    background: var(--primary);
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    height: 50px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
 }
 
     .btn-primary:hover {
-        background-color: #0056b3;
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
     }
 
-/* Liên kết đăng nhập */
-.register-link {
-    font-size: 14px;
-    margin-top: 20px;
+.btn-secondary {
+    background: var(--gray);
+    border: none;
+    height: 50px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
 }
 
-    .register-link a {
-        color: #007bff;
-        text-decoration: none;
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
     }
 
-        .register-link a:hover {
+.alert {
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.alert-success {
+    background: rgba(28, 200, 138, 0.15);
+    border: 1px solid var(--success);
+    color: #158c65;
+}
+
+.alert-danger {
+    background: rgba(239, 71, 111, 0.15);
+    border: 1px solid var(--danger);
+    color: #c5304c;
+}
+
+.alert-info {
+    background: rgba(67, 97, 238, 0.15);
+    border: 1px solid var(--primary);
+    color: #2d4ac0;
+}
+
+.otp-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.otp-input {
+    width: 55px;
+    height: 55px;
+    text-align: center;
+    font-size: 1.5rem;
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    margin: 0 5px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+    .otp-input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        transform: scale(1.05);
+    }
+
+.resend-otp {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: var(--gray);
+}
+
+    .resend-otp a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .resend-otp a:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+.countdown {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--primary);
+    min-width: 25px;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 2;
+}
+
+.step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--gray);
+    margin: 0 15px;
+    position: relative;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+    .step.active {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+
+    .step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        width: 30px;
+        height: 2px;
+        background: #e9ecef;
+        right: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+.step-text {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: var(--gray);
+    font-weight: 500;
+}
+
+.step.active .step-text {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.hidden-section {
+    display: none;
+}
+
+.progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--light-gray);
+    z-index: 1;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.success-animation {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.checkmark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.5s ease;
+}
+
+    .checkmark i {
+        color: white;
+        font-size: 40px;
+    }
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.terms-text {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.5;
+}
+
+    .terms-text a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .terms-text a:hover {
             text-decoration: underline;
         }
+
+.form-note {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-top: 5px;
+    padding-left: 5px;
+}
+
+@media (max-width: 576px) {
+    .auth-content {
+        padding: 25px;
+    }
+
+    .otp-input {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+
+    .step {
+        width: 30px;
+        height: 30px;
+        margin: 0 10px;
+    }
+
+        .step:not(:last-child)::after {
+            width: 20px;
+            right: -20px;
+        }
+}

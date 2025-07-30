@@ -135,7 +135,7 @@
                 }
             </div>
         </div>
-        <div class="modal fade" id="deliveryDateModal" tabindex="-1" role="dialog">
+        @*<div class="modal fade" id="deliveryDateModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     @using (Html.BeginForm("UpdateDeliveryDate", "AdminOrder", new { id = Model.OrderId }, FormMethod.Post))
@@ -160,7 +160,7 @@
                     }
                 </div>
             </div>
-        </div>
+        </div>*@
         <div class="row mt-4">
             <div class="col-md-6 offset-md-6">
                 <div class="order-summary">
@@ -187,14 +187,14 @@
         <div class="action-buttons mt-4">
 
 
-            <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Chờ xác nhận" })">
+            @*<form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Chờ xác nhận" })">
                 <button type="submit" class="btn btn-primary ml-2" title="Xác nhận đơn hàng">
                     <i class="fas fa-calendar-check"></i>
                 </button>
-            </form>
+            </form>*@
 
 
-            @if (Model.Status == "Chờ xác nhận" && Model.Status != "Hủy")
+            @if (Model.Status == "Chờ xử lý" && Model.Status != "Hủy"&& Model.Status!= "Hoàn Thành"&& Model.Status!= "Đang chuẩn bị"&& Model.Status!= "Đã giao cho đơn vị vận chuyển"&& Model.Status!= "Đang giao đến bạn")
             {
                 <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Xác nhận" })">
                     <button type="submit" class="btn btn-primary ml-2" title="Xác nhận đơn hàng">
@@ -203,7 +203,7 @@
                 </form>
             }
 
-            @if (Model.Status == "Xác nhận")
+            @*@if (Model.Status == "Xác nhận")
             {
                 <form met   hod="post" action="@Url.Action("UpdateOrderStatus", "AdminOrder",new { id = Model.OrderId, status = "Đang chuẩn bị" })">
                     <button type="submit" class="btn btn-primary ml-2" title="Chuẩn bị hàng">
@@ -211,7 +211,7 @@
                     </button>
                 </form>
 
-            }
+            }*@
             @if (Model.Status == "Xác nhận" && Model.Status != "Hủy")
             {
                 <form method="post" action="@Url.Action("UpdateOrderStatus", new { id = Model.OrderId, status = "Đang chuẩn bị" })">

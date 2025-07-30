@@ -1,371 +1,590 @@
 ﻿@model SneakerSportStore.Models.RegisterModel
 @{
-    ViewBag.Title = "Đăng ký";
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>Đăng ký - SneakerSportStore</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <style>
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #36b9cc;
-            --light-color: #f8f9fc;
-            --dark-color: #5a5c69;
-            --success-color: #1cc88a;
-            --warning-color: #f6c23e;
-            --danger-color: #e74a3b;
+        body{
+            background:#f4f6ff;
+            font-family:system-ui,-apple-system,"Segoe UI",Roboto;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px
         }
-
-        body {
-            background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        .auth-container{
+            width:100%;
+            max-width:520px;
+            background:#fff;
+            border-radius:20px;
+            box-shadow:0 12px 35px -10px rgba(31,42,98,.15);
+            overflow:hidden;
+            position:relative;
         }
-
-        .auth-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            overflow: hidden;
-            width: 100%;
-            max-width: 1000px;
+        .auth-header{
+            background:linear-gradient(135deg,#4361ee,#3a0ca3);
+            color:#fff;
+            padding:32px 30px 28px;
+            text-align:center;
         }
-
-        .auth-image {
-            background: linear-gradient(135deg, var(--success-color) 0%, var(--secondary-color) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            color: white;
-            position: relative;
-            overflow: hidden;
+        .auth-logo{font-size:1.8rem;font-weight:700;margin-bottom:6px}
+        .step-indicator{
+            display:flex;
+            justify-content:center;
+            gap:36px;
+            padding:18px 0 4px;
+            background:#fff;
         }
-
-        .auth-image::before {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-            opacity: 0.1;
+        .step{
+            width:38px;height:38px;
+            border-radius:50%;
+            background:#e9ecef;
+            color:#5f6368;
+            font-weight:600;
+            display:flex;align-items:center;justify-content:center;
+            position:relative;
+            transition:.25s;
         }
-
-        .auth-content {
-            padding: 40px;
+        .step.active{
+            background:#4361ee;
+            color:#fff;
+            box-shadow:0 4px 10px rgba(67,97,238,.4);
         }
-
-        .auth-logo {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: block;
-            color: var(--success-color);
+        .step .step-text{
+            position:absolute;
+            top:46px;
+            left:50%;transform:translateX(-50%);
+            font-size:.7rem;
+            white-space:nowrap;
+            color:#6c757d;
         }
-
-        .auth-logo span {
-            color: var(--secondary-color);
+        .step.active .step-text{color:#4361ee;font-weight:600}
+        .auth-content{padding:34px 34px 40px}
+        .form-group{margin-bottom:18px;position:relative}
+        .form-icon{
+            position:absolute;top:50%;left:14px;
+            transform:translateY(-50%);
+            color:#6c757d;opacity:.6;font-size:.95rem;
         }
-
-        .auth-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--dark-color);
+        .form-control{
+            padding-left:44px;
+            height:50px;
+            border:2px solid #dee2e6;
+            border-radius:12px;
+            transition:.25s;
         }
-
-        .auth-subtitle {
-            color: var(--dark-color);
-            margin-bottom: 30px;
-            opacity: 0.8;
+        .form-control:focus{
+            border-color:#4361ee;
+            box-shadow:0 0 0 .2rem rgba(67,97,238,.15);
         }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
+        .btn-primary{
+            background:#4361ee;
+            border:none;
+            height:50px;
+            border-radius:12px;
+            font-weight:600;
         }
-
-        .form-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--dark-color);
-            opacity: 0.5;
+        .btn-primary:disabled{
+            opacity:.65;
         }
-
-        .form-control {
-            padding-left: 45px;
-            height: 50px;
-            border-radius: 8px;
-            border: 1px solid #d1d3e2;
+        .btn-secondary{
+            height:50px;
+            border:none;
+            border-radius:12px;
+            font-weight:600;
         }
-
-        .form-control:focus {
-            border-color: var(--success-color);
-            box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25);
+        .otp-container{
+            display:flex;
+            gap:12px;
         }
-
-        .btn-success {
-            background-color: var(--success-color);
-            border-color: var(--success-color);
-            height: 50px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s;
+        .otp-input{
+            width:54px;height:54px;
+            text-align:center;
+            font-size:1.35rem;
+            border:2px solid #dee2e6;
+            border-radius:12px;
+            font-weight:600;
+            transition:.25s;
         }
-
-        .btn-success:hover {
-            background-color: #17a673;
-            border-color: #169b6b;
-            transform: translateY(-2px);
+        .otp-input:focus{
+            outline:none;
+            border-color:#4361ee;
+            box-shadow:0 0 0 .2rem rgba(67,97,238,.15);
         }
-
-        .auth-links {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            flex-wrap: wrap;
+        .hidden-section{display:none;}
+        .alert{border-radius:14px}
+        .resend-otp a{ text-decoration:none }
+        .resend-otp a.disabled{pointer-events:none;opacity:.5}
+        .is-invalid + .invalid-feedback{display:block}
+        .invalid-feedback{font-size:.8rem}
+        .status-line{font-size:.85rem;margin-top:6px;min-height:20px}
+        .spinner-border{--bs-spinner-width:1rem;--bs-spinner-height:1rem;--bs-spinner-border-width: .15em;}
+        .success-animation .checkmark{
+            width:86px;height:86px;border-radius:50%;
+            background:linear-gradient(135deg,#4cc9f0,#4361ee);
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-size:2.4rem;margin:0 auto 18px;
+            box-shadow:0 10px 25px -8px rgba(67,97,238,.6);
         }
-
-        .auth-links a {
-            color: var(--success-color);
-            text-decoration: none;
-            transition: all 0.3s;
+        .terms-text a{color:#4361ee}
+        .toast-zone{position:fixed;top:16px;right:16px;z-index:1055;display:flex;flex-direction:column;gap:10px}
+        .toast-msg{
+            padding:10px 14px;border-radius:10px;
+            font-size:.85rem;font-weight:500;
+            background:#4361ee;color:#fff;
+            animation:fadeSlide .4s ease;
+            box-shadow:0 4px 16px -6px rgba(0,0,0,.25);
         }
-
-        .auth-links a:hover {
-            color: #17a673;
-            text-decoration: underline;
-        }
-
-        .divider {
-            position: relative;
-            margin: 30px 0;
-            text-align: center;
-            color: var(--dark-color);
-            opacity: 0.7;
-        }
-
-        .divider::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: #d1d3e2;
-            z-index: 1;
-        }
-
-        .divider span {
-            position: relative;
-            z-index: 2;
-            background: white;
-            padding: 0 15px;
-        }
-
-        .auth-footer {
-            margin-top: 30px;
-            text-align: center;
-            color: var(--dark-color);
-            opacity: 0.7;
-        }
-
-        .error-message {
-            color: var(--danger-color);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .sneaker-icon {
-            font-size: 6rem;
-            margin-bottom: 20px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .image-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .image-subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
-            max-width: 300px;
-            text-align: center;
-        }
-
-        .password-rules {
-            font-size: 0.85rem;
-            color: var(--dark-color);
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-
-        media (max-width: 991px) {
-            .auth-image {
-                padding: 20px;
-            }
-
-            .sneaker-icon {
-                font-size: 4rem;
-            }
-
-            .image-title {
-                font-size: 1.5rem;
-            }
-        }
-
-        media (max-width: 767px) {
-            .auth-container {
-                flex-direction: column;
-            }
-
-            .auth-image {
-                padding: 40px 20px;
-            }
-
-            .auth-content {
-                padding: 30px;
-            }
+        .toast-msg.error{background:#e63946}
+        .toast-msg.success{background:#1cc88a}
+        keyframes fadeSlide{
+            from{opacity:0;transform:translateY(-6px)}
+            to{opacity:1;transform:translateY(0)}
         }
     </style>
 </head>
 <body>
-    <div class="auth-container d-flex">
-        <!-- Left Side - Image/Graphics -->
-        <div class="auth-image d-none d-md-flex flex-column">
-            <i class="fas fa-shoe-prints sneaker-icon"></i>
-            <h2 class="image-title">Tham gia cùng chúng tôi!</h2>
-            <p class="image-subtitle">Đăng ký tài khoản để trải nghiệm mua sắm giày thể thao tốt nhất</p>
+    <div class="toast-zone" id="toastZone"></div>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">SneakerSportStore</div>
+            <h2 class="auth-title">Đăng ký tài khoản</h2>
         </div>
 
-        <!-- Right Side - Register Form -->
-        <div class="auth-content flex-grow-1">
-            <a href="@Url.Action("Index", "Home")" class="auth-logo">
-                <i class="fas fa-shoe-prints"></i> Sneaker<span>Sport</span>
-            </a>
-            <h1 class="auth-title">Tạo tài khoản mới</h1>
-            <p class="auth-subtitle">Vui lòng điền thông tin bên dưới</p>
+        <div class="step-indicator mb-3">
+            <div class="step active" id="step1Indicator">1<span class="step-text">Email</span></div>
+            <div class="step" id="step2Indicator">2<span class="step-text">OTP</span></div>
+            <div class="step" id="step3Indicator">3<span class="step-text">Thông tin</span></div>
+        </div>
 
-            @if (ViewBag.ErrorMessage != null)
-            {
-                <div class="alert alert-danger" role="alert">
-                    @ViewBag.ErrorMessage
+        <div class="auth-content">
+
+            <!-- STEP 1 -->
+            <div id="step1Section">
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>Nhập email để kiểm tra và nhận mã OTP.
                 </div>
-            }
-
-            @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "auth-form" }))
-            {
-                @Html.AntiForgeryToken()
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <i class="fas fa-user form-icon"></i>
-                            @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control", placeholder = "Họ và tên", required = "required" })
-                            @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "error-message" })
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <i class="fas fa-at form-icon"></i>
-                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = "Email", required = "required" })
-                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error-message" })
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <i class="fas fa-lock form-icon"></i>
-                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Mật khẩu", required = "required", id = "password" })
-                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error-message" })
-                            <div class="password-rules">
-                                Mật khẩu tối thiểu 8 ký tự, bao gồm chữ và số
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <i class="fas fa-lock form-icon"></i>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <i class="fas fa-phone form-icon"></i>
-                            @Html.TextBoxFor(m => m.SoDienThoai, new { @class = "form-control", placeholder = "Số điện thoại", required = "required" })
-                            @Html.ValidationMessageFor(m => m.SoDienThoai, "", new { @class = "error-message" })
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <i class="fas fa-user-tag form-icon"></i>
-                            @Html.TextBoxFor(m => m.TenDangNhap, new { @class = "form-control", placeholder = "Tên đăng nhập", required = "required" })
-                            @Html.ValidationMessageFor(m => m.TenDangNhap, "", new { @class = "error-message" })
-                        </div>
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <i class="fas fa-map-marker-alt form-icon"></i>
-                    @Html.TextAreaFor(m => m.DiaChi, new { @class = "form-control", placeholder = "Địa chỉ", rows = "3", required = "required" })
-                    @Html.ValidationMessageFor(m => m.DiaChi, "", new { @class = "error-message" })
+                    <i class="fas fa-envelope form-icon"></i>
+                    <input type="email" id="email" class="form-control" placeholder="Email của bạn" autocomplete="off" />
+                    <div id="emailFeedback" class="invalid-feedback"></div>
                 </div>
-
-                <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" id="terms" required>
-                    <label class="form-check-label" for="terms">
-                        Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-success w-100">Đăng ký</button>
-            }
-
-            <div class="divider">
-                <span>Đã có tài khoản?</span>
+                <button type="button" id="checkEmailBtn" class="btn btn-primary w-100">
+                    Kiểm tra &amp; Gửi mã OTP
+                </button>
+                <div id="emailStatus" class="status-line text-muted"></div>
             </div>
 
-            <div class="auth-footer">
-                <a href="@Url.Action("Login", "Account")">Đăng nhập ngay</a>
+            <!-- STEP 2 -->
+            <div id="step2Section" class="hidden-section">
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-envelope me-2"></i>
+                    Mã OTP đã gửi tới: <strong id="userEmail"></strong>
+                </div>
+
+                <div class="form-group text-center mb-3">
+                    <label class="form-label fw-semibold mb-2">Nhập mã OTP (6 số)</label>
+                    <div class="otp-container justify-content-center mb-2">
+                        <input class="otp-input" maxlength="1" data-index="1" inputmode="numeric" />
+                        <input class="otp-input" maxlength="1" data-index="2" inputmode="numeric" />
+                        <input class="otp-input" maxlength="1" data-index="3" inputmode="numeric" />
+                        <input class="otp-input" maxlength="1" data-index="4" inputmode="numeric" />
+                        <input class="otp-input" maxlength="1" data-index="5" inputmode="numeric" />
+                        <input class="otp-input" maxlength="1" data-index="6" inputmode="numeric" />
+                    </div>
+                    <div id="otpFeedback" class="text-danger small" style="display:none;"></div>
+                </div>
+
+                <div class="resend-otp text-center mb-3">
+                    <a href="#" id="resendOtpBtn">Gửi lại mã</a> (<span id="countdown">0</span>s)
+                </div>
+
+                <button id="verifyOtpBtn" class="btn btn-primary w-100 mb-2">Xác thực OTP</button>
+                <button id="backToEmailBtn" class="btn btn-secondary w-100">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại Email
+                </button>
             </div>
+
+            <!-- STEP 3 -->
+            <div id="step3Section" class="hidden-section">
+                <div class="alert alert-success mb-4">
+                    <i class="fas fa-check-circle me-2"></i>OTP hợp lệ – hãy hoàn tất thông tin.
+                </div>
+
+                @* Form cuối để có AntiForgery *@
+                <form id="finalForm">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="Email" id="finalEmail" />
+
+                    <div class="form-group">
+                        <i class="fas fa-user form-icon"></i>
+                        <input type="text" class="form-control" name="HoTen" id="hoTen" placeholder="Họ và tên" />
+                        <div class="invalid-feedback">Vui lòng nhập họ tên.</div>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-user-tag form-icon"></i>
+                        <input type="text" class="form-control" name="TenDangNhap" id="tenDangNhap" placeholder="Tên đăng nhập" />
+                        <div class="invalid-feedback">Vui lòng nhập tên đăng nhập.</div>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-lock form-icon"></i>
+                        <input type="password" class="form-control" name="Password" id="password" placeholder="Mật khẩu (>=8 ký tự)" />
+                        <div class="invalid-feedback">Mật khẩu tối thiểu 8 ký tự.</div>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-lock form-icon"></i>
+                        <input type="password" class="form-control" name="ConfirmPassword" id="confirmPassword" placeholder="Xác nhận mật khẩu" />
+                        <div class="invalid-feedback">Mật khẩu xác nhận không khớp.</div>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-phone form-icon"></i>
+                        <input type="tel" class="form-control" name="SoDienThoai" id="soDienThoai" placeholder="Số điện thoại" />
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-map-marker-alt form-icon"></i>
+                        <textarea class="form-control" name="DiaChi" id="diaChi" placeholder="Địa chỉ" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="terms" class="form-check-input" />
+                        <label for="terms" class="form-check-label terms-text">
+                            Tôi đồng ý với <a href="#">Điều khoản</a> &amp; <a href="#">Chính sách bảo mật</a>.
+                        </label>
+                    </div>
+
+                    <button type="button" id="submitRegisterBtn" class="btn btn-primary w-100 mb-2">
+                        Hoàn tất đăng ký
+                    </button>
+                    <button type="button" id="backToOtpBtn" class="btn btn-secondary w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại OTP
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 4 -->
+            <div id="step4Section" class="hidden-section text-center">
+                <div class="success-animation mb-3">
+                    <div class="checkmark"><i class="fas fa-check"></i></div>
+                </div>
+                <h3 class="text-success fw-bold mb-3">Đăng ký thành công!</h3>
+                <p class="mb-4">Bạn có thể đăng nhập ngay bây giờ.</p>
+                <a href="/Account/Login" class="btn btn-primary w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                </a>
+            </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Kiểm tra mật khẩu trùng khớp
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
+/* ---------- Helper UI ---------- */
+function showToast(msg, type='info'){
+    const zone=document.getElementById('toastZone');
+    const div=document.createElement('div');
+    div.className='toast-msg '+(type==='error'?'error':type==='success'?'success':'');
+    div.textContent=msg;
+    zone.appendChild(div);
+    setTimeout(()=>{div.style.opacity='0';setTimeout(()=>div.remove(),400)},4000);
+}
 
-            if (password !== confirmPassword) {
-                this.setCustomValidity("Mật khẩu không khớp");
-            } else {
-                this.setCustomValidity("");
+function validateEmailFormat(e) {
+    return /^[\w.+-]+@@[\w-]+\.[\w.-]{2,}$/i.test(e);
+}
+
+/* ---------- DOM refs ---------- */
+const step1 = document.getElementById('step1Section');
+const step2 = document.getElementById('step2Section');
+const step3 = document.getElementById('step3Section');
+const step4 = document.getElementById('step4Section');
+const ind1 = document.getElementById('step1Indicator');
+const ind2 = document.getElementById('step2Indicator');
+const ind3 = document.getElementById('step3Indicator');
+
+const emailInput = document.getElementById('email');
+const emailFeedback = document.getElementById('emailFeedback');
+const emailStatus = document.getElementById('emailStatus');
+const checkEmailBtn = document.getElementById('checkEmailBtn');
+const userEmailEl = document.getElementById('userEmail');
+const resendBtn = document.getElementById('resendOtpBtn');
+const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+const backToEmailBtn = document.getElementById('backToEmailBtn');
+const backToOtpBtn = document.getElementById('backToOtpBtn');
+const otpFeedback = document.getElementById('otpFeedback');
+const countdownEl = document.getElementById('countdown');
+const otpInputs = document.querySelectorAll('.otp-input');
+
+const finalEmail = document.getElementById('finalEmail');
+const hoTenInput = document.getElementById('hoTen');
+const tenDangNhapInput = document.getElementById('tenDangNhap');
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirmPassword');
+const soDienThoaiInput = document.getElementById('soDienThoai');
+const diaChiInput = document.getElementById('diaChi');
+const termsCheckbox = document.getElementById('terms');
+const submitRegisterBtn = document.getElementById('submitRegisterBtn');
+const finalForm = document.getElementById('finalForm');
+
+let currentEmail = '';
+let cooldown = 0;
+let timer = null;
+let otpVerified = false;
+
+/* ---------- Steps ---------- */
+function showStep(n){
+    [step1,step2,step3,step4].forEach(s=>s.classList.add('hidden-section'));
+    [ind1,ind2,ind3].forEach(i=>i.classList.remove('active'));
+    if(n===1){ step1.classList.remove('hidden-section'); ind1.classList.add('active'); }
+    if(n===2){ step2.classList.remove('hidden-section'); ind2.classList.add('active'); }
+    if(n===3){ step3.classList.remove('hidden-section'); ind3.classList.add('active'); }
+    if(n===4){ step4.classList.remove('hidden-section'); }
+}
+
+function startCooldown(seconds){
+    cooldown = seconds;
+    updateCountdown();
+    if(timer) clearInterval(timer);
+    timer = setInterval(()=>{
+        cooldown--;
+        updateCountdown();
+        if(cooldown<=0){ clearInterval(timer); }
+    },1000);
+}
+function updateCountdown(){
+    countdownEl.textContent = cooldown<0?0:cooldown;
+    if(cooldown>0){
+        resendBtn.classList.add('disabled');
+    }else{
+        resendBtn.classList.remove('disabled');
+    }
+}
+
+function collectOtp(){
+    let c='';
+    otpInputs.forEach(i=>c+=i.value.trim());
+    return c;
+}
+
+function setEmailError(msg){
+    emailInput.classList.add('is-invalid');
+    emailFeedback.textContent = msg;
+}
+function clearEmailError(){
+    emailInput.classList.remove('is-invalid');
+    emailFeedback.textContent='';
+}
+
+/* ---------- Generic POST JSON ---------- */
+async function postJson(url,data){
+    const res = await fetch(url,{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'X-Requested-With':'XMLHttpRequest'
+        },
+        body: JSON.stringify(data)
+    });
+    return await res.json();
+}
+
+/* ---------- STEP 1: Check + Send OTP ---------- */
+checkEmailBtn.addEventListener('click', async ()=>{
+    const email = emailInput.value.trim().toLowerCase();
+    if(!email){ setEmailError('Vui lòng nhập email.'); return; }
+    if(!validateEmailFormat(email)){ setEmailError('Email không hợp lệ.'); return; }
+    clearEmailError();
+    emailStatus.textContent='';
+    checkEmailBtn.disabled=true;
+    checkEmailBtn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+    try{
+        // 1. CheckEmail
+        const chk = await postJson('/Account/CheckEmail',{ email });
+        if(chk.exists){
+            setEmailError('Email này đã được đăng ký.');
+            checkEmailBtn.disabled=false;
+            checkEmailBtn.textContent='Kiểm tra & Gửi mã OTP';
+            return;
+        }
+
+        // 2. SendOtp
+        const send = await postJson('/Account/SendOtp',{ email });
+        if(!send.success){
+            setEmailError(send.message || 'Không gửi được OTP.');
+            checkEmailBtn.disabled=false;
+            checkEmailBtn.textContent='Kiểm tra & Gửi mã OTP';
+            return;
+        }
+
+        currentEmail = email;
+        userEmailEl.textContent = email;
+        finalEmail.value = email;
+        otpInputs.forEach(i=>i.value='');
+        otpFeedback.style.display='none';
+        otpVerified=false;
+        startCooldown(send.cooldown || 30);
+        showToast('OTP đã gửi.', 'success');
+        showStep(2);
+    }catch(err){
+        setEmailError('Lỗi hệ thống: '+ err.message);
+    }finally{
+        checkEmailBtn.disabled=false;
+        checkEmailBtn.textContent='Kiểm tra & Gửi mã OTP';
+    }
+});
+
+/* ---------- OTP input auto move ---------- */
+otpInputs.forEach(inp=>{
+    inp.addEventListener('input', e=>{
+        e.target.value=e.target.value.replace(/\\D/g,'').slice(0,1);
+        const idx=parseInt(e.target.dataset.index);
+        if(e.target.value && idx<6){
+            const next=document.querySelector('.otp-input[data-index="'+(idx+1)+'"]');
+            next && next.focus();
+        }
+    });
+    inp.addEventListener('keydown', e=>{
+        if(e.key==='Backspace' && !e.target.value){
+            const idx=parseInt(e.target.dataset.index);
+            if(idx>1){
+                const prev=document.querySelector('.otp-input[data-index="'+(idx-1)+'"]');
+                prev && prev.focus();
             }
-        });
+        }
+    });
+});
+
+/* ---------- Resend OTP ---------- */
+resendBtn.addEventListener('click', async e=>{
+    e.preventDefault();
+    if(cooldown>0 || !currentEmail) return;
+    resendBtn.classList.add('disabled');
+    const r = await postJson('/Account/ResendOtp',{ email: currentEmail });
+    if(r.success){
+        showToast('Đã gửi lại OTP.','success');
+        startCooldown(r.cooldown || 30);
+    }else{
+        showToast(r.message || 'Không gửi lại OTP được.','error');
+        resendBtn.classList.remove('disabled');
+    }
+});
+
+/* ---------- Back to Email ---------- */
+backToEmailBtn.addEventListener('click', ()=>{
+    currentEmail='';
+    showStep(1);
+});
+
+/* ---------- Verify OTP ---------- */
+verifyOtpBtn.addEventListener('click', async ()=>{
+    const code = collectOtp();
+    if(code.length!==6){
+        otpFeedback.textContent='Vui lòng nhập đủ 6 số.';
+        otpFeedback.style.display='block';
+        return;
+    }
+    otpFeedback.style.display='none';
+    verifyOtpBtn.disabled=true;
+    verifyOtpBtn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Đang kiểm tra...';
+
+    try{
+        const res = await postJson('/Account/VerifyOtpAjax',{ email: currentEmail, otp: code });
+        if(!res.success){
+            otpFeedback.textContent = res.message || 'OTP không đúng.';
+            otpFeedback.style.display='block';
+        }else{
+            otpVerified=true;
+            showToast('OTP hợp lệ.','success');
+            showStep(3);
+        }
+    }catch(err){
+        otpFeedback.textContent='Lỗi hệ thống: '+err.message;
+        otpFeedback.style.display='block';
+    }finally{
+        verifyOtpBtn.disabled=false;
+        verifyOtpBtn.textContent='Xác thực OTP';
+    }
+});
+
+/* ---------- Back to OTP from details ---------- */
+backToOtpBtn.addEventListener('click', ()=>{
+    if(!currentEmail){ showStep(1); return; }
+    showStep(2);
+});
+
+/* ---------- Form validations ---------- */
+function markInvalid(el,msg){
+    el.classList.add('is-invalid');
+    const fb = el.parentElement.querySelector('.invalid-feedback');
+    if(fb) fb.textContent = msg;
+}
+function clearInvalid(el){
+    el.classList.remove('is-invalid');
+}
+
+function validateDetails(){
+    let ok=true;
+    if(!hoTenInput.value.trim()){ markInvalid(hoTenInput,'Vui lòng nhập họ tên'); ok=false; } else clearInvalid(hoTenInput);
+    if(!tenDangNhapInput.value.trim()){ markInvalid(tenDangNhapInput,'Vui lòng nhập tên đăng nhập'); ok=false; } else clearInvalid(tenDangNhapInput);
+    if(passwordInput.value.length<8){ markInvalid(passwordInput,'Mật khẩu tối thiểu 8 ký tự'); ok=false; } else clearInvalid(passwordInput);
+    if(confirmPasswordInput.value !== passwordInput.value || !confirmPasswordInput.value){
+        markInvalid(confirmPasswordInput,'Mật khẩu xác nhận không khớp'); ok=false;
+    } else clearInvalid(confirmPasswordInput);
+    if(!termsCheckbox.checked){ showToast('Bạn phải đồng ý điều khoản.', 'error'); ok=false; }
+    if(!otpVerified){ showToast('Bạn chưa xác thực OTP.', 'error'); ok=false; }
+    return ok;
+}
+
+/* ---------- Complete Registration ---------- */
+submitRegisterBtn.addEventListener('click', async ()=>{
+    if(!validateDetails()) return;
+    submitRegisterBtn.disabled=true;
+    submitRegisterBtn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Đang tạo...';
+
+    try{
+        const fd = new FormData(finalForm);
+        const res = await fetch('/Account/CompleteRegistration',{
+            method:'POST',
+            body: fd
+        }).then(r=>r.json());
+
+        if(!res.success){
+            showToast(res.message || 'Đăng ký thất bại.','error');
+        }else{
+            showToast('Đăng ký thành công!','success');
+            showStep(4);
+        }
+    }catch(err){
+        showToast('Lỗi hệ thống: '+err.message,'error');
+    }finally{
+        submitRegisterBtn.disabled=false;
+        submitRegisterBtn.textContent='Hoàn tất đăng ký';
+    }
+});
+
+/* ---------- Simple password instant check ---------- */
+passwordInput.addEventListener('input', ()=>{
+    if(passwordInput.value && passwordInput.value.length<8) passwordInput.classList.add('is-invalid');
+    else passwordInput.classList.remove('is-invalid');
+    if(confirmPasswordInput.value && confirmPasswordInput.value!==passwordInput.value)
+        confirmPasswordInput.classList.add('is-invalid');
+    else confirmPasswordInput.classList.remove('is-invalid');
+});
+confirmPasswordInput.addEventListener('input', ()=>{
+    if(confirmPasswordInput.value!==passwordInput.value) confirmPasswordInput.classList.add('is-invalid');
+    else confirmPasswordInput.classList.remove('is-invalid');
+});
     </script>
 </body>
 </html>

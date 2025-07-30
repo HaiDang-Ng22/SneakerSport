@@ -2,7 +2,7 @@
 @{
     // Sửa từ ViewBag.Comments thành ViewData["Comments"]
     var comments = ViewData["Comments"] as List<Comment> ?? new List<Comment>();
-    var currentUserId = Session["CustomerID"] as string;
+    var currentUserId = Session["UserId"] as string;
     var userRole = Session["UserRole"] as string;
 }
 <!DOCTYPE html>

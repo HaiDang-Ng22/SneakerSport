@@ -1,0 +1,119 @@
+﻿@model SneakerSportStore.Controllers.ExportSlipViewModel
+
+@{
+    ViewBag.Title = "Cập nhật số lượng sản phẩm";
+}
+<style>
+    /* Tiêu đề */
+    h2 {
+        color: #2e8b57; /* xanh lá nhẹ kiểu green seagreen */
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-left: 5px solid #2e8b57;
+        padding-left: 10px;
+    }
+    /* Ngày nhập kho + Tên nhân viên */
+    .form-group {
+        width: 48%;
+        display: inline-block;
+        vertical-align: top;
+        margin-bottom: 15px;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: white;
+    }
+    /* Bảng dữ liệu sản phẩm */
+    .table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+    /* Nút cập nhật */
+    button.btn-success {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 4px;
+        margin-top: 20px;
+        float: right;
+        cursor: pointer;
+    }
+
+        button.btn-success:hover {
+            background-color: #c0392b;
+        }
+
+</style>
+<h2>Phiếu Xuất Kho</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label>Ngày Nhập Kho:</label>
+        @Html.TextBoxFor(m => m.NgayNhapKho, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <div class="form-group">
+        <label>Tên Nhân Viên:</label>
+        @Html.TextBoxFor(m => m.TenNhanVien, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã SP</th>
+                <th>Tên SP</th>
+                <th>Loại SP</th>
+                <th>Số lượng hiện tại</th>
+                <th>Số lượng mới</th>
+                <th>Ghi chú</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Items.Count; i++)
+            {
+                <tr>
+                    @Html.HiddenFor(m => m.Items[i].GiayId)
+                    @Html.HiddenFor(m => m.Items[i].SoLuongHienTai)
+                    <td>@Html.DisplayFor(m => m.Items[i].MaSanPham)</td>
+                    <td>@Html.DisplayFor(m => m.Items[i].TenSanPham)</td>
+                    <td>@Html.DisplayFor(m => m.Items[i].LoaiSanPham)</td>
+                    <td>@Html.DisplayFor(m => m.Items[i].SoLuongHienTai)</td>
+                    <td>@Html.TextBoxFor(m => m.Items[i].SoLuong, new { @class = "form-control", type = "number", min = "0" })</td>
+                    <td>@Html.TextBoxFor(m => m.Items[i].GhiChu, new { @class = "form-control" })</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Xác nhận cập nhật</button>
+}

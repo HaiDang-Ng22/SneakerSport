@@ -1,0 +1,166 @@
+﻿@model List<SneakerSportStore.Controllers.ProductUpdateHistory>
+
+@{
+    ViewBag.Title = "Lịch sử cập nhật kho";
+}
+<style>
+
+.update-history-container {
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 28px 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+}
+
+.update-history-container h2 {
+    font-size: 28px;
+    color: #007bff;
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    background: #fafbfc;
+}
+
+.table th, .table td {
+    padding: 12px 10px;
+    border: 1px solid #e3e6ea;
+    text-align: center;
+    font-size: 16px;
+}
+
+.table th {
+    background: #f1f3f6;
+    color: #333;
+    font-weight: 600;
+}
+
+.table-bordered th, .table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.btn-info.btn-sm {
+    background: linear-gradient(90deg, #17a2b8 0%, #138496 100%);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-info.btn-sm:hover {
+    background: linear-gradient(90deg, #138496 0%, #17a2b8 100%);
+    transform: scale(1.05);
+}
+
+
+.collapse {
+    display: none;
+    background: #f8f9fa;
+    transition: all 0.3s;
+}
+
+
+.collapse.show {
+    display: table-row;
+    animation: fadeIn 0.3s;
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.table-bordered {
+    margin-top: 10px;
+    background: #fff;
+}
+
+@@media (max-width: 800px) {
+    .update-history-container {
+        padding: 10px 2px;
+    }
+    .table th, .table td {
+        font-size: 14px;
+        padding: 8px 4px;
+    }
+}
+</style>
+<h2>Lịch sử cập nhật kho</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ngày cập nhật</th>
+            <th>Nhân viên</th>
+            <th>Số sản phẩm cập nhật</th>
+            <th>Chi tiết</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var history in Model)
+        {
+            <tr>
+                <td>@history.NgayCapNhat.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@history.UserName</td>
+                <td>@history.CapNhats.Count</td>
+                <td>
+                    <button class="btn btn-info btn-sm" data-toggle="collapse"
+                            data-target="#details-@history.FirebaseKey">
+                        Xem chi tiết
+                    </button>
+                </td>
+            </tr>
+            <tr class="collapse" id="details-@history.FirebaseKey">
+                <td colspan="4">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Mã Sản phẩm</th>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng cũ</th>
+                                <th>Thay đổi</th>
+                                <th>Số lượng mới</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in history.CapNhats)
+                            {
+                                <tr>
+                                    <td>@item.GiayId</td>
+                                    <td>@item.TenSanPham</td>
+                                    <td>@item.SoLuongCu</td>
+                                    <td>@(item.SoLuongThayDoi > 0 ? "+" : "")@item.SoLuongThayDoi</td>
+                                    <td>@item.SoLuongMoi</td>
+                                    <td>@item.GhiChu</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    document.querySelectorAll('[data-toggle="collapse"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const target = document.querySelector(targetId);
+            if (target) {
+                target.classList.toggle('show');
+            }
+        });
+    });
+</script>

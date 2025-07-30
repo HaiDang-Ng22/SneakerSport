@@ -1,0 +1,80 @@
+﻿@model SneakerSportStore.Controllers.RevenueStatisticsViewModel
+
+@{
+    ViewBag.Title = "Thống kê doanh thu";
+}
+
+<div class="container">
+    <h2>Thống kê doanh thu</h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng doanh thu</h5>
+                    <p class="card-text display-4">@Model.TotalRevenue.ToString("N0") ₫</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Đơn hàng hoàn thành</h5>
+                    <p class="card-text display-4">@Model.TotalCompletedOrders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Đơn hàng đã hủy</h5>
+                    <p class="card-text display-4">@Model.TotalcancelledOrder</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Trung bình/đơn hàng</h5>
+                    <p class="card-text display-4">@Model.AverageOrderValue.ToString("N0") ₫</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Doanh thu theo tháng</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tháng</th>
+                        <th>Số đơn hàng</th>
+                        <th>Doanh thu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.MonthlyRevenue)
+                    {
+                        <tr>
+                            <td>@item.MonthName</td>
+                            <td>@item.OrderCount</td>
+                            <td>@item.Revenue.ToString("N0") ₫</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -31,6 +31,7 @@
     <thead class="table-header">
         <tr>
             <th class="column-title">Tên Mã Giảm Giá</th>
+            <th class="column-title">Lượt Lưu</th>
             <th class="column-title">Điều Kiện</th>
             <th class="column-title">Giảm Giá</th>
             <th class="column-title">Thời Gian Áp Dụng</th>
@@ -43,6 +44,11 @@
         {
             <tr class="voucher-row" data-voucher-id="@voucher.IdVoucher">
                 <td class="voucher-code">@voucher.CodeName</td>
+                <td>
+                    @(ViewBag.SavedCount != null && ViewBag.SavedCount.ContainsKey(voucher.IdVoucher)
+        ? ViewBag.SavedCount[voucher.IdVoucher] + " lượt"
+        : "0 lượt")
+                </td>
                 <td class="voucher-condition">@voucher.Condition</td>
                 <td class="voucher-discount">
                     @if (voucher.DiscountType == SneakerSportStore.Models.DiscountType.Percentage)

@@ -236,7 +236,7 @@
     </div>
 
     <!-- Phần hủy đơn hàng -->
-    @if (Model.Status == "Chờ xác nhận" || Model.Status == "Xác nhận" || Model.Status == "Đang chuẩn bị")
+    @if (Model.Status == "Chờ xử lý" || Model.Status == "Xác nhận" || Model.Status == "Đang chuẩn bị")
     {
         <div class="cancel-section">
             <h3><i class="fas fa-times-circle"></i> Hủy đơn hàng</h3>
